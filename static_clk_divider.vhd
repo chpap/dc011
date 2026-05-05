@@ -37,10 +37,10 @@ begin
     
     -- Description:
     --     Perform i_clk frequency division by counting and create the final o_clk signal.
-    divide_i_clk_freq : process (i_clk) is
+    divide_i_clk_freq : process (i_clk,i_rst) is
         variable r_i_clk_counter : integer range 1 to g_FREQ_DIV; -- internal i_clk counter
     begin
-        if (rising_edge(i_clk)) then
+        if (rising_edge(i_clk) or rising_edge(i_rst)) then
             -- need to reset the r_i_clk_counter and begin the new o_clk period
             if (i_rst = '1' or r_i_clk_counter = g_FREQ_DIV) then
                 o_clk           <= '1';
