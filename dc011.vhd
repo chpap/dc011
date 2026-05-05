@@ -51,7 +51,6 @@ architecture behaviour of dc011 is
   signal hertz60: std_logic;
   signal reset_count: std_logic;
   signal n_Q_tmp: std_logic;
-  signal dwh: std_logic;
   signal clk_hf: std_logic;
   signal clk_2hf: std_logic;
   signal char_clk_half: std_logic;
@@ -311,7 +310,7 @@ begin
       port map(
        CLOCK => not hold_req,
        D => n_Q_tmp,
-       Q => dwh
+       Q => double_width 
       );
     JK_FF_2: JK_FF
       port map(

@@ -35,7 +35,6 @@ begin
     end process process_hdrive;
 
     process_hblank: process (i_rst,div_in) is
-      variable prev_val_hblank: std_ulogic:= '0';
     begin
       if (i_rst = '1' and i_rst'event ) then
          hblank <= '0';
@@ -46,7 +45,6 @@ begin
        else
          hblank <= '0';
        end if;
-       prev_val_hblank := hblank;
      end if;
     end process process_hblank; 
 
@@ -55,12 +53,12 @@ begin
     begin
      if extra_clk'EVENT and extra_clk = '0' then
          if (and (div_in(8) & not div_in(7) & div_in(6 downto 4)))   then
+           prev_val_addr_cnt := addr_cnt_on;
            addr_cnt_on <= '0' when (div_in(8 downto 0) = "101111010" and mode80 = '1') else -- 
                             '1' when div_in = "101110010" and mode80 = '1' else
                             '1' when div_in = "101110010" and mode80 = '0' else
                             '0' when div_in = "101110000" and mode80 = '0' else
                          prev_val_addr_cnt;
-            prev_val_addr_cnt := addr_cnt_on;
          else
            addr_cnt_on <= prev_val_addr_cnt;
          end if;
