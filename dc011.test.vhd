@@ -28,7 +28,9 @@ architecture testbench of dc011_tb is
       hblank : out  std_ulogic;
       vrst : out  std_ulogic;
       vdrive: out  std_ulogic;
-      n_vblank : out  std_ulogic
+      n_vblank : out  std_ulogic;
+      comp_sync: out  std_ulogic;
+      addr_count: out  std_ulogic
     );
   end component;
 
@@ -47,17 +49,11 @@ architecture testbench of dc011_tb is
   signal vrst : std_ulogic;
   signal vdrive: std_ulogic;
   signal n_vblank : std_ulogic;
-    signal lba0: std_ulogic;
-    signal lba1: std_ulogic;
-    signal lba2: std_ulogic;
-    signal lba3: std_ulogic;
-    signal lba4: std_ulogic;
-    signal lba5: std_ulogic;
-    signal lba6: std_ulogic;
-    signal lba7: std_ulogic;
+  signal comp_sync: std_ulogic;
+  signal addr_count: std_ulogic;
 
 begin
-  dut: dc011 port map (clk, n_rst, d0, d1, n_vid_wr, dw, hold_req, LBA, dot_clock, char_clk, n_write_lb,vsr_ld,n_addr_ld,n_hdrive,hblank,vrst,vdrive,n_vblank);
+  dut: dc011 port map (clk, n_rst, d0, d1, n_vid_wr, dw, hold_req, LBA, dot_clock, char_clk, n_write_lb,vsr_ld,n_addr_ld,n_hdrive,hblank,vrst,vdrive,n_vblank,comp_sync,addr_count);
 
   process
   begin
@@ -72,7 +68,36 @@ begin
     n_rst <= '0';
     wait for 5 ns;
     n_rst <= '1';
-    wait for 2500000 ns;
+    wait for 45000 ms;
+  end process;
+  process 
+  begin
+    hold_req <= '0';
+    wait for 10 ns;
+    hold_req <= '1';
+    wait for 10 ns;
+    hold_req <= '0';
+    wait for 10 ns;
+    hold_req <= '1';
+    wait for 10 ns;
+for i in 1 to 1000 loop
+    hold_req <= '0';
+    wait for 3 ns;
+    hold_req <= '1';
+    wait for 3 ns;
+end loop;
+    wait for 45000 ms;
+  end process;
+
+  process 
+  begin
+for i in 1 to 1000 loop
+    dw <= '0';
+    wait for 1000 ns;
+    dw <= '1';
+    wait for 1000 ns;
+end loop;
+    wait for 45000 ms;
   end process;
 
   process
@@ -91,14 +116,6 @@ wait for 10 ns;
     n_vid_wr <= '0';
     wait for 10 ns;
     n_vid_wr <= '1';
-    wait for 2500000 ns;
+    wait for 45000 ms;
   end process;
-   LBA0 <= LBA(0);
-   LBA1 <= LBA(1);
-   LBA2 <= LBA(2);
-   LBA3 <= LBA(3);
-   LBA4 <= LBA(4);
-   LBA5 <= LBA(5);
-   LBA6 <= LBA(6);
-   LBA7 <= LBA(7);
 end;

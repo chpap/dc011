@@ -11,6 +11,7 @@ entity hor_counter is
         char_clk : in  std_ulogic; -- input clock signal
         mode80: in std_ulogic;
         i_rst : in  std_ulogic; -- reset signal
+        clk_extra: in  std_ulogic;
         clock_2hf: out std_ulogic; 
         clock_hf: out std_ulogic; 
         div_out : out std_ulogic_vector(8 downto 0);
@@ -25,6 +26,7 @@ architecture rtl of hor_counter is
     signal div1_tmp: std_ulogic_vector(2 downto 0) := (others => '0');
     signal div2_tmp: std_ulogic_vector(4 downto 0) := (others => '0');
     signal div3_tmp: std_ulogic_vector(1 downto 0) := (others => '0');
+    signal div_out_delayed : std_ulogic_vector(8 downto 0);
     signal maxcount: integer range 1 to 5;
     signal div1_out: std_logic := '0';
     signal div2_out: std_logic := '0';
@@ -41,6 +43,15 @@ architecture rtl of hor_counter is
         o_counter    : out std_ulogic_vector(0 to BIT_WIDTH - 1);
         o_clk      : out std_ulogic -- final output clock
     );
+    end component;
+    component delay is
+    generic(CYCLES : natural := 8;
+            WIDTH  : positive := 16);
+    port(clk    : in  std_logic;
+         rst    : in  std_logic;
+         en     : in  std_logic;
+         input  : in  std_logic_vector(WIDTH-1 downto 0);
+         output : out std_logic_vector(WIDTH-1 downto 0));
     end component;
    -- component static_clk_divider is
    -- generic (
@@ -105,10 +116,22 @@ begin
         o_clk => div3_out
 
     );
-    div_out(2 downto 0) <= div1;
-    div_out(7 downto 3) <= div2;
+    delay_inst: delay
+    generic map(CYCLES => 4,
+            WIDTH => 9)
+    port map(clk => clk_extra,
+         rst => i_rst,
+         en  => '1',
+         --input => ""&char_clk_tmp, 
+         --input => ""&counter(3), 
+         input => div_out_delayed, 
+         -- output(0) => char_clk_delayed(i)
+         output => div_out
+    );
+    div_out_delayed(2 downto 0) <= div1;
+    div_out_delayed(7 downto 3) <= div2;
     -- div_out(8) <= div3_out;
-    div_out(8) <= div3_tmp(0);
+    div_out_delayed(8) <= div3_tmp(0);
    
     clock_2hf <= div2_out;
     clock_hf <= div3_out;

@@ -34,8 +34,7 @@ begin
       n_hdrive <= not div_in(8) or ((div_in(4) and div_in(5)) and  (not div_in(6) and  not div_in(7)));
     end process process_hdrive;
 
-    process_hblank: process (i_rst,extra_clk,div_in) is
-      variable prev_val_addr_cnt: std_ulogic:= '0';
+    process_hblank: process (i_rst,div_in) is
       variable prev_val_hblank: std_ulogic:= '0';
     begin
       if (i_rst = '1' and i_rst'event ) then
@@ -47,28 +46,25 @@ begin
        else
          hblank <= '0';
        end if;
-     else
-        hblank <= prev_val_hblank;
+       prev_val_hblank := hblank;
      end if;
-     prev_val_hblank := hblank;
     end process process_hblank; 
 
-    process_addr_cnt_on: process (i_rst,extra_clk,div_in) is
+    process_addr_cnt_on: process (extra_clk,div_in) is
       variable prev_val_addr_cnt: std_ulogic:= '0';
     begin
      if extra_clk'EVENT and extra_clk = '0' then
          if (and (div_in(8) & not div_in(7) & div_in(6 downto 4)))   then
-         addr_cnt_on <= '0' when (div_in(8 downto 0) = "101111010" and mode80 = '1') else -- 
+           addr_cnt_on <= '0' when (div_in(8 downto 0) = "101111010" and mode80 = '1') else -- 
                             '1' when div_in = "101110010" and mode80 = '1' else
                             '1' when div_in = "101110010" and mode80 = '0' else
                             '0' when div_in = "101110000" and mode80 = '0' else
                          prev_val_addr_cnt;
+            prev_val_addr_cnt := addr_cnt_on;
          else
            addr_cnt_on <= prev_val_addr_cnt;
          end if;
-      else
-           addr_cnt_on <= prev_val_addr_cnt;
       end if;
-      prev_val_addr_cnt := addr_cnt_on;
+      -- prev_val_addr_cnt := addr_cnt_on;
     end process process_addr_cnt_on; 
 end architecture rtl;
