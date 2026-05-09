@@ -4,207 +4,48 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all;
 use ieee.math_real.all;
+use work.dc0112_pkg.all;
 
 
-entity dc011 is
-port (
-  clk:    in  std_logic;
-  n_rst:  in  std_logic;
-  d0:  in  std_logic;
-  d1:  in  std_logic;
-  n_vid_wr:  in  std_logic;
-  dw:  in  std_logic;
-  hold_req:  in  std_logic;
-  LBA:   out std_logic_vector (7 downto 0);
-  dot_clock:   out std_logic;
-  char_clk:   out std_logic;
-  n_write_lb:   out std_logic;
-  vsr_ld:   out std_logic;
-  n_addr_ld:   out std_logic;
-  n_hdrive: out  std_ulogic;
-  hblank : out  std_ulogic;
-  vrst : out  std_ulogic;
-  vdrive: out  std_ulogic;
-  n_vblank : out  std_ulogic;
-  comp_sync : out  std_ulogic;
-  addr_count: out  std_ulogic
-);
-end entity;
 
 architecture behaviour of dc011 is
-  signal hcdiv_out: std_logic_vector (8 downto 0);
-  signal vcdiv_out: std_logic_vector (9 downto 0);
-  --signal vtdiv_out: std_logic_vector (9 downto 0);
-  --signal cnt: std_logic_vector (7 downto 0);
-  signal dot_div: std_logic_vector (3 downto 0);
-  signal clk80: std_logic;
-  signal comp_sync_out: std_logic := '0' ;
-  signal addr_cnt_on: std_logic := '0' ;
-  signal clk80_half: std_logic;
-  signal clk132_half: std_logic;
-  signal dot_clock_s: std_logic;
-  signal dot_clock_d: std_logic;
-  signal D_clock: std_logic;
-  signal mode80: std_logic;
-  signal double_width: std_logic := '0';
-  signal interlaced: std_logic;
-  signal hertz60: std_logic;
-  signal reset_count: std_logic;
-  signal n_Q_tmp: std_logic;
-  signal clk_hf: std_logic;
-  signal clk_2hf: std_logic;
-  signal char_clk_half: std_logic;
-  signal char_clk_delayed: std_logic;
-  signal vsr_ld_tmp: std_logic;
-  signal n_vrst: std_logic;
-  signal write_lb: std_logic;
-  signal addr_ld: std_logic;
-  signal clk_in: std_logic;
-   component JK_FF is
-   port( 
-     J: in std_logic;
-     K: in std_logic;
-     C: in std_logic;
-     S: in std_logic;
-     CLOCK: in std_logic;
-     Q: out std_ulogic;
-     n_Q: out std_ulogic
-   );
-   end component;
-   component D_FF is
-   port( 
-     D: in std_logic;
-     CLOCK: in std_logic;
-     Q: out std_ulogic
-   );
-   end component;
-  component SR_FF is
-    port( 
-     D: in std_logic;
-     S: in std_logic;
-     R: in std_logic;
-     CLOCK: in std_logic;
-     Q: out std_ulogic;
-     n_Q: out std_ulogic
-    );
-   end component;
-    component delay is
-    generic(CYCLES : natural := 8;
-            WIDTH  : positive := 16);
-    port(clk    : in  std_logic;
-         rst    : in  std_logic;
-         en     : in  std_logic;
-         input  : in  std_logic_vector(WIDTH-1 downto 0);
-         output : out std_logic_vector(WIDTH-1 downto 0));
-    end component;
-    component static_clk_divider is
-       generic (
-          -- frequency divisor, <o_clk_freq>=<i_clk_freq>/g_FREQ_DIV
-          g_FREQ_DIV : integer range 2 to integer'high := 5
-       );
-       port (
-          i_clk : in  std_ulogic; -- input clock signal
-          i_rst : in  std_ulogic; -- reset signal
-          o_clk : out std_ulogic -- final output clock
-       );
-    end component;
-    component clk_divider is
-    generic (
-        g_FREQ_DIV_MAX : positive := 7; -- maximum available frequency divisor value
-        constant BIT_WIDTH : integer := integer(ceil(log2(real(7  + 1))))
-    );
-    port (
-        i_clk : in std_ulogic; -- input clock signal
-        i_rst : in std_ulogic; -- reset signal
-        -- i_clk frequency is divided by value of this number, <o_clk_freq>=<i_clk_freq>/i_freq_div
-        i_freq_div : in  integer range 1 to g_FREQ_DIV_MAX;
-        o_counter    : out std_ulogic_vector(BIT_WIDTH -1 downto 0);
-        o_clk      : out std_ulogic -- final output clock
-    );
-    end component;
-    component onetoN_divider is
-    generic (
-        N           : integer
-    );
-    port (
-        rst         : in std_logic;
-        clk_i       : in std_logic;
-        modulus_sel : in std_logic;
-        clk_o       : out std_logic
-    );
-    end component;
-     component dot_counter is
-     port (
-        dot_clk_s : in  std_ulogic; -- input clock signal
-        dot_clk : in  std_ulogic; -- input clock signal
-        mode80: in std_ulogic;
-        i_rst : in  std_ulogic; -- reset signal
-       
-        write_lb : out std_ulogic;
-        char_clk : out std_ulogic;
-        clk80_half: out std_ulogic;
-        dot_div : out std_ulogic_vector(0 to 3)
-    );
-    end component;
-    component hor_counter is
-    port (
-        char_clk : in  std_ulogic; -- input clock signal
-        clk_extra: in std_ulogic;
-        mode80: in std_ulogic;
-        i_rst : in  std_ulogic; -- reset signal
-        clock_2hf: out std_ulogic; 
-        clock_hf: out std_ulogic; 
-        div_out : out std_ulogic_vector(0 to 8);
-        LBA : out std_ulogic_vector(7 downto 0)
-    );
-    end component;
-    component ver_counter is
-    port (
-        clock_2hf: in  std_ulogic; -- input clock signal
-        clock_h5: in  std_ulogic; -- input clock signal
-        hcdiv_in : in std_ulogic_vector(0 to 8);
-        i_rst : in  std_ulogic; -- reset signal
-        interlaced: in  std_ulogic;
-        hertz60: in  std_ulogic;
-        n_vrst : out  std_ulogic;
-        div_out : out std_ulogic_vector(0 to 9)
-    );
-    end component;
-    component htiming is
-    port (
-        i_clk: in  std_ulogic; -- input clock signal
-        extra_clk: in  std_ulogic; -- input clock signal
-        i_rst : in  std_ulogic; -- reset signal
-        div_in : in std_ulogic_vector(8 downto 0);
-        mode80 : in  std_ulogic; 
-        addr_cnt_on : out  std_ulogic;
-        n_hdrive: out  std_ulogic;
-        hblank : out  std_ulogic
-    );
-    end component;
-    component vtiming is
-    port (
-        i_clk: in  std_ulogic;
-        i_rst: in  std_ulogic; 
-        n_vrst: in  std_ulogic; 
-        clk_2hf: in  std_ulogic; 
-        vcdiv_in : in std_ulogic_vector(0 to 9);
-        hertz60: in  std_ulogic; 
-        interlaced: in  std_ulogic; 
-        vdrive: out  std_ulogic;
-        n_vblank : out  std_ulogic;
-        vrst : out  std_ulogic
-    );
-    end component;
+  signal hcdiv_out: std_ulogic_vector (8 downto 0);
+  signal vcdiv_out: std_ulogic_vector (9 downto 0);
+  signal dot_div: std_ulogic_vector (3 downto 0);
+  signal clk80: std_ulogic;
+  signal comp_sync_out: std_ulogic := '0' ;
+  signal addr_cnt_on: std_ulogic := '0' ;
+  signal clk80_half: std_ulogic;
+  signal clk132_half: std_ulogic;
+  signal dot_clock_s: std_ulogic;
+  signal dot_clock_d: std_ulogic;
+  signal D_clock: std_ulogic;
+  signal mode80: std_ulogic;
+  signal double_width: std_ulogic := '0';
+  signal interlaced: std_ulogic;
+  signal hertz60: std_ulogic;
+  signal reset_count: std_ulogic;
+  signal n_Q_tmp: std_ulogic;
+  signal clk_hf: std_ulogic;
+  signal clk_2hf: std_ulogic;
+  signal char_clk_half: std_ulogic;
+  signal char_clk_delayed: std_ulogic;
+  signal vsr_ld_tmp: std_ulogic;
+  signal vsr_ld_tmp_l: std_ulogic:= '0';
+  signal vsr_ld_tmp_h: std_ulogic:= '0';
+  signal n_vrst: std_ulogic;
+  signal write_lb: std_ulogic;
+  signal addr_ld: std_ulogic;
+  signal clk_in: std_ulogic;
 begin
-    clk_in <= clk;
+    clk_in <= clk24;
     clock_divider_80 :onetoN_divider
        generic map(
           N => 2
        )
        port map(
           clk_i => clk_in,
-          rst => reset_count,
+          rst_i => reset_count,
           modulus_sel => '1',
           clk_o => clk80
        );
@@ -293,7 +134,7 @@ begin
           g_FREQ_DIV => 2
        )
        port map(
-          i_clk => clk_in,
+          n_clk_i => clk_in,
           i_rst => reset_count,
           o_clk => clk132_half
        );
@@ -302,13 +143,13 @@ begin
        D => not dw,
        S => addr_ld,
        R => '1',
-       CLOCK => D_clock,
+       n_clk_i => D_clock,
        Q => open,
        n_Q => n_Q_tmp
       );
     D_FF_1: D_FF
       port map(
-       CLOCK => not hold_req,
+       n_clk_i => not hold_req,
        D => n_Q_tmp,
        Q => double_width 
       );
@@ -316,9 +157,9 @@ begin
       port map(
        J => '1',
        K => '0',
-       C => char_clk,
+       R => char_clk,
        S => '1',
-       CLOCK => hold_req,
+       n_clk_i => hold_req,
        Q => addr_ld,
        n_Q => n_addr_ld
       );
@@ -351,19 +192,29 @@ begin
   dot_clock <= dot_clock_s when double_width = '0' else dot_clock_d;
   n_write_lb <= write_lb nand hold_req;
   D_clock <= n_vrst;
-  demux_vsr_ld :process(dot_clock,char_clk) is
+  demux_vsr_ld_h :process(dot_clock,char_clk,double_width) is
   begin
-     if dot_clock'EVENT then
-       if char_clk = '1' and (double_width = '0' or (double_width = '1' and dot_clock = '0'))  then
-         vsr_ld_tmp <= '0';
-       elsif char_clk = '0' and ((dot_clock = '1' and double_width = '0') or (dot_clock = '0' and double_width = '1')) then
-         vsr_ld_tmp <= '1';
-       else
-         vsr_ld_tmp <= vsr_ld;
+     if rising_edge(dot_clock)  then
+       if char_clk = '1' and (double_width = '0')  then
+         vsr_ld_tmp_h <= '0';
+       elsif char_clk = '0' and (double_width = '0') then
+         vsr_ld_tmp_h <= '1';
        end if;
      end if;
-  end process demux_vsr_ld;
-  -- vsr_ld MUX
+  end process demux_vsr_ld_h;
+  demux_vsr_ld_l :process(dot_clock,char_clk,double_width) is
+  begin
+     if  falling_edge(dot_clock) then
+       --if char_clk = '1' and (double_width = '0' or (double_width = '1' and dot_clock = '0'))  then
+       if char_clk = '1' then
+         vsr_ld_tmp_l <= '0';
+       elsif char_clk = '0' and (double_width = '1') then
+         vsr_ld_tmp_l <= '1';
+       end if;
+     end if;
+  end process demux_vsr_ld_l;
+  vsr_ld_tmp <= vsr_ld_tmp_h when dot_clock = '1' else vsr_ld_tmp_l;
+--  -- vsr_ld MUX
   vsr_ld <= vsr_ld_tmp  when double_width = '0' else vsr_ld_tmp and not char_clk_half;
   comp_sync <= comp_sync_out;
   addr_count <= ( ( char_clk and not hblank and hold_req )  or (hblank and not addr_cnt_on) or vrst) ;

@@ -4,6 +4,7 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all;
 use ieee.math_real.all;
+use work.dc0112_pkg.all;
 
 
 entity hor_counter is
@@ -28,52 +29,9 @@ architecture rtl of hor_counter is
     signal div3_tmp: std_ulogic_vector(1 downto 0) := (others => '0');
     signal div_out_delayed : std_ulogic_vector(8 downto 0);
     signal maxcount: integer range 1 to 5;
-    signal div1_out: std_logic := '0';
-    signal div2_out: std_logic := '0';
-    signal div3_out: std_logic := '0';
-    component clk_divider is
-    generic (
-        g_FREQ_DIV_MAX : positive := 17; -- maximum available frequency divisor value
-        constant BIT_WIDTH : integer := integer(ceil(log2(real(g_FREQ_DIV_MAX + 1))))
-    );
-    port (
-        i_clk : in std_ulogic; -- input clock signal
-        i_rst : in std_ulogic; -- reset signal
-        i_freq_div : in  integer range 1 to g_FREQ_DIV_MAX;
-        o_counter    : out std_ulogic_vector(0 to BIT_WIDTH - 1);
-        o_clk      : out std_ulogic -- final output clock
-    );
-    end component;
-    component delay is
-    generic(CYCLES : natural := 8;
-            WIDTH  : positive := 16);
-    port(clk    : in  std_logic;
-         rst    : in  std_logic;
-         en     : in  std_logic;
-         input  : in  std_logic_vector(WIDTH-1 downto 0);
-         output : out std_logic_vector(WIDTH-1 downto 0));
-    end component;
-   -- component static_clk_divider is
-   -- generic (
-   --     -- frequency divisor, <o_clk_freq>=<i_clk_freq>/g_FREQ_DIV
-   --     g_FREQ_DIV : integer range 2 to integer'high := 5
-   -- );
-   -- port (
-   --     i_clk : in  std_ulogic; -- input clock signal
-   --     i_rst : in  std_ulogic; -- reset signal
-   --     o_clk : out std_ulogic -- final output clock
-   -- );
-   -- end component;
-  function reverse_vector (a: in std_logic_vector)
-  return std_logic_vector is
-    variable result: std_logic_vector(a'RANGE);
-    alias aa: std_logic_vector(a'REVERSE_RANGE) is a;
-  begin
-    for i in aa'RANGE loop
-      result(i) := aa(i);
-    end loop;
-    return result;
-  end; -- function reverse_any_vector
+    signal div1_out: std_ulogic := '0';
+    signal div2_out: std_ulogic := '0';
+    signal div3_out: std_ulogic := '0';
 begin
    maxcount <= 3 when mode80 = '1' else 5;
     

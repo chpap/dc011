@@ -14,15 +14,6 @@ use ieee.std_logic_1164.all;
 -- logic section of the tutorial, just skip over the register and read the
 -- delay code.
 
-entity reg is
-    generic(WIDTH : positive);
-    port(clk    : in  std_logic;
-         rst    : in  std_logic;
-         en     : in  std_logic;
-         input  : in  std_logic_vector(WIDTH-1 downto 0);
-         output : out std_logic_vector(WIDTH-1 downto 0));
-end reg;
-
 architecture BHV of reg is
 begin
     process(clk, rst)
@@ -59,16 +50,6 @@ use ieee.std_logic_1164.all;
 -- but none of them are ideal. VHDL has subtypes that provide an elegant
 -- solution to restricting values to a supported range. Natural and positive
 -- are both subtypes of the base integer type.
-
-entity delay is
-    generic(CYCLES : natural := 8;
-            WIDTH  : positive := 16);
-    port(clk    : in  std_logic;
-         rst    : in  std_logic;
-         en     : in  std_logic;
-         input  : in  std_logic_vector(WIDTH-1 downto 0);
-         output : out std_logic_vector(WIDTH-1 downto 0));
-end delay;
 
 
 architecture STR of delay is
@@ -115,7 +96,7 @@ begin
         -- element unconstrained, which imposes huge restrictions. There are
         -- workarounds for VHDL, but they are cumbersome.       
         
-        type reg_array_t is array (0 to CYCLES) of std_logic_vector(WIDTH-1 downto 0);
+        type reg_array_t is array (0 to CYCLES) of std_ulogic_vector(WIDTH-1 downto 0);
 
         -- We now create an instance of the array.
         signal d : reg_array_t;
