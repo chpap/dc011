@@ -5,7 +5,6 @@
 module i8xxx(
     input          clk_i,       // global module clock (no in original 8080)
     input          clk24_i,       // global module clock (no in original 8080)
-    input          reset,     // module reset
     output[15:0]   pin_a,         // address bus outputs
     inout [7:0]    pin_d,         // data bus inouts
     input          pin_hold,      //
@@ -17,9 +16,7 @@ module i8xxx(
     output         pin_dbin,      //
     output         pin_wr_n,
     input          n_reset_i,
-    output         n_stsb_o,
-    output         reset_o,
-    output         ready_o);
+    output         n_stsb_o);
 
 
     wire[7:0]      d_i;
@@ -52,7 +49,7 @@ module i8xxx(
 
     i8224 I8224_INST(
     .sync_i(sync),
-    .n_resin_i(~reset),
+    .n_resin_i(n_reset_i),
     .rdyin_i(1'b1),
     .clk_i(clk24_i),
     .clk_f1_o(clk_f1),

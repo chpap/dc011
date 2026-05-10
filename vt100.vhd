@@ -54,55 +54,44 @@ signal rxd :                std_logic;
   --       reset_i : in std_logic
   --	     );
   --end component;
-  component  vm80a_stub is
-    port (clk_i    : in  std_logic;
-        clk_f1_i   : in  std_logic;
-        clk_f2_i   : in  std_logic;
-        reset_i    : in  std_logic;
-        ready_i    : in  std_logic;
-        int_i      : in  std_logic;
-        nnn_i      : in  std_logic_vector(2 downto 0);
-        data_i     : in  std_logic_vector(7 downto 0);
-        port_i     : in  std_logic_vector(7 downto 0);
-        port_rdy_i : in  std_logic;
-        inta_o     : out std_logic;
-        sel_o      : out std_logic;
-        nwr_o      : out std_logic;
-        addr_o     : out std_logic_vector(15 downto 0);
-        data_o     : out std_logic_vector(7 downto 0);
-        port_o     : out std_logic_vector(7 downto 0);
-        port_nwr_o : out std_logic;
-        port_sel_o : out std_logic_vector(7 downto 0)
-        );
-    end component;
+   component i8xxx_stub is
+   port( clk_i : in std_logic;
+      clk24_i    : in  std_logic;
+      n_reset_i : in std_logic;
+      pin_a     : out std_logic_vector(15 downto 0);
+      pin_d     : inout std_logic_vector(7 downto 0);
+      pin_hold  : in  std_logic;
+      pin_hlda  : out std_logic;
+      pin_ready : in  std_logic;
+      pin_wait  : out std_logic;
+      pin_int   : in  std_logic;
+      pin_inte  : out std_logic;
+      pin_dbin  : out std_logic;
+      pin_wr_n  : out std_logic;
+      n_stsb_o  : out std_logic);
+   end component;
 
 begin
-  n_rst <= reset_i;
-  dut: dc011 port map (clk24_i, n_rst, d0, d1, n_vid_wr, dw, hold_req, LBA, dot_clock, char_clk, n_write_lb,vsr_ld,n_addr_ld,n_hdrive,hblank,vrst,vdrive,n_vblank,comp_sync,addr_count);
+   n_rst <= reset_i;
+   dc011_inst: dc011 port map (clk24_i, n_rst, d0, d1, n_vid_wr, dw, hold_req, LBA, dot_clock, char_clk, n_write_lb,vsr_ld,n_addr_ld,n_hdrive,hblank,vrst,vdrive,n_vblank,comp_sync,addr_count);
 --  dut2: dc012 port map (
 -- dot_clock, n_rst, data, n_vid_w2, vrst, vf_intr, revvid, d_h,
 --      d_l, n_addr_ld, hold_req, vsr_ld, char_clk, hblank, scan_cnt, vid1out,
 --      vid2out, term, n_underline, n_blink, n_bold, vid_in);
 --  dut3: cpu8080_testbench port map(clk_i => clk24_i, reset_i => not n_rst);
 
-  vm80_inst :vm80a_stub port map (
-        clk_i  => clk100_i,
-        clk_f1_i => clk_f1,
-        clk_f2_i => clk_f2,
-        reset_i => not n_rst,
-        ready_i => '1',
-        int_i => '1',
-        nnn_i => (others => '0'),
-        data_i => (others => '0'),
-        port_i => (others => '0'),
-        port_rdy_i => '1',
-        inta_o => open, 
-        sel_o  => open,
-        nwr_o  => open,
-        addr_o => open,
-        data_o => open,
-        port_o => open,
-        port_nwr_o => open,
-        port_sel_o => open
-        );
+   i8xxx_stub_inst: i8xxx_stub port map( clk_i => clk24_i,
+   clk24_i => clk24_i,
+   n_reset_i => n_rst,
+   pin_a => open,
+   pin_d => open,
+   pin_hold => '0',
+   pin_hlda => open,
+   pin_ready => '0',
+   pin_wait => open,
+   pin_int => '0',
+   pin_inte => open, 
+   pin_dbin => open,
+   pin_wr_n => open,
+   n_stsb_o => open);
 end;

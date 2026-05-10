@@ -42,7 +42,7 @@ async def i8xxx_accessing_test(dut):
     #vhdl = dut.i_swapper_vhdl
     #cocotb.log.info(f"Got: {vhdl._name!r}")
 
-    dut.reset.value = 1
+    dut.n_reset_i.value = 0
     await Timer(100, unit="ns")
 
     #vhdl.reset_n.value = 1
@@ -75,12 +75,12 @@ async def i8xxx_functional_test(dut):
     #cocotb.log.info(f"Got: {vhdl._name!r}")
 
     # setup default values
-    dut.reset.value = 0
+    dut.n_reset_i.value = 1
 
 
     # reset cycle
     await Timer(100, unit="ns")
-    dut.reset.value = 1
+    dut.n_reset_i.value = 0
     await Timer(100, unit="ns")
 
     # start clock

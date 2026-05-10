@@ -34,14 +34,14 @@ async def i8xxx_simple_test(dut):
     clock.start(start_high=False)
     clock24 = Clock(dut.clk24_i, 41.6, unit="ns")
     clock24.start(start_high=False)
-    dut.reset.value = "1"
+    dut.n_reset_i.value = "1"
     # Create a 10us period clock driver on port `clk`
     # Start the clock. Start it low to avoid issues on the first RisingEdge
 
     # Synchronize with the clock. This will register the initial `d` value
     await RisingEdge(dut.clk24_i)
     await Timer(200, unit="ns")
-    dut.reset.value = "0"
+    dut.n_reset_i.value = "0"
     await Timer(1, unit="ms")
 
     # Check the final input on the next clock
