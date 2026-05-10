@@ -22,9 +22,9 @@ VT100_TOP_VHDL = top_vt100.vhd
 VT100_TOP_MODULE = top_vt100
 ADDITIONAL_SOURCES = dc0112_pkg.vhd  delay.vhd vtiming.vhd htiming.vhd ff.vhd ripple_counter.vhd clk_divider.vhd frac_divider.vhd static_clk_divider.vhd hor_counter.vhd ver_counter.vhd dot_counter.vhd dc011.vhd vt100.vhd \
 		     clk_plle2.vhd  vm80a/i8xxx_stub.vhd
-VERILOG_SOURCES = vm80a/vm80a.v vm80a/i8224.v vm80a/i8xxx.v
+VERILOG_SOURCES = vm80a/vm80a.v vm80a/i8224.v vm80a/i8228.v vm80a/i8xxx.v
 #VERILOG_SOURCES = $(BUILD_DIR)/$(PROJECT).v
-VT100_VERILOG_SOURCES = vm80a/vm80a.v vm80a/i8224.v vm80a/i8xxx.v
+VT100_VERILOG_SOURCES = $(VERILOG_SOURCES)
 VT100_VHDL_SOURCES = $(ADDITIONAL_SOURCES) $(TOP_VHDL)
 #VHDL_SOURCES = $(ADDITIONAL_SOURCES) $(TOP_VERILOG)
 #LIGHT8080 = light8080/light8080_ucode_pkg.vhdl light8080/light8080.vhdl light8080/mcu80_pkg.vhdl light8080/mcu80_uart.vhdl light8080/mcu80_irq.vhdl light8080/mcu80.vhdl light8080/txt_util.vhdl light8080/light8080_tb_pkg.vhdl light8080/obj_code_pkg.vhdl 

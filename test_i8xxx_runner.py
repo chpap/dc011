@@ -13,6 +13,15 @@ from cocotb_tools.runner import get_runner, Verilog
 
 LANGUAGE = os.getenv("TOPLEVEL_LANG", "verilog").lower().strip()
 
+async def sync_8080(dut):
+    """Start 100 and 24 Mhz clocks"""
+    # Create a 10us period clock driver on port `clk`
+    while True:
+      await RisingEdge(dut.clk_f1)
+      dut.sync.value=0
+      await Timer(150, unit="ns")
+      dut.sync.value=1
+
 async def start_clocks(dut):
     """Start 100 and 24 Mhz clocks"""
     # Create a 10us period clock driver on port `clk`
@@ -20,7 +29,7 @@ async def start_clocks(dut):
 @cocotb.test()
 async def i8xxx_simple_test(dut):
     """Test that d propagates to q"""
-    # task = cocotb.start_soon(start_clocks(dut))
+    #task = cocotb.start_soon(sync_8080(dut))
     clock = Clock(dut.clk_i, 10, unit="ns")
     clock.start(start_high=False)
     clock24 = Clock(dut.clk24_i, 41.6, unit="ns")
@@ -31,6 +40,7 @@ async def i8xxx_simple_test(dut):
 
     # Synchronize with the clock. This will register the initial `d` value
     await RisingEdge(dut.clk24_i)
+    await Timer(200, unit="ns")
     dut.reset.value = "0"
     await Timer(1, unit="ms")
 
@@ -44,7 +54,7 @@ def test_simple_dff_runner():
     proj_path = Path(__file__).resolve().parent
 
     if LANGUAGE == "verilog":
-        sources = [Verilog(proj_path / "vm80a/vm80a.v"), Verilog(proj_path / "vm80a/i8224.v"), Verilog(proj_path / "vm80a/i8xxx.v")]
+        sources = [Verilog(proj_path / "vm80a/vm80a.v"), Verilog(proj_path / "vm80a/i8224.v"), Verilog(proj_path / "vm80a/i8xxx.v"), Verilog(proj_path / "vm80a/i8228.v")]
     else:
         print("no supported")
         exit(1)

@@ -1,0 +1,4 @@
+--
+-- Mixed language simulation of VT100 terminal
+-- 8080 - 8224       in verilog
+-- VT100 PCB         in VHDL
