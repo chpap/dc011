@@ -133,7 +133,7 @@ begin
             data_o <= vram(vram_addr);
             ready_o <= '1';
           else
-            assert false report "****** read: invalid address: " & integer'image(addr) severity warning;
+--            assert false report "****** read: invalid address: " & integer'image(addr) severity warning;
           end if;
         else -- read
           -- rom 0k ... 8k
@@ -149,7 +149,7 @@ begin
             vram(vram_addr) <= data_i;
             ready_o <= '1';
           else
-            assert false report "****** write: invalid address: " & integer'image(addr) severity warning;
+--            assert false report "****** write: invalid address: " & integer'image(addr) severity warning;
           end if;
         end if;
       else

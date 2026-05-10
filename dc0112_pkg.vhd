@@ -226,6 +226,20 @@ package dc0112_pkg is
      vid_in: in std_ulogic
     );
   end component;
+  component vt100 is
+    port(clk24_i: in std_logic;
+     clk100_i: in std_logic;
+     reset_i: in std_logic;
+     TXD0: out std_logic;
+     RXD0: in std_logic;
+     videoR: out  std_logic_vector(3 downto 0);
+     videoG: out  std_logic_vector(3 downto 0);
+     videoB: out  std_logic_vector(3 downto 0);
+     hSync: out  std_logic;
+     vSync: out  std_logic
+    );
+  end component;
+
 end package dc0112_pkg;
 ------------------------------------------------------------------------
 library ieee;
@@ -420,6 +434,23 @@ end entity static_clk_divider;
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
+entity vt100 is
+	port(clk24_i: in std_logic;
+	     clk100_i: in std_logic;
+	     reset_i: in std_logic;
+	     TXD0: out std_logic;
+	     RXD0: in std_logic;
+	     videoR: out  std_logic_vector(3 downto 0);
+	     videoG: out  std_logic_vector(3 downto 0);
+	     videoB: out  std_logic_vector(3 downto 0);
+	     hSync: out  std_logic;
+	     vSync: out  std_logic
+     );
+end entity;
+
+------------------------------------------------------------------------
+library ieee;
+use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.math_real.all;
 package body dc0112_pkg is

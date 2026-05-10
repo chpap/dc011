@@ -1,0 +1,108 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
+use work.dc0112_pkg.all;
+
+architecture rtl of vt100 is
+signal done :               std_logic := '0';
+signal interrupts :         std_logic_vector(3 downto 0);
+signal iop1 :               std_logic_vector(7 downto 0);
+signal iop2 :               std_logic_vector(7 downto 0);
+signal txd :                std_logic;
+signal rxd :                std_logic;
+
+  signal d0: std_ulogic := '0';
+  signal d1: std_ulogic := '0';
+  signal n_vid_wr: std_ulogic := '1';
+
+  signal  n_rst:  std_ulogic;
+  signal  LBA:   std_ulogic_vector (7 downto 0);
+  signal  dot_clock:   std_ulogic;
+  signal  char_clk:   std_ulogic;
+  signal  n_write_lb:   std_ulogic;
+  signal  vsr_ld:   std_ulogic;
+  signal  n_addr_ld:   std_ulogic;
+  signal  dw:   std_ulogic;
+  signal  hold_req:   std_ulogic;
+  signal n_hdrive: std_ulogic;
+  signal hblank : std_ulogic;
+  signal vrst : std_ulogic;
+  signal vdrive: std_ulogic;
+  signal n_vblank : std_ulogic;
+  signal comp_sync: std_ulogic;
+  signal addr_count: std_ulogic;
+
+  signal data:  std_ulogic_vector(3 downto 0);
+  signal n_vid_w2:  std_ulogic;
+  signal vf_intr:   std_ulogic;
+  signal revvid:  std_ulogic;
+  signal d_h:   std_ulogic;
+  signal d_l:   std_ulogic;
+  signal scan_cnt:  std_ulogic_vector(3 downto 0);
+  signal vid1out:  std_ulogic;
+  signal vid2out:  std_ulogic;
+  signal term: std_ulogic;
+  signal n_underline: std_ulogic;
+  signal n_blink: std_ulogic;
+  signal n_bold: std_ulogic;
+  signal vid_in: std_ulogic;
+
+  signal clk_f1: std_logic;
+  signal clk_f2: std_logic;
+  --component cpu8080_testbench is
+  -- port (clk_i : in std_logic;
+  --       reset_i : in std_logic
+  --	     );
+  --end component;
+  component  vm80a_stub is
+    port (clk_i    : in  std_logic;
+        clk_f1_i   : in  std_logic;
+        clk_f2_i   : in  std_logic;
+        reset_i    : in  std_logic;
+        ready_i    : in  std_logic;
+        int_i      : in  std_logic;
+        nnn_i      : in  std_logic_vector(2 downto 0);
+        data_i     : in  std_logic_vector(7 downto 0);
+        port_i     : in  std_logic_vector(7 downto 0);
+        port_rdy_i : in  std_logic;
+        inta_o     : out std_logic;
+        sel_o      : out std_logic;
+        nwr_o      : out std_logic;
+        addr_o     : out std_logic_vector(15 downto 0);
+        data_o     : out std_logic_vector(7 downto 0);
+        port_o     : out std_logic_vector(7 downto 0);
+        port_nwr_o : out std_logic;
+        port_sel_o : out std_logic_vector(7 downto 0)
+        );
+    end component;
+
+begin
+  n_rst <= reset_i;
+  dut: dc011 port map (clk24_i, n_rst, d0, d1, n_vid_wr, dw, hold_req, LBA, dot_clock, char_clk, n_write_lb,vsr_ld,n_addr_ld,n_hdrive,hblank,vrst,vdrive,n_vblank,comp_sync,addr_count);
+--  dut2: dc012 port map (
+-- dot_clock, n_rst, data, n_vid_w2, vrst, vf_intr, revvid, d_h,
+--      d_l, n_addr_ld, hold_req, vsr_ld, char_clk, hblank, scan_cnt, vid1out,
+--      vid2out, term, n_underline, n_blink, n_bold, vid_in);
+--  dut3: cpu8080_testbench port map(clk_i => clk24_i, reset_i => not n_rst);
+
+  vm80_inst :vm80a_stub port map (
+        clk_i  => clk100_i,
+        clk_f1_i => clk_f1,
+        clk_f2_i => clk_f2,
+        reset_i => not n_rst,
+        ready_i => '1',
+        int_i => '1',
+        nnn_i => (others => '0'),
+        data_i => (others => '0'),
+        port_i => (others => '0'),
+        port_rdy_i => '1',
+        inta_o => open, 
+        sel_o  => open,
+        nwr_o  => open,
+        addr_o => open,
+        data_o => open,
+        port_o => open,
+        port_nwr_o => open,
+        port_sel_o => open
+        );
+end;
