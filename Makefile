@@ -27,7 +27,7 @@ VERILOG_SOURCES = vm80a/vm80a.v vm80a/i8224.v vm80a/i8xxx.v
 VT100_VERILOG_SOURCES = vm80a/vm80a.v vm80a/i8224.v vm80a/i8xxx.v
 VT100_VHDL_SOURCES = $(ADDITIONAL_SOURCES) $(TOP_VHDL)
 #VHDL_SOURCES = $(ADDITIONAL_SOURCES) $(TOP_VERILOG)
-LIGHT8080 = light8080/light8080_ucode_pkg.vhdl light8080/light8080.vhdl light8080/mcu80_pkg.vhdl light8080/mcu80_uart.vhdl light8080/mcu80_irq.vhdl light8080/mcu80.vhdl light8080/txt_util.vhdl light8080/light8080_tb_pkg.vhdl light8080/obj_code_pkg.vhdl 
+#LIGHT8080 = light8080/light8080_ucode_pkg.vhdl light8080/light8080.vhdl light8080/mcu80_pkg.vhdl light8080/mcu80_uart.vhdl light8080/mcu80_irq.vhdl light8080/mcu80.vhdl light8080/txt_util.vhdl light8080/light8080_tb_pkg.vhdl light8080/obj_code_pkg.vhdl 
 T = dc011.test.vhd
 I8080=i8080/types.vhd \
 	i8080/regfile.vhd \
@@ -38,7 +38,6 @@ I8080=i8080/types.vhd \
 	i8080/alu.vhd \
 	i8080/cpudiag-tb.vhd \
 	i8080/cpudiag-memory-sim.vhd
-E = dc011_tb
 
 # Αρχεία Εισόδου
 XDC = constraints/nexys-a7.xdc
@@ -95,17 +94,7 @@ $(JSON): $(VT100_VHDL_SOURCES) $(VT100_VERILOG_SOURCES)
 include openXC7.mk
 
 I = ${ADDITIONAL_SOURCES}
-LIGHT8080 = light8080/light8080_ucode_pkg.vhdl light8080/light8080.vhdl light8080/mcu80_pkg.vhdl light8080/mcu80_uart.vhdl light8080/mcu80_irq.vhdl light8080/mcu80.vhdl light8080/txt_util.vhdl light8080/light8080_tb_pkg.vhdl light8080/obj_code_pkg.vhdl 
 T = dc011.test.vhd
-I8080=i8080/types.vhd \
-	i8080/regfile.vhd \
-	i8080/decode.vhd \
-	i8080/cpu8080_top.vhd \
-	i8080/control.vhd \
-	i8080/ctrlreg.vhd \
-	i8080/alu.vhd \
-	i8080/cpudiag-tb.vhd \
-	i8080/cpudiag-memory-sim.vhd
 E = dc011_tb
 
 I2 = $(I) dc012.vhd

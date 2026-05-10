@@ -59,7 +59,6 @@ $(BITSTREAM): $(FRAMES)
 clean::
 	@rm -f *.bit
 	@rm -f *.o
-	@rm -f light8080/*.o
 	@rm -f *.frames
 	@rm -f *.fasm
 	@rm -f 
