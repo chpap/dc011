@@ -73,14 +73,14 @@ signal rxd :                std_logic;
 
 begin
    n_rst <= reset_i;
-   dc011_inst: dc011 port map (clk24_i, n_rst, d0, d1, n_vid_wr, dw, hold_req, LBA, dot_clock, char_clk, n_write_lb,vsr_ld,n_addr_ld,n_hdrive,hblank,vrst,vdrive,n_vblank,comp_sync,addr_count);
+--   dc011_inst: dc011 port map (clk24_i, n_rst, d0, d1, n_vid_wr, dw, hold_req, LBA, dot_clock, char_clk, n_write_lb,vsr_ld,n_addr_ld,n_hdrive,hblank,vrst,vdrive,n_vblank,comp_sync,addr_count);
 --  dut2: dc012 port map (
 -- dot_clock, n_rst, data, n_vid_w2, vrst, vf_intr, revvid, d_h,
 --      d_l, n_addr_ld, hold_req, vsr_ld, char_clk, hblank, scan_cnt, vid1out,
 --      vid2out, term, n_underline, n_blink, n_bold, vid_in);
 --  dut3: cpu8080_testbench port map(clk_i => clk24_i, reset_i => not n_rst);
 
-   i8xxx_stub_inst: i8xxx_stub port map( clk_i => clk24_i,
+   i8xxx_stub_inst: i8xxx_stub port map( clk_i => clk100_i,
    clk24_i => clk24_i,
    n_reset_i => n_rst,
    pin_a => open,

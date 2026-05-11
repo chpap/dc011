@@ -63,6 +63,8 @@ clean::
 	@rm -f *.fasm
 	@rm -f 
 	@rm -f $(JSON)
+	@rm -rf obj_dir
+	@rm -rf .gvi
 .PHONY: pnrclean
 pnrclean:
 	@rm -f $(FASM) $(FRAMES) $(BITSTREAM) 

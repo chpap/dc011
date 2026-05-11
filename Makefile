@@ -7,7 +7,7 @@ BOARD   = arty
 PROJECT = vt100
 #CHIPDB  = ${ARTIX7_CHIPDB}
 CHIPDB  = chipdb
-NEXTPNR_XILINX_DIR ?= /opt/openxc7/
+NEXTPNR_XILINX_DIR ?= /opt/openxc7
 NEXTPNR_XILINX_PYTHON_DIR ?= ${NEXTPNR_XILINX_DIR}/lib/python
 PRJXRAY_DB_DIR ?= ${NEXTPNR_XILINX_DIR}/share/nextpnr/prjxray-db
 BUILD_DIR ?= build
@@ -16,28 +16,36 @@ PART = xc7a100tcsg324-1
 CHIPFAM = artix7
 
 SYNTH_OPTS = -m ghdl
-TOP_MODULE = i8xxx
+###TOP_MODULE = i8xxx
 TOP_VERILOG = i8xxx.v
+TOP_MODULE = $(VT100_TOP_MODULE)
+TOP_VHDL = $(VT100_TOP_VHDL)
 VT100_TOP_VHDL = top_vt100.vhd
 VT100_TOP_MODULE = top_vt100
 ADDITIONAL_SOURCES = dc0112_pkg.vhd  delay.vhd vtiming.vhd htiming.vhd ff.vhd ripple_counter.vhd clk_divider.vhd frac_divider.vhd static_clk_divider.vhd hor_counter.vhd ver_counter.vhd dot_counter.vhd dc011.vhd vt100.vhd \
-		     clk_plle2.vhd  vm80a/i8xxx_stub.vhd
-VERILOG_SOURCES = vm80a/vm80a.v vm80a/i8224.v vm80a/i8228.v vm80a/i8xxx.v
+		     clk_plle2.vhd  \
+		     vm80a/i8xxx_stub.vhd \
+                     .gvi/i8xxx/i8xxx_wrapper.vhd
+VT100_VERILOG_SOURCES = vm80a/i8xxx.v vm80a/vm80a.v vm80a/i8224.v vm80a/i8228.v
+#VT100_VERILOG_SOURCES = vm80a/i8xxx_dummy.v  vm80a/i8224.v
 #VERILOG_SOURCES = $(BUILD_DIR)/$(PROJECT).v
-VT100_VERILOG_SOURCES = $(VERILOG_SOURCES)
+#VERILOG_SOURCES = $(VT100_VERILOG_SOURCES)
+#CUSTOM_COMPILE_DEPS = ./obj_dir/libVi8xxx.a
+#EXTRA_ARGS = -L./obj_dir --lVi8xxx.a
+SIM_ARGS += --vcd=vt100.vcd --wave=simulation.ghw --ieee-asserts=disable
+#LINK_ARGS = -Wl,$(PWD)/obj_dir/libVi8xxx.a
+#GVI_LINK_ARGS = -Wl,.gvi/common.o -Wl,.gvi/i8xxx/verilated.o -Wl,.gvi/i8xxx/verilated_threads.o -Wl,.gvi/i8xxx/verilated_vcd_c.o -Wl,-lm -Wl,-lstdc++  -Wl,.gvi/i8xxx/i8xxx_wrapper_c.o -Wl,.gvi/i8xxx/Vi8xxx__ALL.a
+
+LINK_ARGS=$(shell cat .gvi/common.flags ) $(shell cat .gvi/i8xxx/i8xxx_wrapper.flags)
+GVI_LINK_ARGS=$(shell cat .gvi/common.flags ) $(shell cat .gvi/i8xxx/i8xxx_wrapper.flags)
+VHDL_SOURCES = $(VT100_VHDL_SOURCES) 
+COMPILE_ARGS = $(GHDL_FLAGS)
 VT100_VHDL_SOURCES = $(ADDITIONAL_SOURCES) $(TOP_VHDL)
 #VHDL_SOURCES = $(ADDITIONAL_SOURCES) $(TOP_VERILOG)
 #LIGHT8080 = light8080/light8080_ucode_pkg.vhdl light8080/light8080.vhdl light8080/mcu80_pkg.vhdl light8080/mcu80_uart.vhdl light8080/mcu80_irq.vhdl light8080/mcu80.vhdl light8080/txt_util.vhdl light8080/light8080_tb_pkg.vhdl light8080/obj_code_pkg.vhdl 
 T = dc011.test.vhd
-I8080=i8080/types.vhd \
-	i8080/regfile.vhd \
-	i8080/decode.vhd \
-	i8080/cpu8080_top.vhd \
-	i8080/control.vhd \
-	i8080/ctrlreg.vhd \
-	i8080/alu.vhd \
-	i8080/cpudiag-tb.vhd \
-	i8080/cpudiag-memory-sim.vhd
+I8080=i8080/types.vhd i8080/regfile.vhd i8080/decode.vhd  i8080/cpu8080_top.vhd i8080/control.vhd \
+	i8080/ctrlreg.vhd i8080/alu.vhd i8080/cpudiag-tb.vhd i8080/cpudiag-memory-sim.vhd
 
 # Αρχεία Εισόδου
 XDC = constraints/nexys-a7.xdc
@@ -49,15 +57,24 @@ XRAY_DIR = /path/to/prjxray
 DB_DIR = $(XRAY_DIR)/database/$(CHIPFAM)
 #sim
 WAVES ?= 1
-SIM ?= icarus         # Verilog simulator
-#SIM ?= ghdl         # Verilog simulator
-TOPLEVEL_LANG ?= verilog
+#SIM ?= icarus         # Verilog simulator
+SIM ?= ghdl         # Verilog simulator
+TOPLEVEL_LANG ?= vhdl
 COCOTB_HDL_TIMEPRECISION ?= 1ps
-COCOTB_TEST_MODULES ?= test_i8xxx
-COCOTB_TOPLEVEL ?= i8xxx
+###COCOTB_TEST_MODULES ?= test_i8xxx
+COCOTB_TEST_MODULES ?= test_vt100
+#COCOTB_TOPLEVEL ?= i8xxx
+COCOTB_TOPLEVEL ?= $(VT100_TOP_MODULE)
 # Include the Cocotb make rules
 include $(shell cocotb-config --makefiles)/Makefile.sim
 
+#VERILATOR_FLAGS += -Wall
+OPT_FLAGS ?= -O3 --trace --trace-max-array 128
+
+VERILATOR_OPTS ?= $(OPT_FLAGS) 		\
+	-Wall -Wno-WIDTH -Wno-UNUSED -Wno-BLKSEQ -Wno-fatal --Wno-lint --cc --autoflush --top i8xxx
+
+VERILATOR_INPUT = $(VT100_VERILOG_SOURCES) # --exe vm80a/wrapper.cpp
 # Ενδιάμεσα Αρχεία
 JSON = $(BUILD_DIR)/$(PROJECT).json
 FASM = $(BUILD_DIR)/$(PROJECT).fasm
@@ -69,11 +86,24 @@ BITSTREAM = $(BUILD_DIR)/$(PROJECT).bit
 all: $(BITSTREAM)
 
 # 1. Σύνθεση (VHDL -> JSON) μέσω GHDL plugin
-$(JSON): $(VT100_VHDL_SOURCES) $(VT100_VERILOG_SOURCES)
+#$(JSON): $(VT100_VHDL_SOURCES) $(VT100_VERILOG_SOURCES)
+#	mkdir -p $(BUILD_DIR)
+#	$(YOSYS)  -m ghdl -p 'ghdl -read --std=08 -frelaxed  $(GHDL_FLAGS) $(VT100_VHDL_SOURCES) $(VT100_TOP_VHDL); read_verilog $(VERILOG_SOURCES);   chformal -remove ;  synth_xilinx  -flatten -abc9 -arch xc7 -top $(VT100_TOP_MODULE); write_json $@'
+# 1. Σύνθεση (VHDL -> JSON) μέσω GHDL plugin
+##$(JSON): $(VT100_VHDL_SOURCES) $(VT100_VERILOG_SOURCES)
+
+$(JSON): $(VT100_VHDL_SOURCES) 
+	# $(BUILD_DIR)/libVi8xxx.a
 	mkdir -p $(BUILD_DIR)
-	$(YOSYS)  -m ghdl -p 'ghdl -read --std=08 -frelaxed  $(GHDL_FLAGS) $(VT100_VHDL_SOURCES) $(VT100_TOP_VHDL); read_verilog $(VERILOG_SOURCES);   chformal -remove ;  synth_xilinx  -flatten -abc9 -arch xc7 -top $(VT100_TOP_MODULE); write_json $@'
+	$(GHDL_CMD) -a $(GHDL_FLAGS) $(VT100_VHDL_SOURCES)
+	$(GHDL_CMD) -e $(GHDL_FLAGS) $(GVI_LINK_ARGS) $(VT100_TOP_MODULE)
+	#///// JOSN
+	$(YOSYS)  -m ghdl -p 'ghdl -read $(GHDL_FLAGS) $(VT100_VHDL_SOURCES) $(VT100_TOP_VHDL); chformal -remove ;  synth_xilinx  -flatten -abc9 -arch xc7 -top $(VT100_TOP_MODULE); write_json $@'
+	#$(GHDL) -e $(GHDLFLAGS) -Wl,obj_dir/Vtop__ALL.a main_tb
 	#$(YOSYS)  -m ghdl -p 'ghdl -read --std=08 -frelaxed  $(GHDL_FLAGS) $^ ; synth_xilinx  -flatten -abc9 -arch xc7 -top $(PROJECT); delete t:$$assert ;write_json $@'
 	#$(YOSYS) -m ghdl 'ghdl --std=08 $^ -e $(PROJECT); synth_xilinx -flatten -abc9 -arch xc7 -top $(PROJECT); write_json $@'
+#.PHONY: json
+#json:$(JSON)
 
 #analyze: $(VHDL_SOURCES)
 # 2. Place & Route (JSON -> FASM)
@@ -87,7 +117,7 @@ $(JSON): $(VT100_VHDL_SOURCES) $(VT100_VERILOG_SOURCES)
 # 4. Δημιουργία Bitstream (Frames -> Bit)
 #$(BITSTREAM): $(FRAMES)
 #	xc7frames2bit --part_file $(DB_DIR)/$(PART)/part.yaml --part_name $(PART) --frm_file $< --output_file $@
-#
+
 #.PHONY: all clean
 #dc011.vhd dc012.vhd dc012.test.vhd
 
@@ -101,6 +131,8 @@ I2 = $(I) dc012.vhd
 T2 = dc012.test.vhd
 E2 = dc012_tb
 
+E3 = $(VT100_TOP_MODULE)
+
 WAVES_DIR = waves
 CONVERT_DIR = convert
 
@@ -108,12 +140,12 @@ CFLAGS = -I/opt/X11/include
 
 S_TIME = 40ms
 S_TIME2 = 4ms
+S_TIME3 = 1ms
 # all: dc011 dc012
 #
 $(BUILD_DIR)/$(PROJECT)_vhdl.v: $(VT100_VHDL_SOURCES)
 	@mkdir -p $(BUILD_DIR)
 	$(YOSYS)  -m ghdl -p 'ghdl -read --std=08 -frelaxed  $(GHDL_FLAGS) $(VT100_VHDL_SOURCES) ; chformal -remove ; write_verilog $@'
-
 
 dc011:
 	@mkdir -p $(WAVES_DIR)
@@ -127,10 +159,40 @@ dc012:
 	$(GHDL_CMD) -e $(GHDL_FLAGS) $(E2)
 	$(GHDL_CMD) -r $(GHDL_FLAGS) $(E2) --vcd=$(WAVES_DIR)/$(E2).vcd --wave=$(WAVES_DIR)/$(E2).ghw --stop-time=$(S_TIME2)
 
+vt100:
+	@mkdir -p $(WAVES_DIR)
+	$(GHDL_CMD) -a $(GHDL_FLAGS) $(ADDITIONAL_SOURCES) $(VT100_TOP_VHDL)
+	$(GHDL_CMD) -e $(GHDL_FLAGS) $(GVI_LINK_ARGS) $(E3)
+	$(GHDL_CMD) -r $(GHDL_FLAGS) $(E3) --vcd=$(WAVES_DIR)/$(E3).vcd --wave=$(WAVES_DIR)/$(E3).ghw --stop-time=$(S_TIME3)
+
+
 x11:
 	$(GHDL_CMD) --vpi-compile gcc -c caux_x11.c $(CFLAGS) -o tb_caux.o
+verilate: $(BUILD_DIR)/libVi8xxx.a
+
+obj_dir/libVi8xxx.a: $(BUILD_DIR)/$(PROJECT)_vhdl.v
+	echo verilator $(VERILATOR_OPTS) $(VERILATOR_INPUT)
+	verilator $(VERILATOR_OPTS) $(VERILATOR_INPUT) 
+	make -C obj_dir -f Vi8xxx.mk
 .PHONY: bitstream
 bitstream: $(BITSTREAM)
 .PHONY: test_i8xxx
-test_i8xxx: $(VERILOG_SOURCES)
+test_i8xxx: $(VT100_VERILOG_SOURCES)
 	WAVES=1 SIM=icarus TOPLEVEL_LANG=verilog pytest test_i8xxx_runner.py
+
+#override default analyse to pass linker options
+analyse: $(VHDL_SOURCES) $(CUSTOM_COMPILE_DEPS) | $(SIM_BUILD)
+	$(foreach SOURCES_VAR, $(filter VHDL_SOURCES_%, $(.VARIABLES)), \
+		$(CMD) -i $(GHDL_ARGS) $(COMPILE_ARGS) --workdir=$(SIM_BUILD) --work=$(SOURCES_VAR:VHDL_SOURCES_%=%) $($(SOURCES_VAR)) && ) \
+	$(CMD) -i $(GHDL_ARGS) $(COMPILE_ARGS) --workdir=$(SIM_BUILD) --work=$(TOPLEVEL_LIBRARY) $(VHDL_SOURCES) && \
+	$(CMD) -m $(GHDL_ARGS) $(COMPILE_ARGS) $(GVI_LINK_ARGS) --workdir=$(SIM_BUILD) -P$(SIM_BUILD) --work=$(TOPLEVEL_LIBRARY) $(COCOTB_TOPLEVEL) $(ARCH)
+	#$(CMD) -m $(GHDL_ARGS) $(COMPILE_ARGS) $(shell cat .gvi/common.flags ) $(shell cat .gvi/i8xxx/i8xxx_wrapper.flags) --workdir=$(SIM_BUILD) -P$(SIM_BUILD) --work=$(TOPLEVEL_LIBRARY) $(COCOTB_TOPLEVEL) $(ARCH)
+
+
+VERILATOR_VERSION=`verilator --version | cut -d' ' -f 2 `
+
+tools/gvi: tools/gvi.cpp
+	g++ -o $@ $<
+
+.gvi/i8xxx/i8xxx_wrapper.vhd: tools/gvi vm80a/i8xxx.v 
+	./tools/gvi -vv $(VERILATOR_VERSION) -v $(VT100_VERILOG_SOURCES) -t i8xxx # -Gportsize=$(PORTSIZE) # use general option forwarding to set portsize

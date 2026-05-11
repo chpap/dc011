@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 module i8228(
     input           dbin_i,
     input           n_wr_i,

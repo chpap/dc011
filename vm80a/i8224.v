@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 module i8224(
     input           sync_i,
     input           n_resin_i,

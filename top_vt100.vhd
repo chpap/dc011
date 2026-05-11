@@ -21,28 +21,28 @@ architecture testbench of top_vt100  is
   signal  clk_24_07:    std_ulogic :=  '0';
   signal  clk_24_88:    std_ulogic :=  '0';
   signal  clk_6_25:    std_ulogic :=  '0';
-  component clk_plle2 is
-  port ( 
-    clk_100    : out std_logic; -- CLKOUT0: 100 MHz
-    clk_24_88  : out std_logic; -- CLKOUT1: ~24.8832 MHz
-    clk_24_07  : out std_logic; -- CLKOUT2: ~24.0734 MHz
-    clk_6_25 : out std_logic; -- CLKOUT3: 6.25 MHz (Lowest)
-    reset : in STD_LOGIC;
-    locked : out STD_LOGIC;
-    clk_in : in STD_LOGIC
-  );
-  end component;
+--  component clk_plle2 is
+--  port ( 
+--    clk_100    : out std_logic; -- CLKOUT0: 100 MHz
+--    clk_24_88  : out std_logic; -- CLKOUT1: ~24.8832 MHz
+--    clk_24_07  : out std_logic; -- CLKOUT2: ~24.0734 MHz
+--    clk_6_25 : out std_logic; -- CLKOUT3: 6.25 MHz (Lowest)
+--    reset : in STD_LOGIC;
+--    locked : out STD_LOGIC;
+--    clk_in : in STD_LOGIC
+--  );
+--  end component;
 
 begin
-  plle2_inst: clk_plle2
-    port map(clk_100 => clk_100,
-    clk_24_88 => clk_24_88,
-    clk_24_07 => clk_24_07,
-    clk_6_25 => clk_6_25,
-    reset => not n_reset_i,
-    locked => open,
-    clk_in => clk100_i
-    );
+--  plle2_inst: clk_plle2
+--    port map(clk_100 => clk_100,
+--    clk_24_88 => clk_24_88,
+--    clk_24_07 => clk_24_07,
+--    clk_6_25 => clk_6_25,
+--    reset => not n_reset_i,
+--    locked => open,
+--    clk_in => clk100_i
+--    );
   vt100_inst: vt100
     port map(clk24_i => clk_24_88,
      clk100_i => clk100_i,

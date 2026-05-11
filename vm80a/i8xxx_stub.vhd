@@ -25,7 +25,7 @@ architecture rtl of i8xxx_stub is
    port( clk_i : in std_logic;
       clk24_i    : in  std_logic;
       pin_a     : out std_logic_vector(15 downto 0);
-      pin_d     : inout std_logic_vector(7 downto 0);
+      pin_d     : in std_logic_vector(7 downto 0);
       pin_hold  : in  std_logic;
       pin_hlda  : out std_logic;
       pin_ready : in  std_logic;
