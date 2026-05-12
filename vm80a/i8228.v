@@ -15,7 +15,6 @@ module i8228(
     output reg      n_iow_o ,
     output reg      n_inta_o = 0);
 
-    wire            din_z=1;
     wire            hlda;
     wire[7:0]       d_o_int;
     wire[7:0]       db_o_int; 

@@ -14,6 +14,9 @@ signal rxd :                std_logic;
   signal d0: std_ulogic := '0';
   signal d1: std_ulogic := '0';
   signal n_vid_wr: std_ulogic := '1';
+  signal d_i :std_logic_vector(7 downto 0);
+  signal d_o :std_logic_vector(7 downto 0);
+  signal a_o :std_logic_vector(15 downto 0);
 
   signal  n_rst:  std_ulogic;
   signal  LBA:   std_ulogic_vector (7 downto 0);
@@ -58,16 +61,17 @@ signal rxd :                std_logic;
    port( clk_i : in std_logic;
       clk24_i    : in  std_logic;
       n_reset_i : in std_logic;
-      pin_a     : out std_logic_vector(15 downto 0);
-      pin_d     : inout std_logic_vector(7 downto 0);
-      pin_hold  : in  std_logic;
-      pin_hlda  : out std_logic;
-      pin_ready : in  std_logic;
-      pin_wait  : out std_logic;
-      pin_int   : in  std_logic;
-      pin_inte  : out std_logic;
-      pin_dbin  : out std_logic;
-      pin_wr_n  : out std_logic;
+      a_o     : out std_logic_vector(15 downto 0);
+      d_i     : in std_logic_vector(7 downto 0);
+      d_o     : out std_logic_vector(7 downto 0);
+      hold_i  : in  std_logic;
+      hlda_o  : out std_logic;
+      ready_i : in  std_logic;
+      wait_o  : out std_logic;
+      int_i   : in  std_logic;
+      inte_o  : out std_logic;
+      dbin_o  : out std_logic;
+      n_wr_o  : out std_logic;
       n_stsb_o  : out std_logic);
    end component;
 
@@ -79,19 +83,20 @@ begin
 --      d_l, n_addr_ld, hold_req, vsr_ld, char_clk, hblank, scan_cnt, vid1out,
 --      vid2out, term, n_underline, n_blink, n_bold, vid_in);
 --  dut3: cpu8080_testbench port map(clk_i => clk24_i, reset_i => not n_rst);
-
+   d_i <= (others=>'0');
    i8xxx_stub_inst: i8xxx_stub port map( clk_i => clk100_i,
    clk24_i => clk24_i,
    n_reset_i => n_rst,
-   pin_a => open,
-   pin_d => open,
-   pin_hold => '0',
-   pin_hlda => open,
-   pin_ready => '0',
-   pin_wait => open,
-   pin_int => '0',
-   pin_inte => open, 
-   pin_dbin => open,
-   pin_wr_n => open,
+   a_o => a_o,
+   d_i => d_i,
+   d_o => d_o,
+   hold_i => '0',
+   hlda_o => open,
+   ready_i => '1',
+   wait_o => open,
+   int_i => '0',
+   inte_o => open, 
+   dbin_o => open,
+   n_wr_o => open,
    n_stsb_o => open);
 end;

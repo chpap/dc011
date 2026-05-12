@@ -1,172 +1,70 @@
-# Copyright cocotb contributors
-# Licensed under the Revised BSD License, see LICENSE for details.
-# SPDX-License-Identifier: BSD-3-Clause
+# This file is public domain, it can be freely copied without restrictions.
+# SPDX-License-Identifier: CC0-1.0
 from __future__ import annotations
 
 import os
-import sys
+import random
 from pathlib import Path
-
-import pytest
 
 import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, Timer
-from cocotb_tools.runner import get_runner
-from cocotb_tools.sim_versions import RivieraVersion
+from cocotb_tools.runner import get_runner, Verilog
 
-LANGUAGE = os.environ["TOPLEVEL_LANG"].lower().strip()
+LANGUAGE = os.getenv("TOPLEVEL_LANG", "verilog").lower().strip()
 
+async def sync_8080(dut):
+    """Start 100 and 24 Mhz clocks"""
+    # Create a 10us period clock driver on port `clk`
+    while True:
+      await RisingEdge(dut.clk_f1)
+      dut.sync.value=0
+      await Timer(150, unit="ns")
+      dut.sync.value=1
 
-# Riviera < 2024.10 fails to find dut.i_swapper_sv (gh-2921)
-@cocotb.test(
-    expect_error=AttributeError
-    if cocotb.simulator.is_running()
-    and cocotb.SIM_NAME.lower().startswith("riviera")
-    and RivieraVersion(cocotb.SIM_VERSION) < "2024.10"
-    and LANGUAGE == "vhdl"
-    else ()
-)
-async def i8xxx_accessing_test(dut):
-    """Try accessing handles and setting values in a mixed language environment."""
-    await Timer(100, unit="ns")
+async def start_clocks(dut):
+    """Start 100 and 24 Mhz clocks"""
+    # Create a 10us period clock driver on port `clk`
 
-    verilog = dut
-    cocotb.log.info(f"Got: {verilog._name!r}")
+@cocotb.test()
+async def i8xxx_simple_test(dut):
+    """Test that d propagates to q"""
+    #task = cocotb.start_soon(sync_8080(dut))
+    clock = Clock(dut.clk_i, 10, unit="ns")
+    clock.start(start_high=False)
+    clock24 = Clock(dut.clk24_i, 41.6, unit="ns")
+    clock24.start(start_high=False)
+    dut.n_reset_i.value = "1"
+    # Create a 10us period clock driver on port `clk`
+    # Start the clock. Start it low to avoid issues on the first RisingEdge
 
-    # discover all attributes of the SV component
-    # This is a workaround since SV modules are not discovered automatically
-    # when using Modelsim/Questa and a VHDL toplevel file.
-    verilog._discover_all()
+    # Synchronize with the clock. This will register the initial `d` value
+    await RisingEdge(dut.clk24_i)
+    await Timer(200, unit="ns")
+    dut.n_reset_i.value = "0"
+    await Timer(1, unit="ms")
 
-    #vhdl = dut.i_swapper_vhdl
-    #cocotb.log.info(f"Got: {vhdl._name!r}")
-
-    dut.n_reset_i.value = 0
-    await Timer(100, unit="ns")
-
-    #vhdl.reset_n.value = 1
-    await Timer(100, unit="ns")
-
-    #assert verilog.reset_n.value == vhdl.reset_n.value, "reset_n signals were different"
-
-    # Try accessing an object other than a port...
-    #verilog.flush_pipe.value
-    #vhdl.flush_pipe.value
+    # Check the final input on the next clock
+    #await RisingEdge(dut.clk)
 
 
-# Riviera < 2024.10 fails to find dut.i_swapper_sv (gh-2921)
-@cocotb.test(
-    expect_error=AttributeError
-    if cocotb.simulator.is_running()
-    and cocotb.SIM_NAME.lower().startswith("riviera")
-    and RivieraVersion(cocotb.SIM_VERSION) < "2024.10"
-    and LANGUAGE == "vhdl"
-    else ()
-)
-async def i8xxx_functional_test(dut):
-    """Try concurrent simulation of VHDL and Verilog and check the output."""
-    await Timer(100, unit="ns")
+def test_simple_dff_runner():
+    sim = os.getenv("SIM", "icarus")
 
-    verilog = dut
-    cocotb.log.info(f"Got: {verilog._name!r}")
+    proj_path = Path(__file__).resolve().parent
 
-    #vhdl = dut.i_swapper_vhdl
-    #cocotb.log.info(f"Got: {vhdl._name!r}")
-
-    # setup default values
-    dut.n_reset_i.value = 1
-
-
-    # reset cycle
-    await Timer(100, unit="ns")
-    dut.n_reset_i.value = 0
-    await Timer(100, unit="ns")
-
-    # start clock
-    cocotb.start_soon(Clock(dut.clk_i, 10, unit="ns").start())
-    await Timer(500, unit="ns")
-
-    previous_indata = 0
-    # transmit some packets
-    for _ in range(1, 5):
-        for i in range(1, 11):
-            await RisingEdge(dut.clk_i)
-    ##        previous_indata = dut.stream_in_data.value.to_unsigned()
-
-    ##        # write stream in data
-    ##        dut.stream_in_data.value = i + 0x81FFFFFF2B00  # generate a magic number
-    ##        dut.stream_in_valid.value = 1
-            await RisingEdge(dut.clk_i)
-    ##        dut.stream_in_valid.value = 0
-
-    ##        # await stream out data
-            await RisingEdge(dut.clk_i)
-            await RisingEdge(dut.clk_i)
-
-    ##        # compare in and out data
-    ##        assert previous_indata == dut.stream_out_data.value.to_unsigned(), (
-    ##            f"stream in data and stream out data were different in round {i}"
-    ##        )
-
-
-sim = os.getenv("SIM", "icarus")
-
-
-@pytest.mark.skipif(
-    sim not in ["questa", "riviera", "xcelium"],
-    reason=f"Skipping example mixed_language since {sim} doesn't support this",
-)
-def test_mixed_language_runner():
-    """Simulate the mixed_language example using the Python runner.
-
-    This file can be run directly or via pytest discovery.
-    """
-    hdl_toplevel_lang = os.getenv("TOPLEVEL_LANG", "verilog")
-
-    proj_path = Path(__file__).resolve().parent.parent
-
-    sources = [
-        proj_path / "hdl" / "endian_swapper.sv",
-        proj_path / "hdl" / "endian_swapper.vhdl",
-    ]
-
-    if hdl_toplevel_lang == "verilog":
-        sources += [proj_path / "hdl" / "toplevel.sv"]
-    elif hdl_toplevel_lang == "vhdl":
-        sources += [proj_path / "hdl" / "toplevel.vhdl"]
+    if LANGUAGE == "verilog":
+        sources = [Verilog(proj_path / "vm80a/vm80a.v"), Verilog(proj_path / "vm80a/i8224.v"), Verilog(proj_path / "vm80a/i8xxx.v"), Verilog(proj_path / "vm80a/i8228.v")]
     else:
-        raise ValueError(
-            f"A valid value (verilog or vhdl) was not provided for TOPLEVEL_LANG={hdl_toplevel_lang}"
-        )
-
-    build_args = []
-    test_args = []
-    if sim == "xcelium":
-        build_args = ["-v93"]
-    elif sim == "questa":
-        test_args = ["-t", "1ps"]
-
-    # equivalent to setting the PYTHONPATH environment variable
-    sys.path.append(str(proj_path / "tests"))
-
+        print("no supported")
+        exit(1)
     runner = get_runner(sim)
-
     runner.build(
-        hdl_toplevel="endian_swapper_mixed",
         sources=sources,
-        always=True,
+        hdl_toplevel="i8xxx",
         waves=True,
-        build_args=build_args,
+        always=True,
     )
 
-    runner.test(
-        hdl_toplevel="endian_swapper_mixed",
-        hdl_toplevel_lang=hdl_toplevel_lang,
-        test_module="test_mixed_language",
-        test_args=test_args,
-    )
-
-
-if __name__ == "__main__":
-    test_mixed_language_runner()
+    #runner.test(hdl_toplevel="i8xxx", test_module="i8xxx_simple_test")
+    runner.test(hdl_toplevel="i8xxx", test_module="test_i8xxx_runner")
