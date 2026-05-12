@@ -162,6 +162,15 @@ package dc0112_pkg is
        hblank : out  std_ulogic
   );
   end component;
+  component sram is
+  port (
+      addr_i : in std_logic_vector (9 downto 0);
+      clk   : in std_logic  := '1';
+      data_i   : in std_logic_vector (7 downto 0);
+      wren_i   : in std_logic ;
+      data_o   : out std_logic_vector (7 downto 0)
+	);
+  end component;
   component vtiming is
   port (
        i_clk: in  std_ulogic;

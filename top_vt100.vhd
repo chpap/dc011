@@ -34,15 +34,15 @@ architecture testbench of top_vt100  is
   end component;
 
 begin
---  plle2_inst: clk_plle2
---    port map(clk_100 => clk_100,
---    clk_24_88 => clk_24_88,
---    clk_24_07 => clk_24_07,
---    clk_6_25 => clk_6_25,
---    reset => not n_reset_i,
---    locked => open,
---    clk_in => clk100_i
---    );
+  plle2_inst: clk_plle2
+    port map(clk_100 => clk_100,
+    clk_24_88 => clk_24_88,
+    clk_24_07 => clk_24_07,
+    clk_6_25 => clk_6_25,
+    reset => not n_reset_i,
+    locked => open,
+    clk_in => clk100_i
+    );
   vt100_inst: vt100
     port map(clk24_i => clk_24_88,
      clk100_i => clk100_i,

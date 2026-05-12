@@ -2,6 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 use work.dc0112_pkg.all;
+use work.vt100_pkg.all;
 
 architecture rtl of vt100 is
 signal done :               std_logic := '0';
@@ -50,30 +51,62 @@ signal rxd :                std_logic;
   signal n_bold: std_ulogic;
   signal vid_in: std_ulogic;
 
-  signal clk_f1: std_logic;
-  signal clk_f2: std_logic;
+  signal n_wr_o: std_ulogic;
+
+  signal clk_f1: std_ulogic;
+  signal clk_f2: std_ulogic;
   --component cpu8080_testbench is
-  -- port (clk_i : in std_logic;
-  --       reset_i : in std_logic
-  --	     );
+  signal DO_0_i: std_ulogic_vector(7 downto 0);
+  signal DB_0_i: std_ulogic_vector(7 downto 0);
+  signal DB_0_o: std_ulogic_vector(7 downto 0);
+  signal A0_H_i : std_ulogic_vector(14 downto 0);
+  signal BV1_BLINK_L : std_ulogic;
+  signal BV1_UNDERLINE_L : std_ulogic;
+  signal BV1_BOLD_L : std_ulogic;
+  signal BV1_ALT_CHAR_SEL_L : std_ulogic := '0';
+  signal BV6_RESET_L  : std_ulogic;
+  signal BV6_IO_RD_L : std_ulogic;
+  signal BV6_IO_WR_L : std_ulogic;
+  signal BV6_MEM_WR_L: std_ulogic;
+  signal BV6_MEM_RD_L: std_ulogic;
+  signal BV6_HLDA_H: std_ulogic;
+  signal BV1_MEM_DISABLE_L: std_ulogic;
+  signal n_BV2_SPDS  : std_ulogic;
+  signal BV2_NVR_DATA_H: std_ulogic;
+  signal BV2_KBD_RD_L: std_ulogic;
+  signal BV2_FLAG_RD_L: std_ulogic;
+  signal BV2_MODEM_RD_L: std_ulogic;
+  signal BV2_GRAPHIC_WR_L: std_ulogic;
+  signal BV1_GRAPHIC_1_IN_L: std_ulogic;
+  signal BV1_GRAPHIC_2_IN_L: std_ulogic;
+  signal BV2_VID_WR_1L: std_ulogic;
+  signal BV2_VID_WR_2L: std_ulogic;
+  signal BV2_NVR_WR_L: std_ulogic;
+  signal BV2_DA_WR_L: std_ulogic;
+  signal BV2_WRITE_BAUD_H: std_ulogic;
+  signal BV2_SEL_8_12K_H: std_ulogic;
+  signal BV2_SEL_ATT_RAM_L: std_ulogic;
+  signal BV4_T_HOLD_REQ_H: std_ulogic;
   --end component;
-   component i8xxx_stub is
-   port( clk_i : in std_logic;
-      clk24_i    : in  std_logic;
-      n_reset_i : in std_logic;
-      a_o     : out std_logic_vector(15 downto 0);
-      d_i     : in std_logic_vector(7 downto 0);
-      d_o     : out std_logic_vector(7 downto 0);
-      hold_i  : in  std_logic;
-      hlda_o  : out std_logic;
-      ready_i : in  std_logic;
-      wait_o  : out std_logic;
-      int_i   : in  std_logic;
-      inte_o  : out std_logic;
-      dbin_o  : out std_logic;
-      n_wr_o  : out std_logic;
-      n_stsb_o  : out std_logic);
-   end component;
+  signal BV4_SC_H : std_ulogic_vector(4 downto 0);
+  signal BV4_WRITE_LB_L : std_ulogic;
+  signal BV4_HOLD_REQ_H : std_ulogic;
+  signal BV4_CHAR_CLK_H : std_ulogic;
+  signal BV4_ADDR_LD_L : std_ulogic;
+  signal BV4_ADDR_CNT_H : std_ulogic;
+  signal BV4_DMA_ENA_L : std_ulogic;
+  signal BV4_DOT_CLK_H: std_ulogic;
+  signal BV4_VSR_LOAD_H: std_ulogic;
+  signal BV5_SERIAL_VIDEO_H: std_ulogic;
+  signal BV4_HORIZ_BLK_H: std_ulogic;
+  signal BV4_VERT_BLANK_L: std_ulogic;
+  signal BV4_VERT_RESET_H: std_ulogic;
+  signal BV4_COMP_SYNC_L: std_ulogic;
+  signal BV5_RV_H_o:  std_ulogic;
+  signal BV5_TERM_L:  std_ulogic;
+  signal BV5_DW_H: std_ulogic;
+  signal BV5_DV_H: std_ulogic;
+  signal BV5_DH_H: std_ulogic;
 
 begin
    n_rst <= reset_i;
@@ -84,19 +117,113 @@ begin
 --      vid2out, term, n_underline, n_blink, n_bold, vid_in);
 --  dut3: cpu8080_testbench port map(clk_i => clk24_i, reset_i => not n_rst);
    d_i <= (others=>'0');
-   i8xxx_stub_inst: i8xxx_stub port map( clk_i => clk100_i,
-   clk24_i => clk24_i,
-   n_reset_i => n_rst,
-   a_o => a_o,
-   d_i => d_i,
-   d_o => d_o,
-   hold_i => '0',
-   hlda_o => open,
-   ready_i => '1',
-   wait_o => open,
-   int_i => '0',
-   inte_o => open, 
-   dbin_o => open,
-   n_wr_o => open,
-   n_stsb_o => open);
+
+   BV2_INST: BV2 port map (
+      clk_i => clk100_i,
+      clk24_i => clk24_i,
+      DO_0_i  => DO_0_i,
+      DB_0_i  => DB_0_i,
+      DB_0_o  => DB_0_o,
+      A0_H_i  => A0_H_i,
+      BV6_RESET_L_i => BV6_RESET_L  ,
+      BV2_NVR_WR_L_i => BV2_NVR_WR_L  ,
+      BV6_IO_RD_L_i => BV6_IO_RD_L ,
+      BV6_IO_WR_L_i => BV6_IO_WR_L ,
+      BV6_MEM_WR_L_i => BV6_MEM_WR_L,
+      BV6_MEM_RD_L_i => BV6_MEM_RD_L,
+      BV1_MEM_DISABLE_L_i => BV1_MEM_DISABLE_L,
+      n_BV2_SPDS_o   => n_BV2_SPDS  ,
+      BV2_NVR_DATA_H_o => BV2_NVR_DATA_H,
+      BV2_KBD_RD_L_o => BV2_KBD_RD_L,
+      BV2_FLAG_RD_L_o => BV2_FLAG_RD_L,
+      BV2_MODEM_RD_L_o => BV2_MODEM_RD_L,
+      BV2_GRAPHIC_WR_L_o => BV2_GRAPHIC_WR_L,
+      BV2_VID_WR_1L_o => BV2_VID_WR_1L,
+      BV2_VID_WR_2L_o => BV2_VID_WR_2L,
+      BV2_NVR_WR_L_o => BV2_NVR_WR_L,
+      BV2_DA_WR_L_o => BV2_DA_WR_L,
+      BV2_WRITE_BAUD_H_o => BV2_WRITE_BAUD_H,
+      BV2_SEL_8_12K_H_o => BV2_SEL_8_12K_H,
+      BV2_SEL_ATT_RAM_L_o => BV2_SEL_ATT_RAM_L
+      );
+
+   BV4_INST :BV4 port map( 
+      clk_i => clk100_i,
+      clk24_i => clk24_i,
+      DO_0_H_i => DO_0_i,
+      LBA_i => LBA,
+      BV4_COMP_SYNC_L_i => BV4_COMP_SYNC_L,
+      BV1_GRAPHIC_1_IN_L_i => BV1_GRAPHIC_1_IN_L,
+      BV4_VERT_BLANK_L_i => BV4_VERT_BLANK_L,
+      BV1_GRAPHIC_2_IN_L_i => BV1_GRAPHIC_2_IN_L,
+      BV2_DA_WR_L_i => BV2_DA_WR_L,
+      BV4_INIT_H_o => open,
+      BV4_HOLD_REQ_H_i => BV4_HOLD_REQ_H,
+      BV4_T_HOLD_REQ_H_o => BV4_T_HOLD_REQ_H,
+      BV4_HS_CLK_H_o => open,
+      BV6_HLDA_H_i => BV6_HLDA_H,
+      BV4_DMA_ENA_H_o => open,
+      BV4_DMA_ENA_L_o => BV4_DMA_ENA_L,
+      BV5_DW_L_i => not BV5_DW_H,
+      BV5_DH_L_i => not BV5_DH_H,
+      BV5_TERM_L_i => BV5_TERM_L,
+      BV5_SERIAL_VIDEO_H_i => BV5_SERIAL_VIDEO_H,
+      BV1_BLINK_L_i => BV1_BLINK_L,
+      BV1_UNDERLINE_L_i => BV1_UNDERLINE_L,
+      BV1_BOLD_L_i => BV1_BOLD_L,
+      BV2_VID_WR_1_L_i => BV2_VID_WR_1L,
+      BV4_HORIZ_BLK_H_o => BV4_HORIZ_BLK_H,
+      BV4_VERT_RESET_H_o => BV4_VERT_RESET_H,
+      BV4_CHAR_CLK_H_o => BV4_CHAR_CLK_H,
+      BV4_ADDR_LD_L_o => BV4_ADDR_LD_L,
+      BV4_DOT_CLK_H_o => BV4_DOT_CLK_H,
+      BV4_ADDR_CNT_H_o => BV4_ADDR_CNT_H,
+      BV4_VSR_LOAD_H_o => BV4_VSR_LOAD_H,
+      BV4_WRITE_LB_L_o => BV4_WRITE_LB_L,
+      BV4_HORIZ_DRIVE_H_o => open,
+      BV4_VERT_DRIVE_L_o => open,
+      BV4_EVEN_FIELD_L_o => open,
+      BV4_VERT_FREQ_INT_L_o =>open,
+      BV4_SC_H_o => BV4_SC_H,
+      BV4_VIDEO_OUT_1_H_o => open,
+      BV4_VIDEO_OUT_2_H_o => open);
+
+   BV5_INST: BV5 port map (
+      clk_i => clk100_i,
+      clk24_i => clk24_i,
+      DO_0_i  => DO_0_i,
+      A0_H_o => A0_H_i,
+      LBA_i => LBA,
+      BV4_SC_H_i  =>  BV4_SC_H ,
+      BV4_WRITE_LB_L_i  => BV4_WRITE_LB_L ,
+      BV4_HOLD_REQ_H_i  => BV4_HOLD_REQ_H ,
+      BV4_CHAR_CLK_H_i  => BV4_CHAR_CLK_H ,
+      BV4_ADDR_LD_L_i  =>  BV4_ADDR_LD_L ,
+      BV4_ADDR_CNT_H_i  => BV4_ADDR_CNT_H ,
+      BV4_DMA_ENA_L_i  =>  BV4_DMA_ENA_L ,
+      BV1_ALT_CHAR_SEL_L_i  =>  BV1_ALT_CHAR_SEL_L ,
+      BV4_DOT_CLK_H_i => BV4_DOT_CLK_H,
+      BV4_VSR_LOAD_H_i =>  BV4_VSR_LOAD_H,
+      BV5_SERIAL_VIDEO_H_o => BV5_SERIAL_VIDEO_H,
+      BV4_HORIZ_BLK_H_i => BV4_HORIZ_BLK_H,
+      BV4_VERT_RESET_H_i => BV4_VERT_RESET_H,
+      BV5_RV_H_o => BV5_RV_H_o,
+      BV5_DV_H_o => BV5_DV_H,
+      BV5_DW_H_o => BV5_DW_H,
+      BV5_TERM_L_o => BV5_TERM_L
+      );
+
+   BV6_INST: BV6 port map( 
+     clk_i => clk100_i,
+     clk24_i => clk24_i,
+     n_reset_i => n_rst,
+     A0_H_o => a_o,
+     DB_0_i => d_i,
+     DO_0_o => d_o,
+     BV6_INTR_H_i => '0',
+     BV6_HLDA_H_o => BV6_HLDA_H,
+     BV4_T_HOLD_REQ_H_i => BV4_T_HOLD_REQ_H,
+     inte_o => open, 
+     dbin_o => open,
+     n_wr_o => n_wr_o);
 end;
