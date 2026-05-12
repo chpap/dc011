@@ -16,22 +16,29 @@ module vt100(
     wire[15:0]      a_o;
     wire[7:0]       d_i;
     wire[7:0]       d_o;
-    wire            hlda,wait80,inte,n_stsb;
+    wire            hlda,wait80,inte,n_stsb,dbin,n_wr;
+    wire            hold = 1'b0;
+    wire            int80 = 1'b0;
+    wire            ready = 1'b1;
 
+
+    assign d_i = 8'b0;
+    assign ready = 1'b1;
+    assign int80 = 1'b0;
     i8xxx I8XXXX(
     .clk_i(clk100_i),
     .clk24_i(clk24_i),
     .a_o(a_o),
     .d_i(d_i),
     .d_o(d_o),
-    .hold_i(1'b0),
+    .hold_i(hold),
     .hlda_o(hlda),
-    .ready_i(1'b1),
+    .ready_i(ready),
     .wait_o(wait80),
-    .int_i(1'b0),
+    .int_i(int80),
     .inte_o(inte),
-    .dbin_o(),
-    .n_wr_o(),
+    .dbin_o(dbin),
+    .n_wr_o(n_wr),
     .n_reset_i(n_reset_i),
     .n_stsb_o(n_stsb));
 endmodule

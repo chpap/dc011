@@ -5,32 +5,34 @@ module i8228(
     input           n_stsb_i,
     input           hlda_i,
     input           n_busen_i,
-    input[7:0]      d_i, // input from 8080
+    input [7:0]      d_i, // input from 8080
     output[7:0]     d_o, // output to 8080
-    input[7:0]      db_i,// input from system bus 
-    output[7:0]     db_o,// output to system bus
-    output reg      n_memr_o = 0, 
-    output reg      n_memw_o = 0,
-    output reg      n_ior_o ,
-    output reg      n_iow_o ,
-    output reg      n_inta_o = 0);
+    input [7:0]      db_i,// input from system bus
+    output [7:0]    db_o,// output to system bus
+    output reg      n_memr_o = 1'b0,
+    output reg      n_memw_o = 1'b0,
+    output reg      n_ior_o = 1'b0,
+    output reg      n_iow_o = 1'b0,
+    output reg      n_inta_o = 1'b0);
 
-    wire            hlda;
-    wire[7:0]       d_o_int;
-    wire[7:0]       db_o_int; 
+    reg             hlda = 1'b0;
 
-    assign d_o_int = dbin_i ? db_i : 8'b1;
-    assign db_o_int = n_wr_i ? d_i : 8'b1;
-    assign hlda = dbin_i & hlda_i;
-    assign d_o = n_busen_i ?  8'b1 : d_o_int;
-    assign db_o = n_busen_i ?  8'b1 : db_o_int;
+    // assign d_o_int = dbin_int ? db_i : 8'hff;
+    //assign db_o_int = n_wr_int ? d_i : 8'hff;
+    //assign hlda = dbin_int & hlda_int;
+    assign d_o = n_busen_i ?  8'hff : db_i;
+    assign db_o = (n_busen_i | ~n_wr_i) ?  8'hff : d_i;
 
 always @(posedge hlda) begin
-	n_memr_o <= 0;
-	n_ior_o <= 0;
-	n_inta_o <= 0;
+	n_memr_o <= 1'b0;
+	n_ior_o <= 1'b0;
+	n_inta_o <= 1'b0;
 end
 always @(posedge n_stsb_i) begin
+    // dbin_int <= dbin_i;
+    hlda <= hlda_i & dbin_i;
+    //n_dbusen_int <= n_busen_i | ~n_wr_int;
+
     case (d_i)
       // Instruction Fetch
       8'b10100010  : n_memr_o <= 1;

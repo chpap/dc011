@@ -47,6 +47,12 @@ async def vt100_simple_test(dut):
     #await RisingEdge(dut.clk24_i)
     await Timer(20, unit="ns")
     dut.n_reset_i.value = "1"
+    await Timer(2000, unit="ns")
+    dut.n_reset_i.value = "0"
+    await Timer(20, unit="ns")
+    dut.n_reset_i.value = "0"
+    await Timer(2000, unit="ns")
+    dut.n_reset_i.value = "1"
     await Timer(200000, unit="ns")
     #for _ in range(10):
     #  await Timer(2000, unit="ns")

@@ -105,7 +105,7 @@ wire           hlda, h889;
 reg            wr_n, t1124, t1011, sync;
 wire           ready_int;
 
-reg   [15:0]   r16_pc, r16_hl, r16_de, r16_bc, r16_sp, r16_wz, mxo;
+reg   [15:0]   r16_pc, r16_hl, r16_de, r16_bc, r16_sp = 16'hff, r16_wz = 16'b0, mxo;
 wire  [15:0]   mxi;
 wire           mxr0, mxr1, mxr2, mxr3, mxr4, mxr5;
 wire           mxwh, mxwl, mxrh, mxrl, mxw16, mxwadr;
@@ -146,7 +146,7 @@ wire           goto, jmpflag;
 reg            jmptake, tree0, tree1, tree2;
 reg            t2806, t2817, t2819, t3047, t2998, t3363, t3403, t3335, t3361;
 
-reg   [7:0]    xr, r, acc;
+reg   [7:0]    xr, r, acc = 8'b0;
 wire  [7:0]    x, s, c;
 wire           cl, ch, daa, daa_6x, daa_x6;
 wire           a398;
@@ -154,10 +154,26 @@ reg            a327, a357, a358;
 wire           alu_xout, alu_xwr, alu_xrd, alu_ald, alu_awr, alu_ard,
                alu_rld, alu_r00, alu_rwr, alu_srd, alu_zrd, alu_frd;
 
-reg            psw_z, psw_s, psw_p, psw_c, psw_ac, tmp_c;
+reg            psw_z = 1'b0, psw_s = 1'b0, psw_p = 1'b0, psw_c = 1'b0, psw_ac = 1'b0, tmp_c;
 reg            t2222, t1375, t1497, t1698, t1668, t1780, t1993, t1994;
 reg            psw_ld, psw_wr, t2046, t2133, t2175;
 
+//_____________________________________________________________________________
+//
+initial begin
+  psw_ac = $random;
+  psw_c = $random;
+  psw_p = $random;
+  psw_s = $random;
+  psw_z = $random;
+  r16_bc = $random;
+  r16_de = $random;
+  r16_hl = $random;
+  r16_pc = $random;
+  r16_sp = $random;
+  r16_wz = $random;
+  acc = $random;
+end
 //_____________________________________________________________________________
 //
 assign clk        = pin_clk;
@@ -574,11 +590,11 @@ end
 //
 function cmp
 (
-   input [7:0] i,
-   input [7:0] c,
-   input [7:0] m
+   input [7:0] _i,
+   input [7:0] _c,
+   input [7:0] _m
 );
-   cmp = &(~(i ^ c) | m);
+   cmp = &(~(_i ^ _c) | _m);
 endfunction
 
 assign imx     = ~(id_op | (id_mov & t4));

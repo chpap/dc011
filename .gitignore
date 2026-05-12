@@ -10,3 +10,5 @@ waves/*
 work-obj??.cf
 obj_dir
 tools/gvi
+.gvi
+*.ghw
