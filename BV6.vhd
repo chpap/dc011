@@ -9,6 +9,7 @@ entity BV6 is
       A0_H_o     : out std_ulogic_vector(15 downto 0);
       DB_0_i     : in std_ulogic_vector(7 downto 0);
       DO_0_o  : out std_ulogic_vector(7 downto 0);
+      LBA_i  : in std_ulogic_vector(7 downto 0);
       BV6_HLDA_H_o  : out std_ulogic;
       BV6_RESET_H_o : out std_ulogic;
       BV6_INTR_H_i : in std_ulogic;
@@ -18,17 +19,27 @@ entity BV6 is
       BV6_IO_RD_L_o: out std_ulogic;
       BV6_MEM_WR_L_o: out std_ulogic;
       BV6_MEM_RD_L_o: out std_ulogic;
-      inte_o  : out std_ulogic;
-      dbin_o  : out std_ulogic;
-      n_wr_o  : out std_ulogic);
+
+      BV3_XMIT_FLAG_H_i : in std_ulogic;
+      BV3_REC_FLAG_H_i : in std_ulogic;
+      BV6_KBD_DATA_AVAIL_H_i: in std_ulogic;
+      BV2_KBD_WR_L_i: in std_ulogic;
+      BV4_EVEN_FIELD_L_i: in std_ulogic;
+      BV3_OPTION_PRESENT_H_i: in std_ulogic;
+      BV2_NVR_DATA_H_i: in std_ulogic;
+      BV2_FLAG_RD_L_i: in std_ulogic);
 end BV6;
 
 architecture rtl of BV6 is
    signal BV6_RESET_H : std_ulogic;
    signal BV6_INTR_H : std_ulogic;
+   signal BV6_KBD_TBMT_H: std_ulogic;
    signal ready : std_ulogic := '1';
    signal wait80 : std_ulogic;
    signal n_stsb : std_ulogic;
+   signal inte : std_ulogic;
+   signal dbin : std_ulogic;
+   signal n_wr: std_ulogic;
 
    component i8xxx is
    port( clk_i : in std_logic;
@@ -66,11 +77,16 @@ begin
    ready_i => ready,
    wait_o => wait80,
    int_i => BV6_INTR_H,
-   inte_o => inte_o, 
-   dbin_o => dbin_o,
-   n_wr_o => n_wr_o,
+   inte_o => inte, 
+   dbin_o => dbin,
+   n_wr_o => n_wr,
    reset_o => BV6_RESET_H,
-   n_stsb_o => n_stsb);
+   n_stsb_o => n_stsb,
+   n_memr_o => BV6_MEM_RD_L_o,
+   n_memw_o => BV6_MEM_WR_L_o,
+   n_ior_o => BV6_IO_RD_L_o,
+   n_iow_o => BV6_IO_WR_L_o,
+   n_inta_o => BV6_INTA_L_o);
 
    BV6_RESET_H_o <= BV6_RESET_H;
    BV6_INTR_H <= BV6_INTR_H_i;

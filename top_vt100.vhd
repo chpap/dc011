@@ -12,7 +12,8 @@ entity top_vt100  is
      videoG: out  std_logic_vector(3 downto 0);
      videoB: out  std_logic_vector(3 downto 0);
      hSync: out  std_logic;
-     vSync: out  std_logic
+     vSync: out  std_logic;
+     LED: out  std_logic_vector(7 downto 0)
     );
 end entity;
 
@@ -34,6 +35,9 @@ architecture testbench of top_vt100  is
   end component;
 
 begin
+  --LED(7 downto 1) <= (others=>'1');
+  
+
   plle2_inst: clk_plle2
     port map(clk_100 => clk_100,
     clk_24_88 => clk_24_88,
@@ -53,6 +57,7 @@ begin
      videoG => videoG,
      videoB => videoB,
      hSync => hSync,
-     vSync => vSync
+     vSync => vSync,
+     LED => LED
     );
 end;

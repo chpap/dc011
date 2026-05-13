@@ -22,8 +22,8 @@ TOP_MODULE = $(VT100_TOP_MODULE)
 TOP_VHDL = $(VT100_TOP_VHDL)
 VT100_TOP_VHDL = top_vt100.vhd
 VT100_TOP_MODULE = top_vt100
-ADDITIONAL_SOURCES = dc0112_pkg.vhd utils_pkg.vhd xilinx_block_ram_pkg.vhd xilinx_block_ram.vhd sram.vhd  delay.vhd vtiming.vhd \
-		     htiming.vhd ff.vhd ripple_counter.vhd clk_divider.vhd frac_divider.vhd static_clk_divider.vhd hor_counter.vhd ver_counter.vhd dot_counter.vhd dc011.vhd vt100_pkg.vhd\
+ADDITIONAL_SOURCES = dc0112_pkg.vhd utils_pkg.vhd xilinx_block_ram_pkg.vhd xilinx_block_ram.vhd sram.vhd delay.vhd vtiming.vhd \
+		     htiming.vhd ff.vhd ripple_counter.vhd clk_divider.vhd frac_divider.vhd static_clk_divider.vhd hor_counter.vhd ver_counter.vhd dot_counter.vhd dc011.vhd vt100_pkg.vhd bootrom.vhd \
 		      BV2.vhd BV4.vhd BV5.vhd BV6.vhd  vt100.vhd  clk_plle2.vhd .gvi/i8xxx/i8xxx_wrapper.vhd
 VT100_VERILOG_SOURCES = vm80a/i8xxx.v vm80a/vm80a.v vm80a/i8224.v vm80a/i8228.v
 #VT100_VERILOG_SOURCES = vm80a/i8xxx_dummy.v  vm80a/i8224.v

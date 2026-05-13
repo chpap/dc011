@@ -7,7 +7,7 @@ use work.dc0112_pkg.all;
 entity BV4 is
    port( clk_i : in std_ulogic;
       clk24_i   : in  std_ulogic;
-      DO_0_H_i    : in std_ulogic_vector(7 downto 0);
+      DO_0_i    : in std_ulogic_vector(7 downto 0);
       LBA_i     : in std_ulogic_vector(7 downto 0);
       BV4_COMP_SYNC_L_i : in std_ulogic;
       BV1_GRAPHIC_1_IN_L_i : in std_ulogic;

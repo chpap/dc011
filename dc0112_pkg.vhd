@@ -163,11 +163,24 @@ package dc0112_pkg is
   );
   end component;
   component sram is
+  GENERIC(
+   DATAWIDTH : positive := 10
+  );
   port (
-      addr_i : in std_logic_vector (9 downto 0);
+      addr_i : in std_logic_vector (DATAWIDTH - 1  downto 0);
       clk   : in std_logic  := '1';
       data_i   : in std_logic_vector (7 downto 0);
       wren_i   : in std_logic ;
+      data_o   : out std_logic_vector (7 downto 0)
+	);
+  end component;
+  component bootrom is
+  GENERIC(
+   DATAWIDTH : positive := 13
+  );
+  port (
+      addr_i : in std_logic_vector (DATAWIDTH - 1  downto 0);
+      clk   : in std_logic  := '1';
       data_o   : out std_logic_vector (7 downto 0)
 	);
   end component;
@@ -184,6 +197,13 @@ package dc0112_pkg is
        n_vblank : out  std_ulogic;
        vrst : out  std_ulogic
   );
+  end component;
+  component er1400 is
+   port (
+      data_i	: in std_logic;
+      clk	: in std_logic  := '1';
+      c_i     : in std_logic_vector (2 downto 0)
+   );
   end component;
   component dc011
     port(
@@ -245,7 +265,8 @@ package dc0112_pkg is
      videoG: out  std_logic_vector(3 downto 0);
      videoB: out  std_logic_vector(3 downto 0);
      hSync: out  std_logic;
-     vSync: out  std_logic
+     vSync: out  std_logic;
+     LED: out  std_logic_vector(7 downto 0)
     );
   end component;
 
@@ -453,7 +474,8 @@ entity vt100 is
 	     videoG: out  std_logic_vector(3 downto 0);
 	     videoB: out  std_logic_vector(3 downto 0);
 	     hSync: out  std_logic;
-	     vSync: out  std_logic
+	     vSync: out  std_logic;
+	     LED: out  std_logic_vector(7 downto 0)
      );
 end entity;
 

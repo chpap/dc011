@@ -17,7 +17,7 @@ TOP ?= ${PROJECT}
 TOP_MODULE ?= ${TOP}
 TOP_VERILOG ?= ${TOP}.v
 
-PNR_DEBUG ?= # --verbose --debug
+PNR_DEBUG ?=  --verbose --debug
 
 BOARD ?= UNKNOWN
 JTAG_LINK ?= --board ${BOARD}
@@ -68,4 +68,4 @@ clean::
 .PHONY: pnrclean
 pnrclean:
 	@rm -f $(FASM) $(FRAMES) $(BITSTREAM) 
-	rm *.fasm *.frames *.bit
+	rm $(BUILD_DIR)/*.fasm $(BUILD_DIR)/*.frames $(BUILD_DIR)/*.bit

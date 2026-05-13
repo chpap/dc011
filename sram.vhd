@@ -9,7 +9,7 @@ entity sram is
 	);
 	port
 	(
-		addr_i  : in std_logic_vector (9 downto 0);
+		addr_i  : in std_logic_vector (DATAWIDTH - 1 downto 0);
 		clk	: in std_logic  := '1';
 		data_i	: in std_logic_vector (7 downto 0);
 		wren_i	: in std_logic ;

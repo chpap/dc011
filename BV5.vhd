@@ -8,7 +8,7 @@ entity BV5 is
 
    port( clk_i : in std_ulogic;
       clk24_i   : in  std_ulogic;
-      A0_H_o    : out std_ulogic_vector(14 downto 0);
+      A0_H_o    : out std_ulogic_vector(15 downto 0);
       DO_0_i    : in std_ulogic_vector(7 downto 0);
       LBA_i     : in std_ulogic_vector(7 downto 0);
       BV4_SC_H_i : in std_ulogic_vector(4 downto 0);
@@ -33,10 +33,6 @@ entity BV5 is
 
 end BV5;
 architecture rtl of BV5 is
-	signal A0_H: std_ulogic_vector(14 downto 0);
-	signal DO_0: std_ulogic_vector(7 downto 0);
 begin
-  A0_H_o <= A0_H;
-  DO_0 <= DO_0_i;
     
 end rtl;

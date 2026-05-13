@@ -5,14 +5,24 @@ use ieee.std_logic_arith.all;
 use ieee.numeric_std.all;
 use ieee.math_real.all;
 package vt100_pkg is
+constant BOOTROM_DEPTH: positive :=  8192;
+constant FONTROM_DEPTH: positive :=  8192;
+
+type bootrom_type is array (0 to BOOTROM_DEPTH - 1)
+  of std_logic_vector(7 downto 0);
+impure function init_bootrom_hex(romfilename : in string) return bootrom_type; 
+type fontrom_type is array (0 to FONTROM_DEPTH - 1)
+  of std_logic_vector(7 downto 0);
+impure function init_fontrom_hex(romfilename : in string) return fontrom_type; 
+
 
    component BV2 is
    port( clk_i : in std_ulogic;
       clk24_i    : in  std_ulogic;
       DO_0_i     : in std_ulogic_vector(7 downto 0);
-      DB_0_i     : in std_ulogic_vector(7 downto 0);
-      DB_0_o     : in std_ulogic_vector(7 downto 0);
-      A0_H_i : in std_ulogic_vector(14 downto 0);
+      DB_0_o     : out std_ulogic_vector(7 downto 0);
+      LBA_i     : out std_ulogic_vector(7 downto 0);
+      A0_H_i : in std_ulogic_vector(15 downto 0);
       BV6_RESET_L_i  : in std_ulogic;
       BV2_NVR_WR_L_i  : in std_ulogic;
       BV6_IO_RD_L_i : in std_ulogic;
@@ -20,9 +30,10 @@ package vt100_pkg is
       BV6_MEM_WR_L_i: in std_ulogic;
       BV6_MEM_RD_L_i: in std_ulogic;
       BV1_MEM_DISABLE_L_i: in std_ulogic;
-      n_BV2_SPDS_o  : out  std_ulogic;
+      BV2_n_SPDS_o  : out  std_ulogic;
       BV2_NVR_DATA_H_o: out  std_ulogic;
       BV2_KBD_RD_L_o: out std_ulogic;
+      BV2_KBD_WR_L_o: out std_ulogic;
       BV2_FLAG_RD_L_o: out std_ulogic;
       BV2_MODEM_RD_L_o: out std_ulogic;
       BV2_GRAPHIC_WR_L_o: out std_ulogic;
@@ -31,13 +42,13 @@ package vt100_pkg is
       BV2_NVR_WR_L_o: out std_ulogic;
       BV2_DA_WR_L_o: out std_ulogic;
       BV2_WRITE_BAUD_H_o: out std_ulogic;
-      BV2_SEL_8_12K_H_o: out std_ulogic;
+      BV2_SEL_8_12K_L_o: out std_ulogic;
       BV2_SEL_ATT_RAM_L_o: out std_ulogic);
    end component;
    component BV4 is
    port( clk_i : in std_ulogic;
       clk24_i   : in  std_ulogic;
-      DO_0_H_i    : in std_ulogic_vector(7 downto 0);
+      DO_0_i    : in std_ulogic_vector(7 downto 0);
       LBA_i     : in std_ulogic_vector(7 downto 0);
       BV4_COMP_SYNC_L_i : in std_ulogic;
       BV1_GRAPHIC_1_IN_L_i : in std_ulogic;
@@ -78,7 +89,7 @@ package vt100_pkg is
    component BV5 is
    port( clk_i : in std_ulogic;
       clk24_i   : in  std_ulogic;
-      A0_H_o    : out std_ulogic_vector(14 downto 0);
+      A0_H_o    : out std_ulogic_vector(15 downto 0);
       DO_0_i    : in std_ulogic_vector(7 downto 0);
       LBA_i     : in std_ulogic_vector(7 downto 0);
       BV4_SC_H_i : in std_ulogic_vector(4 downto 0);
@@ -107,6 +118,7 @@ package vt100_pkg is
       A0_H_o   : out std_logic_vector(15 downto 0);
       DB_0_i   : in std_logic_vector(7 downto 0);
       DO_0_o  : out std_ulogic_vector(7 downto 0);
+      LBA_i  : in std_ulogic_vector(7 downto 0);
       BV6_HLDA_H_o  : out std_ulogic;
       BV6_RESET_H_o  :out std_logic;
       BV6_INTR_H_i : in std_ulogic;
@@ -116,9 +128,14 @@ package vt100_pkg is
       BV6_IO_RD_L_o: out std_ulogic;
       BV6_MEM_WR_L_o: out std_ulogic;
       BV6_MEM_RD_L_o: out std_ulogic;
-      inte_o  : out std_logic;
-      dbin_o  : out std_logic;
-      n_wr_o  : out std_logic);
+      BV3_XMIT_FLAG_H_i : in std_ulogic;
+      BV3_REC_FLAG_H_i : in std_ulogic;
+      BV6_KBD_DATA_AVAIL_H_i: in std_ulogic;
+      BV2_KBD_WR_L_i: in std_ulogic;
+      BV4_EVEN_FIELD_L_i: in std_ulogic;
+      BV3_OPTION_PRESENT_H_i: in std_ulogic;
+      BV2_NVR_DATA_H_i: in std_ulogic;
+      BV2_FLAG_RD_L_i: in std_ulogic);
    end component;
 
 end package vt100_pkg;
@@ -127,9 +144,40 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.math_real.all;
+use std.textio.all;
 
 package body vt100_pkg is
 
+impure function init_bootrom_hex(romfilename : in string) return bootrom_type is
+  file text_file : text open read_mode is romfilename;
+  variable text_line  : line;
+  -- variable temp     : std_logic_vector((div_ceil(word_t'length, 4) * 4) - 1 downto 0);
+  variable rom_content       : bootrom_type    := (others => (others => '0'));
+begin
+  for i in 0 to BOOTROM_DEPTH - 1 loop
+     exit when endfile(text_file);
+     readline(text_file, text_line);
+     hread(text_line, rom_content(i));     
+     -- rom_content(i) := resize(temp, word_t'length);
+  end loop;
+  
+  return rom_content;
+end function;
 ------------------------------------------------------------------------
+impure function init_fontrom_hex(romfilename : in string) return fontrom_type is
+  file text_file : text open read_mode is romfilename;
+  variable text_line  : line;
+  -- variable temp     : std_logic_vector((div_ceil(word_t'length, 4) * 4) - 1 downto 0);
+  variable rom_content       : fontrom_type    := (others => (others => '0'));
+begin
+  for i in 0 to FONTROM_DEPTH - 1 loop
+     exit when endfile(text_file);
+     readline(text_file, text_line);
+     hread(text_line, rom_content(i));     
+     -- rom_content(i) := resize(temp, word_t'length);
+  end loop;
+  
+  return rom_content;
+end function;
 
 end package body vt100_pkg;
