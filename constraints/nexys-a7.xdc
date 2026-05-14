@@ -5,8 +5,8 @@
 ## Note: As the Nexys 4 DDR was rebranded to the Nexys A7 with no substantial changes, this XDC file will also work for the Nexys 4 DDR.
 
 ## Clock signal
-set_property -dict { PACKAGE_PIN E3    IOSTANDARD LVCMOS33 } [get_ports  clk100_i]
-create_clock -add -name clk100_i -period 10.00 -waveform {0 5} [get_ports clk100_i]
+create_clock -add -name sys_clk -period 10.00 -waveform {0 5} [get_ports clk100]
+set_property -dict { PACKAGE_PIN E3    IOSTANDARD LVCMOS33 } [get_ports  clk100]
 
 
 ##Switches
@@ -189,8 +189,8 @@ set_property -dict { PACKAGE_PIN D4    IOSTANDARD LVCMOS33 } [get_ports  rxd0 ]
 #set_property -dict { PACKAGE_PIN E5    IOSTANDARD LVCMOS33 } [get_ports  RTS0]
 
 ##USB HID (PS/2)
-#set_property -dict { PACKAGE_PIN F4    IOSTANDARD LVCMOS33 } [get_ports  ps2Clk ]
-#set_property -dict { PACKAGE_PIN B2    IOSTANDARD LVCMOS33 } [get_ports  ps2Data ]
+##set_property -dict { PACKAGE_PIN F4    IOSTANDARD LVCMOS33 } [get_ports  ps2clk ]
+##set_property -dict { PACKAGE_PIN B2    IOSTANDARD LVCMOS33 } [get_ports  ps2data ]
 
 ##SMSC Ethernet PHY
 #set_property -dict { PACKAGE_PIN C9    IOSTANDARD LVCMOS33 } [get_ports { ETH_MDC }]; #IO_L11P_T1_SRCC_16 Sch=eth_mdc

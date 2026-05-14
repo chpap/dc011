@@ -8,14 +8,14 @@ use work.dc0112_pkg.all;
 
 entity htiming is
     port (
-        i_clk: in  std_ulogic; -- input clock signal
-        extra_clk: in  std_ulogic; -- input clock signal
-        i_rst : in  std_ulogic; -- reset signal
+        clk_i: in  std_ulogic; -- input clock signal
+        extra_clk_i: in  std_ulogic; -- input clock signal
+        rst_i : in  std_ulogic; -- reset signal
         div_in : in std_ulogic_vector(8 downto 0);
-        mode80: in  std_ulogic; 
-        addr_cnt_on : out  std_ulogic;
-        n_hdrive: out  std_ulogic;
-        hblank : out  std_ulogic
+        mode80_i: in  std_ulogic; 
+        addr_cnt_on_o : out  std_ulogic;
+        n_hdrive_o: out  std_ulogic;
+        hblank_o : out  std_ulogic
     );
 end entity htiming;
 
@@ -24,7 +24,7 @@ architecture rtl of htiming is
 begin
     process_hdrive: process (div_in) is
     begin
-      n_hdrive <= not div_in(8) or ((div_in(4) and div_in(5)) and  (not div_in(6) and  not div_in(7)));
+      n_hdrive_o <= not div_in(8) or ((div_in(4) and div_in(5)) and  (not div_in(6) and  not div_in(7)));
     end process process_hdrive;
 
     process_hblank: process (div_in) is
@@ -37,21 +37,21 @@ begin
        end if;
      end if;
     end process process_hblank; 
-    hblank <= hblank_tmp and not i_rst;
+    hblank_o <= hblank_tmp and not rst_i;
 
-    process_addr_cnt_on: process (extra_clk) is
+    process_addr_cnt_on: process (extra_clk_i) is
       variable prev_val_addr_cnt: std_ulogic:= '0';
     begin
-     if falling_edge(extra_clk) then
+     if falling_edge(extra_clk_i) then
          if (and (div_in(8) & not div_in(7) & div_in(6 downto 4)))   then
-           prev_val_addr_cnt := addr_cnt_on;
-           addr_cnt_on <= '0' when (div_in(8 downto 0) = "101111010" and mode80 = '1') else -- 
-                            '1' when div_in = "101110010" and mode80 = '1' else
-                            '1' when div_in = "101110010" and mode80 = '0' else
-                            '0' when div_in = "101110000" and mode80 = '0' else
+           prev_val_addr_cnt := addr_cnt_on_o;
+           addr_cnt_on_o <= '0' when (div_in(8 downto 0) = "101111010" and mode80_i = '1') else -- 
+                            '1' when div_in = "101110010" and mode80_i = '1' else
+                            '1' when div_in = "101110010" and mode80_i = '0' else
+                            '0' when div_in = "101110000" and mode80_i = '0' else
                          prev_val_addr_cnt;
          else
-           addr_cnt_on <= prev_val_addr_cnt;
+           addr_cnt_on_o <= prev_val_addr_cnt;
          end if;
       end if;
       -- prev_val_addr_cnt := addr_cnt_on;

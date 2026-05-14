@@ -64,8 +64,6 @@ signal ROM : bootrom_type:= (
 );
 --    21 00 00 11 01 30 7E 23 7D BB C2 06 01 7C BA C2 06 01 C3 00 01
 --signal ROM2 : bootrom_type := init_bootrom_hex("rom1.hex");
-attribute rom_style : string;
-attribute rom_style of ROM : signal is "block";
 
 
 begin

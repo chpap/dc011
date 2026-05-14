@@ -152,14 +152,14 @@ package dc0112_pkg is
   end component;
   component htiming is
   port (
-       i_clk: in  std_ulogic; -- input clock signal
-       extra_clk: in  std_ulogic; -- input clock signal
-       i_rst : in  std_ulogic; -- reset signal
+       clk_i: in  std_ulogic; -- input clock signal
+       extra_clk_i: in  std_ulogic; -- input clock signal
+       rst_i : in  std_ulogic; -- reset signal
        div_in : in std_ulogic_vector(8 downto 0);
-       mode80 : in  std_ulogic; 
-       addr_cnt_on : out  std_ulogic;
-       n_hdrive: out  std_ulogic;
-       hblank : out  std_ulogic
+       mode80_i : in  std_ulogic; 
+       addr_cnt_on_o : out  std_ulogic;
+       n_hdrive_o: out  std_ulogic;
+       hblank_o : out  std_ulogic
   );
   end component;
   component sram is

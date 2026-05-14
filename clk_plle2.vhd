@@ -1,4 +1,4 @@
--- Device      : xc7a100tcsg324-1
+-- Device      : xc7a100tcsg324-1D
 -- --------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -30,24 +30,31 @@ architecture rtl of clk_plle2 is
         STARTUP_WAIT   : string  := "FALSE"
         );
         port (
-	CLKFBOUT : out std_logic;
+            CLKIN1   : in  std_logic;
+            CLKFBIN  : in  std_logic;
+            CLKFBOUT : out  std_logic;
             CLKOUT0  : out std_logic;
             CLKOUT1  : out std_logic;
             CLKOUT2  : out std_logic;
             CLKOUT3  : out std_logic;
             LOCKED   : out std_logic;
-            CLKFBIN  : in  std_logic;
-            CLKIN1   : in  std_logic;
-            PWRDWN   : in  std_logic;
             RST      : in  std_logic;
-            DADDR    : in  std_logic_vector(6 downto 0);
-            DCLK     : in  std_logic;
-            DEN      : in  std_logic;
-            DI       : in  std_logic_vector(15 downto 0)
+            PWRDWN   : in  std_logic
         );
     end component;
+    component BUFG is
+       port(
+         I: in std_logic;
+         O: out std_logic
+       );
+    end component;
+	      
 
     signal clk_fb : std_logic;
+    signal clk0_unbuffered : std_logic;
+    signal clk1_unbuffered : std_logic;
+    signal clk2_unbuffered : std_logic;
+    signal clk3_unbuffered : std_logic;
 begin
 	-- CLKOUT0 = 800 / 8   = 100 MHz
     -- CLKOUT1 = 800 / 32  = 25 MHz (Πλησιέστερο στο 24.8832 χωρίς fractional MMCM)
@@ -69,17 +76,37 @@ begin
         CLKIN1   => clk_in,
         CLKFBIN  => clk_fb,
         CLKFBOUT => clk_fb,
-        CLKOUT0  => clk_100,
-        CLKOUT1  => clk_24_88,
-        CLKOUT2  => clk_24_07,
-        CLKOUT3  => clk_6_25,
+        CLKOUT0  => clk0_unbuffered,
+        CLKOUT1  => clk1_unbuffered,
+        CLKOUT2  => clk2_unbuffered,
+        CLKOUT3  => clk3_unbuffered,
         LOCKED   => locked,
         RST      => reset,
-        PWRDWN   => '0',
-        DADDR    => (others => '0'),
-        DCLK     => '0',
-        DEN      => '0',
-        DI       => (others => '0')
+        PWRDWN   => '0'
     );
+    clk_100 <= clk0_unbuffered;
+    clk_24_88 <= clk1_unbuffered;
+    clk_24_07<= clk2_unbuffered;
+    clk_6_25 <= clk3_unbuffered;
+--    bufg_clk0 : BUFG
+--    port map (
+--       I => clk0_unbuffered,
+--       O => clk_100
+--       );
+--    bufg_clk1 : BUFG
+--    port map (
+--       I => clk1_unbuffered,
+--       O => clk_24_88
+--       );
+--    bufg_clk2 : BUFG
+--    port map (
+--       I => clk2_unbuffered,
+--       O => clk_24_07
+--       );
+--    bufg_clk3 : BUFG
+--    port map (
+--       I => clk3_unbuffered,
+--       O => clk_6_25
+--       );
 end architecture;
 

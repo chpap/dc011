@@ -35,7 +35,7 @@ burn: ${PROJECT}.bit
 program: ${PROJECT}.bit
 	openFPGALoader ${JTAG_LINK} --bitstream $<
 
-#${PROJECT}.json: ${TOP_VERILOG} ${ADDITIONAL_SOURCES}
+#$(JSON): ${TOP_VERILOG} ${ADDITIONAL_SOURCES}
 #	yosys -p "synth_xilinx -flatten -abc9 ${SYNTH_OPTS} -arch xc7 -top ${TOP_MODULE}; write_json ${PROJECT}.json" $< ${ADDITIONAL_SOURCES}
 
 # The chip database only needs to be generated once
@@ -45,8 +45,8 @@ ${CHIPDB}/${DBPART}.bin:
 	bbasm -l ${DBPART}.bba ${CHIPDB}/${DBPART}.bin
 	rm -f ${DBPART}.bba
 
-$(BUILD_DIR)/${PROJECT}.fasm: $(JSON) ${CHIPDB}/${DBPART}.bin ${XDC}
-	nextpnr-xilinx --chipdb ${CHIPDB}/${DBPART}.bin --xdc ${XDC} --json ${BUILD_DIR}/${PROJECT}.json --fasm $@ ${PNR_ARGS} ${PNR_DEBUG}
+$(FASM): $(JSON) ${CHIPDB}/${DBPART}.bin ${XDC}
+	nextpnr-xilinx --chipdb ${CHIPDB}/${DBPART}.bin --xdc ${XDC} --json ${JSON} --fasm $@ ${PNR_ARGS} ${PNR_DEBUG}
 	
 $(FRAMES): $(FASM)
 	fasm2frames --part ${PART} --db-root ${PRJXRAY_DB_DIR}/${FAMILY} $< > $@
@@ -61,11 +61,11 @@ clean::
 	@rm -f *.o
 	@rm -f *.frames
 	@rm -f *.fasm
-	@rm -f 
+	@rm -f $(BUILD_DIR)/$(PROJECT)_vhdl.v
 	@rm -f $(JSON)
 	@rm -rf obj_dir
 	@rm -rf .gvi
 .PHONY: pnrclean
 pnrclean:
 	@rm -f $(FASM) $(FRAMES) $(BITSTREAM) 
-	rm $(BUILD_DIR)/*.fasm $(BUILD_DIR)/*.frames $(BUILD_DIR)/*.bit
+	#@rm $(BUILD_DIR)/*.fasm $(BUILD_DIR)/*.frames $(BUILD_DIR)/*.bit

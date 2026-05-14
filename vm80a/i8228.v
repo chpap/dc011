@@ -1,5 +1,6 @@
 `timescale 1ns/1ps
 module i8228(
+    input           clk_i, //not in original design
     input           dbin_i,
     input           n_wr_i,
     input           n_stsb_i,
@@ -15,22 +16,36 @@ module i8228(
     output reg      n_iow_o = 1'b0,
     output reg      n_inta_o = 1'b0);
 
-    reg             hlda = 1'b0;
+    wire     hlda;
+    reg      hlda_r1 = 1'b0;
+    reg      hlda_r2 = 1'b0;
+    reg      n_stsb_r1 = 1'b0;
+    reg      n_stsb_r2 = 1'b0;
+    wire     stsb_pe, hold_pe;
 
     // assign d_o_int = dbin_int ? db_i : 8'hff;
     //assign db_o_int = n_wr_int ? d_i : 8'hff;
     //assign hlda = dbin_int & hlda_int;
     assign d_o = n_busen_i ?  8'hff : db_i;
     assign db_o = (n_busen_i | ~n_wr_i) ?  8'hff : d_i;
+    assign stsb_pe = n_stsb_r1 & ~n_stsb_r2;
+    assign hold_pe = hlda_r1 &  ~hlda_r2;
+    assign hlda = hlda_i & dbin_i;
 
-always @(posedge hlda) begin
+
+always @(posedge clk_i) begin
+	hlda_r2 <= hlda_r1;
+	hlda_r1 <= hlda;
+	n_stsb_r2 <= n_stsb_r1;
+	n_stsb_r1 <= n_stsb_i;
+     if(hold_pe) begin
 	n_memr_o <= 1'b0;
 	n_ior_o <= 1'b0;
 	n_inta_o <= 1'b0;
-end
-always @(posedge n_stsb_i) begin
+     end
+//always @(posedge n_stsb_i) begin
     // dbin_int <= dbin_i;
-    hlda <= hlda_i & dbin_i;
+    if(stsb_pe) begin
     //n_dbusen_int <= n_busen_i | ~n_wr_int;
 
     case (d_i)
@@ -66,6 +81,7 @@ always @(posedge n_stsb_i) begin
       8'b00101011  : n_inta_o <= 1;
       default : n_inta_o <= 0; 
     endcase
+end
 end
      
 endmodule

@@ -1,6 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
-use work.xilinx_block_ram_pkg.all;
+--use work.xilinx_block_ram_pkg.all;
 
 
 entity er1400 is
@@ -8,7 +8,7 @@ entity er1400 is
 	(
 		data_i	: in std_logic;
 		clk	: in std_logic  := '1';
-		c_i     : in std_logic_vector (2 downto 0);
+		c_i     : in std_logic_vector (2 downto 0)
 	);
 end er1400;
 

@@ -8,10 +8,10 @@ entity BV4 is
    port( clk_i : in std_ulogic;
       clk24_i   : in  std_ulogic;
       DO_0_i    : in std_ulogic_vector(7 downto 0);
-      LBA_i     : in std_ulogic_vector(7 downto 0);
-      BV4_COMP_SYNC_L_i : in std_ulogic;
+      LBA_o     : out std_ulogic_vector(7 downto 0);
+      BV4_COMP_SYNC_L_o : out std_ulogic;
       BV1_GRAPHIC_1_IN_L_i : in std_ulogic;
-      BV4_VERT_BLANK_L_i : in std_ulogic;
+      BV4_VERT_BLANK_L_o : out std_ulogic;
       BV1_GRAPHIC_2_IN_L_i : in std_ulogic;
       BV2_DA_WR_L_i : in std_ulogic;
       BV4_INIT_H_o : out std_ulogic;
@@ -48,6 +48,29 @@ entity BV4 is
 
 end BV4;
 architecture rtl of BV4 is
+     signal LBA: std_ulogic_vector(7 downto 0);
 begin
+  DC011_INT: dc011 port map(
+     clk24 => clk24_i,
+     n_rst => '1',
+     d0 => DO_0_i(4),
+     d1 => DO_0_i(5),
+     n_vid_wr => BV2_VID_WR_1_L_i,
+     dw => '0',
+     hold_req => BV4_HOLD_REQ_H_i,
+     LBA => LBA_o,
+     dot_clock => BV4_DOT_CLK_H_o,
+     char_clk => BV4_CHAR_CLK_H_o,
+     n_write_lb => BV4_WRITE_LB_L_o,
+     vsr_ld => BV4_VSR_LOAD_H_o,
+     n_addr_ld => BV4_ADDR_LD_L_o,
+     n_hdrive => open,
+     hblank  => BV4_HORIZ_BLK_H_o,
+     vrst  => open,
+     vdrive => open,
+     n_vblank  => BV4_VERT_BLANK_L_o,
+     comp_sync => BV4_COMP_SYNC_L_o,
+     addr_count => open
+    );
     
 end rtl;

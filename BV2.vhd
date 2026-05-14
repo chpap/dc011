@@ -10,7 +10,7 @@ entity BV2 is
       clk24_i    : in  std_ulogic;
       DO_0_i     : in std_ulogic_vector(7 downto 0);
       DB_0_o     : out std_ulogic_vector(7 downto 0);
-      LBA_i     : out std_ulogic_vector(7 downto 0);
+      LBA_i     : in std_ulogic_vector(7 downto 0);
       A0_H_i : in std_ulogic_vector(15 downto 0);
       BV6_RESET_L_i  : in std_ulogic;
       BV2_NVR_WR_L_i  : in std_ulogic;
@@ -77,13 +77,17 @@ begin
 -------------------------- 
 ----NVR LATCH ------------
 
-  nvr_latch_proc: process (BV2_NVR_WR_L_i,BV6_RESET_L_i) is
+  nvr_latch_proc: process (BV2_NVR_WR_L_i) is
+    variable nvr_latch_next: std_ulogic_vector(5 downto 0);
     begin
-      if rising_edge(BV2_NVR_WR_L_i) and BV6_RESET_L_i = '1' then 
-             nvr_latch <= DO_0_i(5 downto 0);
-      else
-             nvr_latch <= (others => '0');
+      if rising_edge(BV2_NVR_WR_L_i) then 
+         if BV6_RESET_L_i = '1' then
+             nvr_latch_next := DO_0_i(5 downto 0);
+          else
+             nvr_latch_next := (others => '0');
+          end if;
       end if;
+      nvr_latch <= nvr_latch_next;
     end process nvr_latch_proc; 
   BV2_n_SPDS_o <= nvr_latch(5);
   BV2_NVR_DATA_H_o <= nvr_latch (0);

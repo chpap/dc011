@@ -107,14 +107,14 @@ begin
     );
     htiming_inst: htiming
     port map (
-        i_clk => clk_hf,
-        extra_clk => dot_clock_s,
-        i_rst => reset_count,
+        clk_i => clk_hf,
+        extra_clk_i => dot_clock_s,
+        rst_i => reset_count,
         div_in => hcdiv_out,
-        mode80 => mode80,
-        addr_cnt_on => addr_cnt_on,
-        n_hdrive => n_hdrive,
-        hblank => hblank
+        mode80_i => mode80,
+        addr_cnt_on_o => addr_cnt_on,
+        n_hdrive_o => n_hdrive,
+        hblank_o => hblank
     );
     vtiming_inst: vtiming
     port map (
@@ -188,7 +188,7 @@ begin
   reset_count <= not n_vid_wr;
   dot_clock_s <=  clk80 when mode80 = '1' else clk_in;
   dot_clock_d <=  clk80_half when mode80 = '1' else clk132_half;
-  -- dot_clock MUX
+-- dot_clock MUX
   dot_clock <= dot_clock_s when double_width = '0' else dot_clock_d;
   n_write_lb <= write_lb nand hold_req;
   D_clock <= n_vrst;
@@ -218,5 +218,5 @@ begin
   vsr_ld <= vsr_ld_tmp  when double_width = '0' else vsr_ld_tmp and not char_clk_half;
   comp_sync <= comp_sync_out;
   addr_count <= ( ( char_clk and not hblank and hold_req )  or (hblank and not addr_cnt_on) or vrst) ;
-  
+--  
 end architecture;
