@@ -77,7 +77,7 @@ architecture rtl of vt100 is
   signal BV3_OPTION_PRESENT_H: std_ulogic := '0';
   signal BV4_T_HOLD_REQ_H: std_ulogic;
   signal BV4_HS_CLK_H: std_ulogic;
-  signal BV4_SC_H : std_ulogic_vector(4 downto 0);
+  signal BV4_SC_H : std_ulogic_vector(3 downto 0);
   signal BV4_WRITE_LB_L : std_ulogic;
   signal BV4_HOLD_REQ_H : std_ulogic;
   signal BV4_CHAR_CLK_H : std_ulogic;
@@ -98,7 +98,7 @@ architecture rtl of vt100 is
   signal BV4_VERT_FREQ_INT_L: std_ulogic;
   signal BV4_VIDEO_OUT_1_H: std_ulogic;
   signal BV4_VIDEO_OUT_2_H: std_ulogic;
-  signal BV5_RV_H_o:  std_ulogic;
+  signal BV5_RV_H:  std_ulogic;
   signal BV5_TERM_L:  std_ulogic;
   signal BV5_DW_H: std_ulogic;
   signal BV5_DV_H: std_ulogic;
@@ -149,7 +149,7 @@ begin
       BV1_GRAPHIC_2_IN_L_i => BV1_GRAPHIC_2_IN_L,
       BV2_DA_WR_L_i => BV2_DA_WR_L,
       BV4_INIT_H_o => BV4_INIT_H,
-      BV4_HOLD_REQ_H_i => BV4_HOLD_REQ_H,
+      BV4_HOLD_REQ_H_o => BV4_HOLD_REQ_H,
       BV4_T_HOLD_REQ_H_o => BV4_T_HOLD_REQ_H,
       BV4_HS_CLK_H_o => BV4_HS_CLK_H,
       BV6_HLDA_H_i => BV6_HLDA_H,
@@ -162,7 +162,8 @@ begin
       BV1_BLINK_L_i => BV1_BLINK_L,
       BV1_UNDERLINE_L_i => BV1_UNDERLINE_L,
       BV1_BOLD_L_i => BV1_BOLD_L,
-      BV2_VID_WR_1_L_i => BV2_VID_WR_1L,
+      BV2_VID_WR_1L_i => BV2_VID_WR_1L,
+      BV2_VID_WR_2L_i => BV2_VID_WR_2L,
       BV4_HORIZ_BLK_H_o => BV4_HORIZ_BLK_H,
       BV4_VERT_RESET_H_o => BV4_VERT_RESET_H,
       BV4_CHAR_CLK_H_o => BV4_CHAR_CLK_H,
@@ -176,6 +177,7 @@ begin
       BV4_EVEN_FIELD_L_o => BV4_EVEN_FIELD_L,
       BV4_VERT_FREQ_INT_L_o => BV4_VERT_FREQ_INT_L,
       BV4_SC_H_o => BV4_SC_H,
+      BV5_RV_H_i => BV5_RV_H,
       BV4_VIDEO_OUT_1_H_o => BV4_VIDEO_OUT_1_H,
       BV4_VIDEO_OUT_2_H_o => BV4_VIDEO_OUT_2_H);
 
@@ -198,7 +200,7 @@ begin
       BV5_SERIAL_VIDEO_H_o => BV5_SERIAL_VIDEO_H,
       BV4_HORIZ_BLK_H_i => BV4_HORIZ_BLK_H,
       BV4_VERT_RESET_H_i => BV4_VERT_RESET_H,
-      BV5_RV_H_o => BV5_RV_H_o,
+      BV5_RV_H_o => BV5_RV_H,
       BV5_DV_H_o => BV5_DV_H,
       BV5_DW_H_o => BV5_DW_H,
       BV5_TERM_L_o => BV5_TERM_L,
@@ -228,6 +230,32 @@ begin
       BV6_MEM_WR_L_o => BV6_MEM_WR_L,
       DEBUG => debug_bv6
      );
+    AVO_INST: AVO port map( 
+      clk_i => clk100_i,
+      clk24_i => clk24_88_i,
+      A0_H_i => A0_H,
+      DB_0_o => open,
+      LBA_i => LBA,
+      BV4_WRITE_LB_L_i => BV4_WRITE_LB_L,
+      BV4_HOLD_REQ_H_i => BV4_HOLD_REQ_H,
+      BV4_CHAR_CLK_H_i => BV4_CHAR_CLK_H,
+      BV4_DMA_ENA_L_i => BV4_DMA_ENA_L,
+      BV6_MEM_RD_L_i => BV6_MEM_RD_L,
+      BV6_MEM_WR_L_i => BV6_MEM_WR_L,
+      AVO_ADVANCED_VIDEO_L_o => open,
+      AVO_MEM_DISABLE_L_o => open,
+      AVO_EN_PATCH_ROM_L_o => open,
+      BV2_SEL_ATT_RAM_L_i => BV2_SEL_ATT_RAM_L,
+      BV2_SEL_8_12K_L_i => BV2_SEL_8_12K_L,
+      BV1_ALT_CHAR_SEL_L_o => BV1_ALT_CHAR_SEL_L,
+      BV1_BLINK_L_o => BV1_BLINK_L,
+      BV1_BOLD_L_o => BV1_BOLD_L,
+      BV1_UNDERLINE_L_o => BV1_UNDERLINE_L,
+      AVO_SW_E19_2_i => '0',
+      AVO_SW_E19_3_i => '0',
+      AVO_SW_E19_8_i => '0',
+      DEBUG => open
+    );
    led_o(0) <= not BV4_CHAR_CLK_H;
    --led_o(0) <= not BV4_VERT_RESET_H;
    --led_o(1) <= A0_H(3);

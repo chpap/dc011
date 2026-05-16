@@ -80,7 +80,7 @@ entity BV5 is
       A0_H_o    : out std_ulogic_vector(15 downto 0);
       DO_0_i    : in std_ulogic_vector(7 downto 0);
       LBA_i     : in std_ulogic_vector(7 downto 0);
-      BV4_SC_H_i : in std_ulogic_vector(4 downto 0);
+      BV4_SC_H_i : in std_ulogic_vector(3 downto 0);
       BV4_WRITE_LB_L_i : in std_ulogic;
       BV4_HOLD_REQ_H_i : in std_ulogic;
       BV4_CHAR_CLK_H_i : in std_ulogic;

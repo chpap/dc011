@@ -231,28 +231,28 @@ package dc0112_pkg is
   end component;
   component dc012 is
     port (
-     dot_clock: in std_ulogic;
-     n_rst:  in  std_ulogic;
-     data:  in  std_ulogic_vector(3 downto 0);
-     n_vid_w2:  in  std_ulogic;
-     vrst:  in  std_ulogic;
-     vf_intr:   out std_ulogic;
-     revvid:  in  std_ulogic;
-     d_h:   in std_ulogic;
-     d_l:   in std_ulogic;
-     n_addr_ld:   in std_ulogic;
-     hold_req:   out std_ulogic;
-     vsr_ld:   out std_ulogic;
-     char_clk:   in std_ulogic;
-     hblank:   in std_ulogic;
-     scan_cnt:  out  std_ulogic_vector(3 downto 0);
-     vid1out:   out std_ulogic;
-     vid2out:   out std_ulogic;
-     term: in  std_ulogic;
-     n_underline: in  std_ulogic;
-     n_blink: in  std_ulogic;
-     n_bold: in  std_ulogic;
-     vid_in: in std_ulogic
+     clk_i: in std_ulogic;
+     dot_clock_i: in std_ulogic;
+     n_rst_i:  in  std_ulogic;
+     data_i:  in  std_ulogic_vector(3 downto 0);
+     n_vid_w2_i:  in  std_ulogic;
+     vrst_i:  in  std_ulogic;
+     vf_intr_o:   out std_ulogic;
+     revvid_i:  in  std_ulogic;
+     d_h_i:   in std_ulogic;
+     d_l_i:   in std_ulogic;
+     n_addr_ld_i:   in std_ulogic;
+     hold_req_o:   out std_ulogic;
+     char_clk_i:   in std_ulogic;
+     hblank_i:   in std_ulogic;
+     scan_cnt_o:  out  std_ulogic_vector(3 downto 0);
+     vid1out_o:   out std_ulogic;
+     vid2out_o:   out std_ulogic;
+     term_i: in  std_ulogic;
+     n_underline_i: in  std_ulogic;
+     n_blink_i: in  std_ulogic;
+     n_bold_i: in  std_ulogic;
+     vid_in_i: in std_ulogic
     );
   end component;
   component vt100 is

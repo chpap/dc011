@@ -15,7 +15,7 @@ entity BV4 is
       BV1_GRAPHIC_2_IN_L_i : in std_ulogic;
       BV2_DA_WR_L_i : in std_ulogic;
       BV4_INIT_H_o : out std_ulogic;
-      BV4_HOLD_REQ_H_i : in std_ulogic;
+      BV4_HOLD_REQ_H_o : out std_ulogic;
       BV4_T_HOLD_REQ_H_o : out std_ulogic;
       BV4_HS_CLK_H_o : out std_ulogic;
       BV6_HLDA_H_i : in std_ulogic;
@@ -28,7 +28,8 @@ entity BV4 is
       BV1_BLINK_L_i : in std_ulogic;
       BV1_UNDERLINE_L_i : in std_ulogic;
       BV1_BOLD_L_i : in std_ulogic;
-      BV2_VID_WR_1_L_i : in std_ulogic;
+      BV2_VID_WR_1L_i : in std_ulogic;
+      BV2_VID_WR_2L_i : in std_ulogic;
       BV4_HORIZ_BLK_H_o: out std_ulogic;
       BV4_VERT_RESET_H_o: out std_ulogic;
       BV4_CHAR_CLK_H_o : out std_ulogic;
@@ -41,7 +42,8 @@ entity BV4 is
       BV4_VERT_DRIVE_L_o : out std_ulogic;
       BV4_EVEN_FIELD_L_o : out std_ulogic;
       BV4_VERT_FREQ_INT_L_o : out std_ulogic;
-      BV4_SC_H_o : out std_ulogic_vector(4 downto 0);
+      BV5_RV_H_i: in std_ulogic;
+      BV4_SC_H_o : out std_ulogic_vector(3 downto 0);
       BV4_VIDEO_OUT_1_H_o: out std_ulogic;
       BV4_VIDEO_OUT_2_H_o: out std_ulogic
       );
@@ -58,9 +60,9 @@ begin
      n_rst_i => '1',
      d0_i => DO_0_i(4),
      d1_i => DO_0_i(5),
-     n_vid_wr_i => BV2_VID_WR_1_L_i,
+     n_vid_wr_i => BV2_VID_WR_1L_i,
      dw_i => DW,
-     hold_req_i => BV4_HOLD_REQ_H_i,
+     hold_req_i => BV4_HOLD_REQ_H_o,
      LBA_o => LBA_o,
      dot_clock_o => BV4_DOT_CLK_H_o,
      char_clk_o => BV4_CHAR_CLK_H_o,
@@ -76,6 +78,30 @@ begin
      addr_count => BV4_ADDR_CNT_H_o
     );
     
+  DC012_INT: dc012 port map(
+     clk_i => clk_i,
+     dot_clock_i => BV4_DOT_CLK_H_o,
+     n_rst_i => '1',
+     data_i =>  DO_0_i(3 downto 0),
+     n_vid_w2_i => BV2_VID_WR_2L_i,
+     vrst_i => BV4_VERT_RESET_H_o,
+     vf_intr_o => BV4_VERT_FREQ_INT_L_o,
+     revvid_i => BV5_RV_H_i,
+     d_h_i => BV5_DH_L_i,
+     d_l_i => BV5_DW_L_i,
+     hold_req_o => BV4_HOLD_REQ_H_o,
+     n_addr_ld_i => BV4_ADDR_LD_L_o,
+     char_clk_i => BV4_CHAR_CLK_H_o,
+     hblank_i => BV4_HORIZ_BLK_H_o,
+     scan_cnt_o => BV4_SC_H_o,
+     vid1out_o => BV4_VIDEO_OUT_1_H_o,
+     vid2out_o => BV4_VIDEO_OUT_2_H_o,
+     term_i => BV5_TERM_L_i,
+     n_underline_i => BV1_UNDERLINE_L_i,
+     n_blink_i => BV1_BLINK_L_i,
+     n_bold_i => BV1_BOLD_L_i,
+     vid_in_i => '0'
+    );
     D_FF_1: D_FF
       port map(
        n_clk_i => not BV4_VERT_DRIVE_H,

@@ -9,28 +9,28 @@ use work.dc0112_pkg.all;
 
 entity dc012 is
 port (
-  dot_clock: in std_ulogic;
-  n_rst:  in  std_ulogic;
-  data:  in  std_ulogic_vector(3 downto 0);
-  n_vid_w2:  in  std_ulogic;
-  vrst:  in  std_ulogic;
-  vf_intr:   out std_ulogic;
-  revvid:  in  std_ulogic;
-  d_h:   in std_ulogic;
-  d_l:   in std_ulogic;
-  n_addr_ld:   in std_ulogic;
-  hold_req:   out std_ulogic;
-  vsr_ld:   out std_ulogic;
-  char_clk:   in std_ulogic;
-  hblank:   in std_ulogic;
-  scan_cnt:  out  std_ulogic_vector(3 downto 0);
-  vid1out:   out std_ulogic;
-  vid2out:   out std_ulogic;
-  term: in  std_ulogic;
-  n_underline: in  std_ulogic;
-  n_blink: in  std_ulogic;
-  n_bold: in  std_ulogic;
-  vid_in: in std_ulogic
+   clk_i: in std_ulogic;
+   dot_clock_i: in std_ulogic;
+   n_rst_i:  in  std_ulogic;
+   data_i:  in  std_ulogic_vector(3 downto 0);
+   n_vid_w2_i:  in  std_ulogic;
+   vrst_i:  in  std_ulogic;
+   vf_intr_o:   out std_ulogic;
+   revvid_i:  in  std_ulogic;
+   d_h_i:   in std_ulogic;
+   d_l_i:   in std_ulogic;
+   n_addr_ld_i:   in std_ulogic;
+   hold_req_o:   out std_ulogic;
+   char_clk_i:   in std_ulogic;
+   hblank_i:   in std_ulogic;
+   scan_cnt_o:  out  std_ulogic_vector(3 downto 0);
+   vid1out_o:   out std_ulogic;
+   vid2out_o:   out std_ulogic;
+   term_i: in  std_ulogic;
+   n_underline_i: in  std_ulogic;
+   n_blink_i: in  std_ulogic;
+   n_bold_i: in  std_ulogic;
+   vid_in_i: in std_ulogic
 );
 end entity;
 
@@ -72,6 +72,7 @@ architecture behaviour of dc012 is
    signal scroll_gate1out: std_ulogic;
    signal hreq_gate1out: std_ulogic;
    signal hreq_gate1out_delayed: std_ulogic;
+   signal hold_req: std_ulogic := '0';
    signal hold_req_int: std_ulogic := '0';
    signal clk_scroll: std_ulogic;
    signal CLK: std_ulogic;
@@ -79,100 +80,105 @@ begin
     --- DELAYS
     delay_inst3: delay
     generic map(CYCLES => 3, WIDTH => 1)
-    port map(clk => char_clk,
-         rst => not n_rst,
+    port map(clk => char_clk_i,
+         rst => not n_rst_i,
          en  => '1',
-         input => ""&hblank, 
+         input => ""&hblank_i, 
          output(0) => hblank_delayed
     );
     delay_inst2: delay
     generic map(CYCLES => 2, WIDTH => 1)
-    port map(clk => char_clk,
-         rst => not n_rst,
+    port map(clk => char_clk_i,
+         rst => not n_rst_i,
          en  => '1',
          input => ""&hreq_gate1out, 
          output(0) => hreq_gate1out_delayed 
     );
     delay_stretch: delay
     generic map(CYCLES => 2, WIDTH => 1)
-    port map(clk => dot_clock,
-         rst => not n_rst,
+    port map(clk => dot_clock_i,
+         rst => not n_rst_i,
          en  => '1',
-         input => ""&vid_in, 
+         input => ""&vid_in_i, 
          output(0) => vid_in_delayed 
     );
-   --LATCH 2
-  latch2_proc: process (hold_req,vrst) is
+   --LATCH 2 TODO vrst ?
+  latch2_proc: process (hold_req,vrst_i) is
     begin
     if rising_edge(hold_req) then
-       latch2 <= latch1(1 downto 0); -- (d_h,d_l) 
+       latch2 <= latch1(1 downto 0); -- (d_h_i,d_l_i) 
     end if;
   end process latch2_proc;
 
 
-  latch1_proc: process (n_addr_ld, vrst) is
+--  latch1_proc: process (n_addr_ld_i, vrst_i) is
+--    begin
+--    if rising_edge(vrst_i) then
+--       latch1 <=  (others => '0');
+--    end if;
+--    -- LATCH 1 LOAD
+--    if rising_edge(n_addr_ld_i) then
+--       latch1 <=  ( revvid_i & d_h_i & d_l_i );
+--    end if;
+--    if rising_edge(vrst_i) then
+--       latch1 <=  "000";
+--    end if;
+--  end process latch1_proc;
+--
+--  -- SCAn COUNTER
+  scan_counter_proc: process (CNT,vrst_i) is
     begin
-    if rising_edge(vrst) then
-       latch1 <=  (others => '0');
+    if rising_edge(CNT) then
+      if vrst_i = '1'  then
+        offset_counter <= scroll_latch_H & scroll_latch_L;
+        scan_counter <= "0000";
+      else
+        offset_counter <= offset_counter + 1;
+        scan_counter <= scan_counter + 1;
+      end if;
     end if;
-    -- LATCH 1 LOAD
-    if rising_edge(n_addr_ld) then
-       latch1 <=  ( revvid & d_h & d_l );
-    end if;
-    if rising_edge(vrst) then
-       latch1 <=  "000";
-    end if;
-  end process latch1_proc;
-
-  -- SCAn COUNTER
-  scan_counter_proc: process (CNT,vrst) is
-    begin
-    if CNT'EVENT and CNT = '1' then
-      offset_counter <= offset_counter + 1;
-      scan_counter <= scan_counter + 1;
-    end if;
-    if vrst'EVENT and vrst = '1' then
-       offset_counter <= scroll_latch_H & scroll_latch_L;
-       scan_counter <= "0000";
-    end if;
+--    if rising_edge(vrst_i) then -- TODO : make vrst_i synchronous
+--       offset_counter <= scroll_latch_H & scroll_latch_L;
+--       scan_counter <= "0000";
+--    end if;
   end process scan_counter_proc;
-  -- COMMAND DECOdER
-  command_decode: process (n_vid_w2,data,vrst) is
-    begin
-    if rising_edge(vrst) then
-       vfreq_intr_ff <= '1';
-    end if;
-    if n_vid_w2'EVENT and n_vid_w2 = '0' then
-      case data is
-        when "0000" => scroll_latch_L <= "00";
-        when "0001" => scroll_latch_L <= "01";
-        when "0010" => scroll_latch_L <= "10";
-        when "0011" => scroll_latch_L <= "11";
-        when "0100" => scroll_latch_H <= "00";
-        when "0101" => scroll_latch_H <= "01";
-        when "0110" => scroll_latch_H <= "10";
-        when "0111" => scroll_latch_H <= "11";
-        when "1000" => blink_ff <= not blink_ff;
-        when "1001" => vfreq_intr_ff <= '0';
-        when "1010" => reverse_field_ff <= '1';
-        when "1011" => reverse_field_ff  <= '0';
-        when "1100" => basic_attribute <= ATTR_UNDERLINE; blink_ff <= '0';
-        when "1101" => basic_attribute <= ATTR_REVERSE_VIDEO; blink_ff <= '0';
-        when others => blink_ff <= '0';
-      end case;
-    end if;
-    
-  end process command_decode;
+--  -- COMMAND DECOdER
+--  command_decode: process (n_vid_w2_i,vrst_i) is
+--    begin
+--    if rising_edge(vrst_i) then
+--       vfreq_intr_ff <= '1';
+--    end if;
+--    if falling_edge(n_vid_w2_i) then
+--      case data_i is
+--        when "0000" => scroll_latch_L <= "00";
+--        when "0001" => scroll_latch_L <= "01";
+--        when "0010" => scroll_latch_L <= "10";
+--        when "0011" => scroll_latch_L <= "11";
+--        when "0100" => scroll_latch_H <= "00";
+--        when "0101" => scroll_latch_H <= "01";
+--        when "0110" => scroll_latch_H <= "10";
+--        when "0111" => scroll_latch_H <= "11";
+--        when "1000" => blink_ff <= not blink_ff;
+--        when "1001" => vfreq_intr_ff <= '0';
+--        when "1010" => reverse_field_ff <= '1';
+--        when "1011" => reverse_field_ff  <= '0';
+--        when "1100" => basic_attribute <= ATTR_UNDERLINE; blink_ff <= '0';
+--        when "1101" => basic_attribute <= ATTR_REVERSE_VIDEO; blink_ff <= '0';
+--        when others => blink_ff <= '0';
+--      end case;
+--    end if;
+--    
+--  end process command_decode;
   --SCAN_COUNT_SEQ
-  scan_count_proc: process (hblank) is
+  scan_count_proc: process (hblank_i) is
     begin
-    if hblank'EVENT and hblank = '1' then
---      when "00" => scan_cnt <= to_signed(scroll_mux_out - 1,4) mod 16;
---      when "01" => scan_cnt <= (scroll_mux_out - 1) mod 16;
---      when "10" => scan_cnt <= (shift_left(unsigned(scroll_mux_out),1)  - 1) mod 16;
+    if rising_edge(hblank_i) then
+--      when "00" => scan_cnt_o <= to_signed(scroll_mux_out - 1,4) mod 16;
+--      when "01" => scan_cnt_o <= (scroll_mux_out - 1) mod 16;
+--      when "10" => scan_cnt_o <= (shift_left(unsigned(scroll_mux_out),1)  - 1) mod 16;
       case latch2 is
-      when "11" => scan_cnt <= scroll_mux_out - 1 mod 16;
-      when others => scan_cnt <= scroll_mux_out - 1 mod 16;
+      when "11" => scan_cnt_o <= scroll_mux_out - 1 mod 16;
+      when others => scan_cnt_o <= scroll_mux_out - 1 mod 16;
       end case;
      end if;
     end process scan_count_proc;
@@ -195,7 +201,7 @@ begin
    -- TOP SCAN GATE
    top_scan <= and (not scroll_mux_out(3 downto 0));
 
-  vf_intr <= vfreq_intr_ff;
+  vf_intr_o  <= vfreq_intr_ff;
   
    CNT <= hblank_delayed;
    scroll_gate1out <= top_scan or new_scrol_zone_out; 
@@ -206,7 +212,7 @@ begin
   -- O-Off/D-Dim/N-Normal/B-Bright/X-NA 
   -- char attr vector -> Rev,Underline,Bold,Blink
   -- beam_code -> BG vid (VID_IN_H = 0) Normal/Blink | FG vid (VID_IN_H = 1) Normal/Blink
-   char_attr_vector <= (revvid&n_underline&n_bold&n_blink);
+   char_attr_vector <= (revvid_i&n_underline_i&n_bold_i&n_blink_i);
    with char_attr_vector select beam_code <=
       (O,O,N,N) when "0111",
       (O,O,N,D) when "0110",
@@ -226,8 +232,8 @@ begin
       (N,O,O,B) when "1000",
       (X,X,X,X) when others;
 
-   vid1out <= vidout(0);
-   vid2out <= vidout(1);
+   vid1out_o <= vidout(0);
+   vid2out_o <= vidout(1);
    with current_beam_code select vidout <=
      "00" when O,
      "01" when D,
