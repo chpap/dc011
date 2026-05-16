@@ -32,7 +32,7 @@ burn: ${PROJECT}.bit
 	openFPGALoader ${JTAG_LINK} --write-flash --bitstream $<
 
 .PHONY: program
-program: ${PROJECT}.bit
+program: $(BITSTREAM)
 	openFPGALoader ${JTAG_LINK} --bitstream $<
 
 #$(JSON): ${TOP_VERILOG} ${ADDITIONAL_SOURCES}

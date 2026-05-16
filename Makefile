@@ -27,8 +27,8 @@ VT100_TOP_MODULE = top_vt100
 VT100_VHDL_SOURCES = dc0112_pkg.vhd utils_pkg.vhd xilinx_block_ram_pkg.vhd xilinx_block_ram.vhd sram.vhd delay.vhd vtiming.vhd \
                      htiming.vhd ff.vhd ripple_counter.vhd clk_divider.vhd frac_divider.vhd \
 		     static_clk_divider.vhd hor_counter.vhd ver_counter.vhd dot_counter.vhd dc011.vhd vt100_pkg.vhd bootrom.vhd \
-		      BV2.vhd BV4.vhd BV5.vhd BV6.vhd  vt100.vhd  clk_plle2.vhd \
-                     .gvi/i8xxx/i8xxx_wrapper.vhd
+		      BV2.vhd BV4.vhd BV5.vhd BV6.vhd  vt100.vhd  clk_plle2.vhd decod_component.vhd
+EXTRA_SIM_SOURCES = .gvi/i8xxx/i8xxx_wrapper.vhd
 #		.gvi/plle2_adv/plle2_adv_wrapper.vhd
 VT100_VERILOG_SOURCES = vm80a/i8xxx.v vm80a/vm80a.v vm80a/i8224.v vm80a/i8228.v $(PLLE2_FILES)
 PLLE2_FILES = pll/plle2_adv_wrapper.v
@@ -42,7 +42,7 @@ SIM_ARGS += --vcd=vt100.vcd --wave=simulation.ghw --ieee-asserts=disable
 
 #LINK_ARGS=$(shell cat .gvi/common.flags ) $(shell cat .gvi/i8xxx/i8xxx_wrapper.flags)
 GVI_LINK_ARGS=$(shell cat .gvi/common.flags ) $(shell cat .gvi/i8xxx/i8xxx_wrapper.flags)
-VHDL_SOURCES = $(VT100_VHDL_SOURCES) $(TOP_VHDL)
+VHDL_SOURCES = $(VT100_VHDL_SOURCES) $(EXTRA_SIM_SOURCES) $(TOP_VHDL)
 COMPILE_ARGS = $(GHDL_FLAGS)
 #VHDL_SOURCES = $(ADDITIONAL_SOURCES) $(TOP_VERILOG)
 #LIGHT8080 = light8080/light8080_ucode_pkg.vhdl light8080/light8080.vhdl light8080/mcu80_pkg.vhdl light8080/mcu80_uart.vhdl light8080/mcu80_irq.vhdl light8080/mcu80.vhdl light8080/txt_util.vhdl light8080/light8080_tb_pkg.vhdl light8080/obj_code_pkg.vhdl 
