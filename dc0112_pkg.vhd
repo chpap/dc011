@@ -115,39 +115,39 @@ package dc0112_pkg is
   end component;
   component dot_counter is
     port (
-       dot_clk_s : in  std_ulogic; -- input clock signal
-       dot_clk : in  std_ulogic; -- input clock signal
-       mode80: in std_ulogic;
-       i_rst : in  std_ulogic; -- reset signal
+       dot_clk_s_i : in  std_ulogic; -- input clock signal
+       dot_clk_i : in  std_ulogic; -- input clock signal
+       mode80_i: in std_ulogic;
+       rst_i : in  std_ulogic; -- reset signal
       
-       write_lb : out std_ulogic;
-       char_clk : out std_ulogic;
-       clk80_half: out std_ulogic;
-       dot_div : out std_ulogic_vector(0 to 3)
+       write_lb_o : out std_ulogic;
+       char_clk_o : out std_ulogic;
+       clk80_half_o: out std_ulogic;
+       dot_div_o : out std_ulogic_vector(0 to 3)
    );
   end component;
   component hor_counter is
   port (
-       char_clk : in  std_ulogic; -- input clock signal
-       clk_extra: in std_ulogic;
-       mode80: in std_ulogic;
-       i_rst : in  std_ulogic; -- reset signal
-       clock_2hf: out std_ulogic; 
-       clock_hf: out std_ulogic; 
-       div_out : out std_ulogic_vector(0 to 8);
-       LBA : out std_ulogic_vector(7 downto 0)
+       char_clk_i : in  std_ulogic; -- input clock signal
+       clk_delay_i: in std_ulogic;
+       mode80_i: in std_ulogic;
+       rst_i : in  std_ulogic; -- reset signal
+       clock_2hf_o: out std_ulogic; 
+       clock_hf_o: out std_ulogic; 
+       div_o : out std_ulogic_vector(0 to 8);
+       LBA_o : out std_ulogic_vector(7 downto 0)
   );
   end component;
   component ver_counter is
   port (
-       clock_2hf: in  std_ulogic; -- input clock signal
-       clock_h5: in  std_ulogic; -- input clock signal
-       hcdiv_in : in std_ulogic_vector(0 to 8);
-       i_rst : in  std_ulogic; -- reset signal
-       interlaced: in  std_ulogic;
-       hertz60: in  std_ulogic;
-       n_vrst : out  std_ulogic;
-       div_out : out std_ulogic_vector(0 to 9)
+       clock_2hf_i: in  std_ulogic; -- input clock signal
+       clock_h5_i: in  std_ulogic; -- input clock signal
+       hcdiv_i : in std_ulogic_vector(0 to 8);
+       rst_i : in  std_ulogic; -- reset signal
+       interlaced_i: in  std_ulogic;
+       hertz60_i: in  std_ulogic;
+       n_vrst_o : out  std_ulogic;
+       div_o : out std_ulogic_vector(0 to 9)
   );
   end component;
   component htiming is
@@ -207,16 +207,16 @@ package dc0112_pkg is
   end component;
   component dc011
     port(
-     clk24:    in  std_ulogic;
-     n_rst:  in  std_ulogic;
-     d0:  in  std_ulogic;
-     d1:  in  std_ulogic;
-     n_vid_wr:  in  std_ulogic;
-     dw:  in  std_ulogic;
-     hold_req:  in  std_ulogic;
-     LBA:   out std_ulogic_vector (7 downto 0);
-     dot_clock:   out std_ulogic;
-     char_clk:   out std_ulogic;
+     clk24_i:    in  std_ulogic;
+     n_rst_i:  in  std_ulogic;
+     d0_i:  in  std_ulogic;
+     d1_i:  in  std_ulogic;
+     n_vid_wr_i:  in  std_ulogic;
+     dw_i:  in  std_ulogic;
+     hold_req_i:  in  std_ulogic;
+     LBA_o:   out std_ulogic_vector (7 downto 0);
+     dot_clock_o:   out std_ulogic;
+     char_clk_o:   out std_ulogic;
      n_write_lb:   out std_ulogic;
      vsr_ld:   out std_ulogic;
      n_addr_ld: out std_ulogic;
@@ -256,17 +256,20 @@ package dc0112_pkg is
     );
   end component;
   component vt100 is
-    port(clk24_i: in std_logic;
+    port(clk24_88_i: in std_logic;
+     clk24_07_i: in std_logic;
      clk100_i: in std_logic;
      reset_i: in std_logic;
-     TXD0: out std_logic;
-     RXD0: in std_logic;
-     videoR: out  std_logic_vector(3 downto 0);
-     videoG: out  std_logic_vector(3 downto 0);
-     videoB: out  std_logic_vector(3 downto 0);
-     hSync: out  std_logic;
-     vSync: out  std_logic;
-     LED: out  std_logic_vector(7 downto 0)
+     txd0_o: out std_logic;
+     rxd0_i: in std_logic;
+     btnc_i: in std_logic;
+     videor_o: out  std_logic_vector(3 downto 0);
+     videog_o: out  std_logic_vector(3 downto 0);
+     videob_o: out  std_logic_vector(3 downto 0);
+     hsync_o: out  std_logic;
+     vsync_o: out  std_logic;
+     led_o: out  std_logic_vector(7 downto 0);
+     debug_o: out  std_logic_vector(31 downto 0)
     );
   end component;
 
@@ -386,15 +389,15 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 entity dot_counter is
     port (
-        dot_clk_s : in  std_ulogic; -- input clock signal
-        dot_clk : in  std_ulogic; -- input clock signal
-        mode80: in std_ulogic;
-        i_rst : in  std_ulogic; -- reset signal
+        dot_clk_s_i : in  std_ulogic; -- input clock signal
+        dot_clk_i : in  std_ulogic; -- input clock signal
+        mode80_i: in std_ulogic;
+        rst_i : in  std_ulogic; -- reset signal
        
-        char_clk : out std_ulogic;
-        write_lb : out std_ulogic;
-        clk80_half: out std_ulogic;
-        dot_div : out std_ulogic_vector(0 to 3)
+        char_clk_o : out std_ulogic;
+        write_lb_o : out std_ulogic;
+        clk80_half_o: out std_ulogic;
+        dot_div_o : out std_ulogic_vector(0 to 3)
     );
 end entity dot_counter;
 ------------------------------------------------------------------------
@@ -403,16 +406,16 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 entity dc011 is
 port (
-  clk24:    in  std_ulogic;
-  n_rst:  in  std_ulogic;
-  d0:  in  std_ulogic;
-  d1:  in  std_ulogic;
-  n_vid_wr:  in  std_ulogic;
-  dw:  in  std_ulogic;
-  hold_req:  in  std_ulogic;
-  LBA:   out std_ulogic_vector (7 downto 0);
-  dot_clock:   out std_ulogic;
-  char_clk:   out std_ulogic;
+  clk24_i:    in  std_ulogic;
+  n_rst_i:  in  std_ulogic;
+  d0_i:  in  std_ulogic;
+  d1_i:  in  std_ulogic;
+  n_vid_wr_i:  in  std_ulogic;
+  dw_i:  in  std_ulogic;
+  hold_req_i:  in  std_ulogic;
+  LBA_o:   out std_ulogic_vector (7 downto 0);
+  dot_clock_o:   out std_ulogic;
+  char_clk_o:   out std_ulogic;
   n_write_lb:   out std_ulogic;
   vsr_ld:   out std_ulogic;
   n_addr_ld:   out std_ulogic;
@@ -465,17 +468,20 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 entity vt100 is
-	port(clk24_i: in std_logic;
-	     clk100_i: in std_logic;
+	port(clk100_i: in std_logic;
+	     clk24_88_i: in std_logic;
+	     clk24_07_i: in std_logic;
 	     reset_i: in std_logic;
-	     TXD0: out std_logic;
-	     RXD0: in std_logic;
-	     videoR: out  std_logic_vector(3 downto 0);
-	     videoG: out  std_logic_vector(3 downto 0);
-	     videoB: out  std_logic_vector(3 downto 0);
-	     hSync: out  std_logic;
-	     vSync: out  std_logic;
-	     LED: out  std_logic_vector(7 downto 0)
+	     txd0_o: out std_logic;
+	     rxd0_i: in std_logic;
+	     btnc_i: in std_logic;
+	     videor_o: out  std_logic_vector(3 downto 0);
+	     videog_o: out  std_logic_vector(3 downto 0);
+	     videob_o: out  std_logic_vector(3 downto 0);
+	     hsync_o: out  std_logic;
+	     vsync_o: out  std_logic;
+	     led_o: out  std_logic_vector(7 downto 0);
+             debug_o: out  std_logic_vector(31 downto 0)
      );
 end entity;
 

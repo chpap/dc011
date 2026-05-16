@@ -1,5 +1,4 @@
 library ieee;
-use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 use work.dc0112_pkg.all;
 use work.vt100_pkg.all;
@@ -11,7 +10,6 @@ architecture rtl of vt100 is
   signal DB_0: std_ulogic_vector(7 downto 0);
   signal A0_H :std_ulogic_vector(15 downto 0);
 
-  signal n_rst:  std_ulogic;
   signal LBA:   std_ulogic_vector (7 downto 0);
   signal dot_clock:   std_ulogic;
   signal char_clk:   std_ulogic;
@@ -42,12 +40,12 @@ architecture rtl of vt100 is
   signal n_blink: std_ulogic;
   signal n_bold: std_ulogic;
   signal vid_in: std_ulogic;
+  signal rxd0: std_ulogic;
 
   signal n_wr_o: std_ulogic;
 
   signal clk_f1: std_ulogic;
   signal clk_f2: std_ulogic;
-  --component cpu8080_testbench is
   signal BV1_BLINK_L : std_ulogic;
   signal BV1_UNDERLINE_L : std_ulogic;
   signal BV1_BOLD_L : std_ulogic;
@@ -73,13 +71,12 @@ architecture rtl of vt100 is
   signal BV2_WRITE_BAUD_H: std_ulogic;
   signal BV2_SEL_8_12K_L: std_ulogic;
   signal BV2_SEL_ATT_RAM_L: std_ulogic;
-  signal BV2_KBD_WR_L: std_ulogic;
-  signal BV3_XMIT_FLAG_H: std_ulogic;
-  signal BV3_REC_FLAG_H: std_ulogic;
-  signal BV3_OPTION_PRESENT_H: std_ulogic;
+  signal BV2_KBD_WR_L: std_ulogic := '0';
+  signal BV3_XMIT_FLAG_H: std_ulogic := '0';
+  signal BV3_REC_FLAG_H: std_ulogic := '0';
+  signal BV3_OPTION_PRESENT_H: std_ulogic := '0';
   signal BV4_T_HOLD_REQ_H: std_ulogic;
   signal BV4_HS_CLK_H: std_ulogic;
-  --end component;
   signal BV4_SC_H : std_ulogic_vector(4 downto 0);
   signal BV4_WRITE_LB_L : std_ulogic;
   signal BV4_HOLD_REQ_H : std_ulogic;
@@ -106,14 +103,14 @@ architecture rtl of vt100 is
   signal BV5_DW_H: std_ulogic;
   signal BV5_DV_H: std_ulogic;
   signal BV5_DH_H: std_ulogic;
-  signal BV6_KBD_DATA_AVAIL_H: std_ulogic;
+  signal BV6_KBD_DATA_AVAIL_H: std_ulogic := '0';
+  signal debug: std_ulogic_vector(7 downto 0);
 
 begin
-   n_rst <= reset_i;
 
    BV2_INST: BV2 port map (
       clk_i => clk100_i,
-      clk24_i => clk24_i,
+      clk24_i => clk24_88_i,
       DO_0_i  => DO_0,
       DB_0_o  => DB_0,
       A0_H_i  => A0_H,
@@ -142,12 +139,12 @@ begin
 
    BV4_INST :BV4 port map( 
       clk_i => clk100_i,
-      clk24_i => clk24_i,
+      clk24_i => clk24_07_i,
       DO_0_i => DO_0,
-      LBA_i => LBA,
-      BV4_COMP_SYNC_L_i => BV4_COMP_SYNC_L,
+      LBA_o => LBA,
+      BV4_COMP_SYNC_L_o => BV4_COMP_SYNC_L,
       BV1_GRAPHIC_1_IN_L_i => BV1_GRAPHIC_1_IN_L,
-      BV4_VERT_BLANK_L_i => BV4_VERT_BLANK_L,
+      BV4_VERT_BLANK_L_o => BV4_VERT_BLANK_L,
       BV1_GRAPHIC_2_IN_L_i => BV1_GRAPHIC_2_IN_L,
       BV2_DA_WR_L_i => BV2_DA_WR_L,
       BV4_INIT_H_o => BV4_INIT_H,
@@ -179,13 +176,13 @@ begin
       BV4_VERT_FREQ_INT_L_o => BV4_VERT_FREQ_INT_L,
       BV4_SC_H_o => BV4_SC_H,
       BV4_VIDEO_OUT_1_H_o => BV4_VIDEO_OUT_1_H,
-      BV4_VIDEO_OUT_2_H_o => BV4_VIDEO_OUT_1_H);
+      BV4_VIDEO_OUT_2_H_o => BV4_VIDEO_OUT_2_H);
 
    BV5_INST: BV5 port map (
       clk_i => clk100_i,
-      clk24_i => clk24_i,
+      clk24_i => clk24_07_i,
       DO_0_i  => DO_0,
-      A0_H_o => A0_H,
+      A0_H_o => open,
       LBA_i => LBA,
       BV4_SC_H_i  =>  BV4_SC_H ,
       BV4_WRITE_LB_L_i  => BV4_WRITE_LB_L ,
@@ -208,8 +205,8 @@ begin
 
    BV6_INST: BV6 port map( 
       clk_i => clk100_i,
-      clk24_i => clk24_i,
-      n_reset_i => n_rst,
+      clk24_i => clk24_88_i,
+      n_reset_i => not reset_i,
       A0_H_o => A0_H,
       DB_0_i => DB_0,
       DO_0_o => DO_0,
@@ -226,20 +223,21 @@ begin
       BV2_NVR_DATA_H_i => BV2_NVR_DATA_H,
       BV2_FLAG_RD_L_i => BV2_FLAG_RD_L,
       BV6_MEM_RD_L_o => BV6_MEM_RD_L,
-      BV6_MEM_WR_L_o => BV6_MEM_WR_L
+      BV6_MEM_WR_L_o => BV6_MEM_WR_L,
+      DEBUG => debug
      );
-   process(A0_H(13))
-	   variable counter: integer := 0;
-	   variable toggle: std_ulogic := '0';
-   begin
-     if(rising_edge(A0_H(13))) then
-       if(counter = 10000 ) then
-	       counter := 0;
-	       LED(0) <= toggle;
-	       toggle := not toggle;
-       else
-	       counter := counter +1;
-       end if;
-     end if;
-   end process;
+   led_o(0) <= not BV4_CHAR_CLK_H;
+   --led_o(0) <= not BV4_VERT_RESET_H;
+   --led_o(1) <= A0_H(3);
+   --led_o(7 downto 1) <= debug(7 downto 1);
+   debug_o(15 downto 8) <= DO_0;
+   debug_o(7 downto 0) <= DB_0;
+   debug_o(31 downto 16)<= A0_H;
+   videor_o <= (others => '0');
+   videog_o <= (others => '0');
+   videob_o <= (others => '0');
+   hsync_o <= '0';
+   vsync_o <= '0';
+   rxd0 <= rxd0_i;
+   txd0_o <= '0';
 end;

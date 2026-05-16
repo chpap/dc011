@@ -34,79 +34,39 @@ use work.dc0112_pkg.all;
 
 architecture rtl of clk_divider is
     signal rst_count: std_ulogic := '0';
-    signal r_use_direct_i_clk : std_ulogic := '0'; -- force to use direct i_clk input as output clock
     signal r_divided_i_clk    : std_ulogic := '0'; -- value of i_clk based on counter method
     signal r_divided_i_clk_r    : std_ulogic := '0';
     signal r_divided_i_clk_c    : std_ulogic := '0';
     signal half_period: std_ulogic := '0';
-    --signal half_period_h: std_ulogic := '0';
-    --signal half_period_l: std_ulogic := '0';
-
+    signal o_counter_tmp  : std_ulogic_vector(BIT_WIDTH -1 downto 0) := (others => '0');
 begin
-    counter10b_inst : counter10b_ripple
-    generic map(
-        COUNTBITS => BIT_WIDTH,
-        g_MAX_COUNT => i_freq_div
-    )
-    port map(
-       i_clk => i_clk,
-       i_rst => rst_count,
-       o_counter => o_counter
-    );
-     
-    -- switch between direct i_clk and r_divided_i_clk
-    o_clk <= i_clk when r_use_direct_i_clk = '1' else r_divided_i_clk;
+    process(i_clk) begin
+	    if o_counter_tmp = std_ulogic_vector(to_unsigned(i_freq_div-1,4)) then
+		    o_counter_tmp <= (others => '0');
+	    else
+		    o_counter_tmp <= o_counter_tmp + 1;
+	    end if;
+    end process;
+    o_clk <=  r_divided_i_clk;
+    o_counter <= o_counter_tmp;
  --   r_divided_i_clk <= nor (o_counter xor std_logic_vector(to_unsigned(i_freq_div,BIT_WIDTH-1)));
-    rst_count <= nor (o_counter xor std_logic_vector(to_unsigned(i_freq_div,BIT_WIDTH)));
-    half_period <=  nor (o_counter xor std_logic_vector(to_unsigned((i_freq_div-1)/2,BIT_WIDTH)));
-
-        -- register to store internally i_freq_div value in a time
-        -- internal i_clk counter
-        -- variable r_i_clk_counter : integer range 1 to g_FREQ_DIV_MAX;
-    --rst_i_clk_freq_h : process (i_clk,half_period) is
-    --begin
-    --   if rising_edge(half_period) then
-    --        half_period_h <= '0';
-    --else
-    --	    half_period_h <= '1';
-    --   end if;
-    --end process rst_i_clk_freq_h;
-
-    -- Description:
-    --rst_i_clk_freq_l : process (i_clk,half_period) is
-    --	    variable TMP : std_ulogic := '0';
-    --begin
-    --   if falling_edge(half_period) then
-    --       half_period_l <= not half_period_l;
-    --   end if;
-    --end process rst_i_clk_freq_l;
-
-    --r_divided_i_clk_r = half_period_h when half_period = '1' else  half_period_l;
-
+    rst_count <= nor (o_counter_tmp xor std_logic_vector(to_unsigned(i_freq_div,BIT_WIDTH)));
+    half_period <=  nor (o_counter_tmp xor std_logic_vector(to_unsigned((i_freq_div-1)/2,BIT_WIDTH)));
     -- Description:
     --     Performs i_clk frequency division, outputs need to be composed to get the final clock.
     divide_i_clk_freq : process (i_clk) is
         -- register to store internally i_freq_div value in a time
         variable r_freq_div : integer range 1 to g_FREQ_DIV_MAX;
-        -- internal i_clk counter
-        -- variable r_i_clk_counter : integer range 1 to g_FREQ_DIV_MAX;
     begin
---   -- #report "BITs      " & to_string(o_counter'length);
+--   -- #report "BITs      " & to_string(o_counter_tmp'length);
         if (rising_edge(i_clk)) then
            if half_period = '1' then
               r_divided_i_clk_c <= '0';
               --half_period <= '0';
            end if;
             -- need to reset the r_i_clk_counter and begin the new o_clk period
-            --if (i_rst = '1' or o_counter = std_ulogic_vector(to_unsigned( r_freq_div - 1,BIT_WIDTH))) then
-            if (i_rst = '1' or o_counter = r_freq_div - 1) then
-                -- when i_freq_div is 1, then it needs to be used direct i_clk
-                if (i_freq_div = 1) then
-                    r_use_direct_i_clk <= not i_rst;
-                else
-                    r_use_direct_i_clk <= '0';
-                end if;
-                
+            --if (i_rst = '1' or o_counter_tmp = std_ulogic_vector(to_unsigned( r_freq_div - 1,BIT_WIDTH))) then
+            if (i_rst = '1' or o_counter_tmp = r_freq_div - 1) then
                 r_divided_i_clk_c <= '1'; -- when i_rst is '1', then final clock should be '0'
                 r_freq_div      := i_freq_div; -- internal register to store a reference value
             end if;

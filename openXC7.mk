@@ -63,8 +63,10 @@ clean::
 	@rm -f *.fasm
 	@rm -f $(BUILD_DIR)/$(PROJECT)_vhdl.v
 	@rm -f $(JSON)
+	@rm -f *.log *.jou
 	@rm -rf obj_dir
 	@rm -rf .gvi
+	@rm -f work-obj08.cf
 .PHONY: pnrclean
 pnrclean:
 	@rm -f $(FASM) $(FRAMES) $(BITSTREAM) 

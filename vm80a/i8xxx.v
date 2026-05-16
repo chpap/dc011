@@ -63,12 +63,6 @@ end
     .pin_wr_n(n_wr)
     );
 
-    
-//    assign pin_inte = clk_f1;
-//    assign pin_wait = clk_f2;
-//always @(posedge clk_f1) begin
-//    pin_inte <= clk_f1;
-//end
 
     i8224 I8224_INST(
     .sync_i(sync),
@@ -99,12 +93,5 @@ i8228 I8228_INST(
     .n_inta_o(n_inta_o)
     );
 
-//    output[7:0]     d_o = 0,
-//    output[7:0]     db_o = 0,
-//    output reg      n_memr_o = 0,
-//    output reg      n_memw_o = 0,
-//    output          n_ior_o ,
-//    output          n_iow_o ,
-//    output reg      n_inta_o = 0)
 
 endmodule

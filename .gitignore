@@ -14,3 +14,4 @@ tools/gvi
 *.ghw
 *.log
 *.jou
+build_vivado

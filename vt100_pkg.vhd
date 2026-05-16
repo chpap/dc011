@@ -15,7 +15,15 @@ type fontrom_type is array (0 to FONTROM_DEPTH - 1)
   of std_logic_vector(7 downto 0);
 impure function init_fontrom_hex(romfilename : in string) return fontrom_type; 
 
-
+   component decod_component is
+    port(
+        clk        : in  std_logic; -- Clock signal
+        A, B, C, D : in  std_logic_vector(3 downto 0); -- Input digits (4-bit each)
+        E, F, G, H : in  std_logic_vector(3 downto 0); -- Input digits (4-bit each)
+        sel_display: out std_logic_vector(7 downto 0); -- Output to select the display
+        segment    : out std_logic_vector(7 downto 0)  -- Output to drive the 7-segment display
+    );
+   end component;
    component BV2 is
    port( clk_i : in std_ulogic;
       clk24_i    : in  std_ulogic;
@@ -135,7 +143,8 @@ impure function init_fontrom_hex(romfilename : in string) return fontrom_type;
       BV4_EVEN_FIELD_L_i: in std_ulogic;
       BV3_OPTION_PRESENT_H_i: in std_ulogic;
       BV2_NVR_DATA_H_i: in std_ulogic;
-      BV2_FLAG_RD_L_i: in std_ulogic);
+      BV2_FLAG_RD_L_i: in std_ulogic;
+      DEBUG: out std_ulogic_vector(7 downto 0));
    end component;
 
 end package vt100_pkg;

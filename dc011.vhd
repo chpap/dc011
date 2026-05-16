@@ -19,11 +19,10 @@ architecture behaviour of dc011 is
   signal clk132_half: std_ulogic;
   signal dot_clock_s: std_ulogic;
   signal dot_clock_d: std_ulogic;
-  signal D_clock: std_ulogic;
-  signal mode80: std_ulogic;
+  signal mode80: std_ulogic := '1';
   signal double_width: std_ulogic := '0';
-  signal interlaced: std_ulogic;
-  signal hertz60: std_ulogic;
+  signal interlaced: std_ulogic := '0';
+  signal hertz60: std_ulogic := '1';
   signal reset_count: std_ulogic;
   signal n_Q_tmp: std_ulogic;
   signal clk_hf: std_ulogic;
@@ -31,14 +30,20 @@ architecture behaviour of dc011 is
   signal char_clk_half: std_ulogic;
   signal char_clk_delayed: std_ulogic;
   signal vsr_ld_tmp: std_ulogic;
-  signal vsr_ld_tmp_l: std_ulogic:= '0';
-  signal vsr_ld_tmp_h: std_ulogic:= '0';
+  signal vsr_ld_tmp_l: std_ulogic := '0';
+  signal vsr_ld_tmp_h: std_ulogic := '0';
   signal n_vrst: std_ulogic;
+  signal dot_clock: std_ulogic := '0';
+  signal char_clk: std_ulogic := '0';
   signal write_lb: std_ulogic;
   signal addr_ld: std_ulogic;
   signal clk_in: std_ulogic;
+  signal hold_req: std_ulogic := '0';
 begin
-    clk_in <= clk24;
+    clk_in <= clk24_i;
+    dot_clock_o <= dot_clock;
+    char_clk_o <= char_clk;
+    hold_req <= hold_req_i;
     clock_divider_80 :onetoN_divider
        generic map(
           N => 2
@@ -51,14 +56,14 @@ begin
        );
      dot_counter_inst :dot_counter
      port map(
-        dot_clk_s => dot_clock_s,
-        dot_clk => dot_clock,
-        mode80 => mode80,
-        i_rst => reset_count,
-        char_clk => char_clk,
-        write_lb => write_lb,
-        dot_div => dot_div,
-        clk80_half => clk80_half
+        dot_clk_s_i => dot_clock_s,
+        dot_clk_i => dot_clock,
+        mode80_i => mode80,
+        rst_i => reset_count,
+        char_clk_o => char_clk,
+        write_lb_o => write_lb,
+        dot_div_o => dot_div,
+        clk80_half_o => clk80_half
     );
     delay_inst: delay
     generic map(CYCLES => 4,
@@ -84,26 +89,25 @@ begin
        );
     hor_counter_inst :hor_counter 
     port map (
-        char_clk => char_clk,
-        clk_extra => dot_clock,
-        mode80 => mode80,
-        i_rst  => reset_count,
-        div_out => hcdiv_out,
-        clock_hf => clk_hf,
-        clock_2hf => clk_2hf,
-        LBA => LBA
-       
+        char_clk_i => char_clk,
+        clk_delay_i => dot_clock,
+        mode80_i => mode80,
+        rst_i  => reset_count,
+        div_o => hcdiv_out,
+        clock_hf_o => clk_hf,
+        clock_2hf_o => clk_2hf,
+        LBA_o => LBA_o
     );
     ver_counter_inst :ver_counter 
     port map (
-        clock_2hf => clk_2hf,
-        clock_h5 => char_clk, --hcdiv_out(4),
-        hcdiv_in => hcdiv_out,
-        interlaced => interlaced,
-        hertz60 => hertz60,
-        div_out => vcdiv_out,
-        i_rst => reset_count,
-        n_vrst => n_vrst
+        clock_2hf_i => clk_2hf,
+        clock_h5_i => char_clk, --hcdiv_out(4),
+        hcdiv_i => hcdiv_out,
+        interlaced_i => interlaced,
+        hertz60_i => hertz60,
+        div_o => vcdiv_out,
+        rst_i => reset_count,
+        n_vrst_o => n_vrst
     );
     htiming_inst: htiming
     port map (
@@ -140,10 +144,10 @@ begin
        );
     SR_FF_1: SR_FF
       port map(
-       D => not dw,
+       D => not dw_i,
        S => addr_ld,
        R => '1',
-       n_clk_i => D_clock,
+       n_clk_i => n_vrst,
        Q => open,
        n_Q => n_Q_tmp
       );
@@ -163,18 +167,18 @@ begin
        Q => addr_ld,
        n_Q => n_addr_ld
       );
-  mode_decode: process (n_vid_wr) is
+  mode_decode: process (n_vid_wr_i) is
   begin
-     if n_vid_wr = '0' and falling_edge(n_vid_wr) then
-       if d0 = '0' and d1 = '0'  then
+     if falling_edge(n_vid_wr_i) then
+       if d0_i = '0' and d1_i = '0'  then
           report "Set 80 column mode interlaced";
           mode80 <= '1';
           interlaced <= '1';
-       elsif d0 = '1' and d1 = '0'  then
+       elsif d0_i = '1' and d1_i = '0'  then
           report "Set 132 column mode interlaced";
           mode80 <= '0';
           interlaced <= '1';
-       elsif d0 = '0' and d1 = '1'  then
+       elsif d0_i = '0' and d1_i = '1'  then
           report "Set 60hz non interlaced";
           hertz60 <= '1';
           interlaced <= '0';
@@ -185,13 +189,12 @@ begin
        end if;
      end if;
   end process mode_decode;
-  reset_count <= not n_vid_wr;
+  reset_count <= not n_vid_wr_i;
   dot_clock_s <=  clk80 when mode80 = '1' else clk_in;
   dot_clock_d <=  clk80_half when mode80 = '1' else clk132_half;
 -- dot_clock MUX
   dot_clock <= dot_clock_s when double_width = '0' else dot_clock_d;
   n_write_lb <= write_lb nand hold_req;
-  D_clock <= n_vrst;
   demux_vsr_ld_h :process(dot_clock,char_clk,double_width) is
   begin
      if rising_edge(dot_clock)  then
@@ -218,5 +221,5 @@ begin
   vsr_ld <= vsr_ld_tmp  when double_width = '0' else vsr_ld_tmp and not char_clk_half;
   comp_sync <= comp_sync_out;
   addr_count <= ( ( char_clk and not hblank and hold_req )  or (hblank and not addr_cnt_on) or vrst) ;
---  
+  
 end architecture;

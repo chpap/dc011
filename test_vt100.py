@@ -33,12 +33,12 @@ async def vt100_simple_test(dut):
     """VT100 Test"""
     #task = cocotb.start_soon(sync_8080(dut))
     #task = cocotb.start_soon(start_clocks(dut))
-    clock = Clock(dut.clk100_i, 10, unit="ns")
+    clock = Clock(dut.clk100, 10, unit="ns")
     clock.start(start_high=False)
     clock24_8 = Clock(dut.clk_24_88, 41.6, unit="ns")
     clock24_8.start(start_high=False)
-    #clock24 = Clock(dut.clk_24_07, 41.6, unit="ns")
-    #clock24.start(start_high=False)
+    clock24 = Clock(dut.clk_24_07, 41.6, unit="ns")
+    clock24.start(start_high=False)
     dut.n_reset_i.value = "0"
     # Create a 10us period clock driver on port `clk`
     # Start the clock. Start it low to avoid issues on the first RisingEdge

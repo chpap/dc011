@@ -146,7 +146,7 @@ wire           goto, jmpflag;
 reg            jmptake, tree0, tree1, tree2;
 reg            t2806, t2817, t2819, t3047, t2998, t3363, t3403, t3335, t3361;
 
-reg   [7:0]    xr, r, acc = 8'b0;
+reg   [7:0]    xr, r, acc;
 wire  [7:0]    x, s, c;
 wire           cl, ch, daa, daa_6x, daa_x6;
 wire           a398;

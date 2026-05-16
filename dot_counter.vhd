@@ -16,25 +16,22 @@ architecture rtl of dot_counter is
     -- signal char_clk_tmp : std_ulogic;
     signal maxcount: integer range 1 to 10 := 10;
 begin
-    maxcount <= 10 when mode80 = '1' else 9;
-    clk_divider_1 : clk_divider
-    generic map(
-        g_FREQ_DIV_MAX => 10
-    )
-    port map (
-        i_clk => dot_clk_s,
-        i_rst => i_rst,
-        i_freq_div => maxcount,
-        o_counter => counter,
-        o_clk => open
-
-    );
+    maxcount <= 10 when mode80_i = '1' else 9;
+    process(dot_clk_s_i) begin
+	    if(rising_edge(dot_clk_s_i)) then
+	    if counter = std_ulogic_vector(to_unsigned(maxcount - 1,4)) then
+		    counter <= (others => '0');
+	    else
+		    counter <= counter + 1;
+	    end if;
+	    end if;
+    end process;
     GEN_DELAY: for i in 0 to 1 generate
     delay_inst: delay
     generic map(CYCLES => i + 1,
             WIDTH => 4)
-    port map(clk => dot_clk,
-         rst => i_rst,
+    port map(clk => dot_clk_i,
+         rst => rst_i,
          en  => '1',
          --input => ""&char_clk_tmp, 
          --input => ""&counter(3), 
@@ -43,10 +40,10 @@ begin
          output => counter_prev(i)
     );
     end generate GEN_DELAY;
-    dot_div <= counter_prev(0);
-    write_lb <= counter_prev(0)(2);
-    clk80_half <= counter(0);
-    char_clk <= not counter_prev(0)(3) when mode80 = '1'  else 
+    dot_div_o <= counter_prev(0);
+    write_lb_o <= counter_prev(0)(2);
+    clk80_half_o <= counter(0);
+    char_clk_o <= not counter_prev(0)(3) when mode80_i = '1'  else
     not (counter_prev(1)(3) or (and counter_prev(1)(2 downto 0)));
     
 end architecture rtl;

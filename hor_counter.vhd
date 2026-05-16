@@ -9,101 +9,88 @@ use work.dc0112_pkg.all;
 
 entity hor_counter is
     port (
-        char_clk : in  std_ulogic; -- input clock signal
-        mode80: in std_ulogic;
-        i_rst : in  std_ulogic; -- reset signal
-        clk_extra: in  std_ulogic;
-        clock_2hf: out std_ulogic; 
-        clock_hf: out std_ulogic; 
-        div_out : out std_ulogic_vector(8 downto 0);
-        LBA : out std_ulogic_vector(7 downto 0)
+        char_clk_i : in  std_ulogic; -- input clock signal
+        mode80_i: in std_ulogic;
+        rst_i : in  std_ulogic; -- reset signal
+        clk_delay_i: in  std_ulogic;
+        clock_2hf_o: out std_ulogic;
+        clock_hf_o: out std_ulogic;
+        div_o : out std_ulogic_vector(8 downto 0);
+        LBA_o : out std_ulogic_vector(7 downto 0)
     );
 end entity hor_counter;
 
 
 architecture rtl of hor_counter is
-    signal div1: std_ulogic_vector(2 downto 0);
-    signal div2: std_ulogic_vector(4 downto 0);
-    signal div1_tmp: std_ulogic_vector(2 downto 0) := (others => '0');
-    signal div2_tmp: std_ulogic_vector(4 downto 0) := (others => '0');
-    signal div3_tmp: std_ulogic_vector(1 downto 0) := (others => '0');
-    signal div_out_delayed : std_ulogic_vector(8 downto 0);
-    signal maxcount: integer range 1 to 5;
+    signal div1: std_ulogic_vector(2 downto 0) := (others => '0');
+    signal div2: std_ulogic_vector(4 downto 0) := (others => '0');
+    signal div3: std_ulogic_vector(1 downto 0) := (others => '0');
     signal div1_out: std_ulogic := '0';
     signal div2_out: std_ulogic := '0';
     signal div3_out: std_ulogic := '0';
 begin
-   maxcount <= 3 when mode80 = '1' else 5;
     
-   -- resetproc: process (i_rst) is
-   -- begin
-   -- end process resetproc;
-    clk_divider_1 : clk_divider
-    generic map(
-        g_FREQ_DIV_MAX => 5
-    )
-    port map (
-        i_clk => char_clk,
-        i_rst => i_rst,
-        i_freq_div => maxcount,
-        o_counter => div1_tmp,
-        o_clk => div1_out
+    div1_proc: process(char_clk_i)
+    begin
+      if(rising_edge(char_clk_i)) then
+        --if(div2_tmp = std_ulogic_vector(to_unsigned(17-1,4))) then
+        if (mode80_i = '1' and div1(1) = '1') or (mode80_i = '0' and div1(2) = '1') then -- when div1 gets to 3 or 5
+           div1 <= (others => '0');
+           div1_out <= '1';
+        else
+           div1 <= div1 + 1;
+	   div1_out <= '0';
+        end if;
+      end if;
+    end process;
 
-    );
-    clk_divider_2 : clk_divider
-    generic map(
-        g_FREQ_DIV_MAX => 17
-    )
-    port map (
-        i_clk => div1_out,
-        i_rst => i_rst,
-        i_freq_div => 17,
-        o_counter => div2_tmp,
-        o_clk => div2_out
+    div2_proc: process(div1_out)
+    begin
+      if(rising_edge(div1_out)) then
+        --if(div2 = std_ulogic_vector(to_unsigned(17-1,4))) then
+        if(div2(4) = '1') then -- when div2 gets to 16
+           div2 <= (others => '0');
+           div2_out <= '1';
+        else
+           div2 <= div2 + 1;
+	   div2_out <= '0';
+        end if;
+      end if;
+    end process;
 
-    );
-    clk_divider_3 : clk_divider
-    generic map(
-        g_FREQ_DIV_MAX => 2
-    )
-    port map (
-        i_clk => div2_out,
-        i_rst => i_rst,
-        i_freq_div => 2,
-        o_counter => div3_tmp,
-        o_clk => div3_out
+    div3_proc: process(div2_out)
+    begin
+      if(rising_edge(div2_out)) then
+        if(div3(0) = '1') then -- when div3 gets to 2
+           div3 <= (others => '0');
+           div3_out <= '1';
+        else
+           div3 <= div3 + 1;
+	   div3_out <= '0';
+        end if;
+      end if;
+    end process;
 
-    );
     delay_inst: delay
     generic map(CYCLES => 4,
             WIDTH => 9)
-    port map(clk => clk_extra,
-         rst => i_rst,
+    port map(clk => clk_delay_i,
+         rst => rst_i,
          en  => '1',
          --input => ""&char_clk_tmp, 
-         --input => ""&counter(3), 
-         input => div_out_delayed, 
-         -- output(0) => char_clk_delayed(i)
-         output => div_out
+         input => div3(0) & div2 & div1,
+         output => div_o
     );
-    div_out_delayed(2 downto 0) <= div1;
-    div_out_delayed(7 downto 3) <= div2;
-    -- div_out(8) <= div3_out;
-    div_out_delayed(8) <= div3_tmp(0);
    
-    clock_2hf <= div2_out;
-    clock_hf <= div3_out;
-    LBA(7) <= div_out(8);
-    LBA(6) <= div_out(6);
-    LBA(5) <= div_out(5) or (div_out(7) and div_out(1));
-    LBA(4) <= not div_out(4);
-    LBA(3) <= div_out(3);
-    LBA(2) <= div_out(7);
-    LBA(1) <= (div_out(0) nor div_out(1)) or (div_out(7) and div_out(1));
-    LBA(0) <= div_out(0) or (div_out(7) and div_out(1)); 
-    --LBA(1) <= div_out(1) or (div_out(7) and div_out(0));
-    --LBA(0) <= (div_out(0) nor div_out(1)) or (div_out(7) and div_out(0));
-    div1 <= div1_tmp(2 downto 0);
-    div2 <= div2_tmp(4 downto 0);
+    clock_2hf_o <= div2_out;
+    clock_hf_o <= div3_out;
+    LBA_o(7) <= div_o(8);
+    LBA_o(6) <= div_o(6);
+    LBA_o(5) <= div_o(5) or (div_o(7) and div_o(1));
+    LBA_o(4) <= not div_o(4);
+    LBA_o(3) <= div_o(3);
+    LBA_o(2) <= div_o(7);
+    LBA_o(1) <= (div_o(0) nor div_o(1)) or (div_o(7) and div_o(1));
+    LBA_o(0) <= div_o(0) or (div_o(7) and div_o(1)); 
     
 end architecture rtl;
