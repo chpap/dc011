@@ -49,28 +49,39 @@ entity BV4 is
 end BV4;
 architecture rtl of BV4 is
      signal LBA: std_ulogic_vector(7 downto 0);
+     signal BV4_HORIZ_DRIVE_L: std_ulogic;
+     signal BV4_VERT_DRIVE_H: std_ulogic;
+     signal DW: std_ulogic;
 begin
   DC011_INT: dc011 port map(
      clk24_i => clk24_i,
      n_rst_i => '1',
      d0_i => DO_0_i(4),
      d1_i => DO_0_i(5),
-     n_vid_wr_i => '1', -- BV2_VID_WR_1_L_i,
-     dw_i => '0',
-     hold_req_i => '0', -- BV4_HOLD_REQ_H_i,
+     n_vid_wr_i => BV2_VID_WR_1_L_i,
+     dw_i => DW,
+     hold_req_i => BV4_HOLD_REQ_H_i,
      LBA_o => LBA_o,
      dot_clock_o => BV4_DOT_CLK_H_o,
      char_clk_o => BV4_CHAR_CLK_H_o,
      n_write_lb => BV4_WRITE_LB_L_o,
      vsr_ld => BV4_VSR_LOAD_H_o,
      n_addr_ld => BV4_ADDR_LD_L_o,
-     n_hdrive => open,
+     n_hdrive => BV4_HORIZ_DRIVE_L,
      hblank  => BV4_HORIZ_BLK_H_o,
-     vrst  => open,
-     vdrive => open,
+     vrst  => BV4_VERT_RESET_H_o,
+     vdrive => BV4_VERT_DRIVE_H,
      n_vblank  => BV4_VERT_BLANK_L_o,
      comp_sync => BV4_COMP_SYNC_L_o,
-     addr_count => open
+     addr_count => BV4_ADDR_CNT_H_o
     );
     
+    D_FF_1: D_FF
+      port map(
+       n_clk_i => not BV4_VERT_DRIVE_H,
+       D => BV4_HORIZ_DRIVE_L,
+       Q => BV4_EVEN_FIELD_L_o
+      );
+    BV4_VERT_DRIVE_L_o <= not BV4_VERT_DRIVE_H;
+    DW <= BV5_DW_L_i nand BV5_DH_L_i;
 end rtl;
