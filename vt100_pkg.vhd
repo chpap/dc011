@@ -145,7 +145,7 @@ impure function init_fontrom_hex(romfilename : in string) return fontrom_type;
       BV3_OPTION_PRESENT_H_i: in std_ulogic;
       BV2_NVR_DATA_H_i: in std_ulogic;
       BV2_FLAG_RD_L_i: in std_ulogic;
-      DEBUG: out std_ulogic_vector(7 downto 0));
+      DEBUG: out std_ulogic_vector(31 downto 0));
    end component;
 
 end package vt100_pkg;

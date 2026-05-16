@@ -28,7 +28,7 @@ entity BV6 is
       BV3_OPTION_PRESENT_H_i: in std_ulogic;
       BV2_NVR_DATA_H_i: in std_ulogic;
       BV2_FLAG_RD_L_i: in std_ulogic;
-      DEBUG: out std_ulogic_vector(7 downto 0));
+      DEBUG: out std_ulogic_vector(31 downto 0));
 end BV6;
 
 architecture rtl of BV6 is
@@ -91,6 +91,6 @@ begin
 
    BV6_RESET_H_o <= BV6_RESET_H;
    BV6_INTR_H <= BV6_INTR_H_i;
-   DEBUG <= (others => '0');
+   DEBUG <= DB_0_i & DO_0_o & A0_H_o;
 
 end rtl;

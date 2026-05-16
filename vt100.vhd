@@ -104,7 +104,8 @@ architecture rtl of vt100 is
   signal BV5_DV_H: std_ulogic;
   signal BV5_DH_H: std_ulogic;
   signal BV6_KBD_DATA_AVAIL_H: std_ulogic := '0';
-  signal debug: std_ulogic_vector(7 downto 0);
+  signal debug_bv5: std_ulogic_vector(31 downto 0);
+  signal debug_bv6: std_ulogic_vector(31 downto 0);
 
 begin
 
@@ -200,7 +201,8 @@ begin
       BV5_RV_H_o => BV5_RV_H_o,
       BV5_DV_H_o => BV5_DV_H,
       BV5_DW_H_o => BV5_DW_H,
-      BV5_TERM_L_o => BV5_TERM_L
+      BV5_TERM_L_o => BV5_TERM_L,
+      DEBUG => debug_bv5
       );
 
    BV6_INST: BV6 port map( 
@@ -224,15 +226,17 @@ begin
       BV2_FLAG_RD_L_i => BV2_FLAG_RD_L,
       BV6_MEM_RD_L_o => BV6_MEM_RD_L,
       BV6_MEM_WR_L_o => BV6_MEM_WR_L,
-      DEBUG => debug
+      DEBUG => debug_bv6
      );
    led_o(0) <= not BV4_CHAR_CLK_H;
    --led_o(0) <= not BV4_VERT_RESET_H;
    --led_o(1) <= A0_H(3);
    --led_o(7 downto 1) <= debug(7 downto 1);
-   debug_o(15 downto 8) <= DO_0;
-   debug_o(7 downto 0) <= DB_0;
-   debug_o(31 downto 16)<= A0_H;
+   --debug_o(15 downto 8) <= DO_0;
+   --debug_o(7 downto 0) <= DB_0;
+   --debug_o(31 downto 16)<= A0_H;
+   debug_o(15 downto 0) <= debug_bv5(15 downto 0);
+   debug_o(31 downto 16) <= debug_bv6(15 downto 0);
    videor_o <= (others => '0');
    videog_o <= (others => '0');
    videob_o <= (others => '0');
