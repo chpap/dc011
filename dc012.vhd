@@ -72,10 +72,16 @@ architecture behaviour of dc012 is
    signal scroll_gate1out: std_ulogic;
    signal hreq_gate1out: std_ulogic;
    signal hreq_gate1out_delayed: std_ulogic;
-   signal hold_req: std_ulogic := '0';
    signal hold_req_int: std_ulogic := '0';
    signal clk_scroll: std_ulogic;
    signal CLK: std_ulogic;
+   component latch1_comp is
+    Port ( clk_i: in  STD_LOGIC; -- Το γρήγορο κύριο ρολόι
+           n_addr_ld_i, vrst_i : in  std_ulogic;
+           reset_i            : in  std_ulogic;
+           latch_in         : in std_ulogic_vector(2 downto 0);
+           latch_out        : out std_ulogic_vector(2 downto 0));
+   end component;
 begin
     --- DELAYS
     delay_inst3: delay
@@ -103,72 +109,61 @@ begin
          output(0) => vid_in_delayed 
     );
    --LATCH 2 TODO vrst ?
-  latch2_proc: process (hold_req,vrst_i) is
+  latch2_proc: process (hold_req_o,vrst_i) is
     begin
-    if rising_edge(hold_req) then
+    if rising_edge(hold_req_o) then
        latch2 <= latch1(1 downto 0); -- (d_h_i,d_l_i) 
     end if;
   end process latch2_proc;
 
 
---  latch1_proc: process (n_addr_ld_i, vrst_i) is
---    begin
---    if rising_edge(vrst_i) then
---       latch1 <=  (others => '0');
---    end if;
---    -- LATCH 1 LOAD
---    if rising_edge(n_addr_ld_i) then
---       latch1 <=  ( revvid_i & d_h_i & d_l_i );
---    end if;
---    if rising_edge(vrst_i) then
---       latch1 <=  "000";
---    end if;
---  end process latch1_proc;
+
+  LATCH1_PROC: latch1_comp port map(
+  	clk_i => clk_i,
+	n_addr_ld_i => n_addr_ld_i,
+	vrst_i => vrst_i,
+	reset_i => vrst_i,
+	latch_in => ( revvid_i & d_h_i & d_l_i ),
+	latch_out => latch1
+      );
 --
 --  -- SCAn COUNTER
   scan_counter_proc: process (CNT,vrst_i) is
     begin
-    if rising_edge(CNT) then
       if vrst_i = '1'  then
         offset_counter <= scroll_latch_H & scroll_latch_L;
         scan_counter <= "0000";
-      else
+      elsif rising_edge(CNT) then
         offset_counter <= offset_counter + 1;
         scan_counter <= scan_counter + 1;
       end if;
-    end if;
---    if rising_edge(vrst_i) then -- TODO : make vrst_i synchronous
---       offset_counter <= scroll_latch_H & scroll_latch_L;
---       scan_counter <= "0000";
---    end if;
   end process scan_counter_proc;
 --  -- COMMAND DECOdER
---  command_decode: process (n_vid_w2_i,vrst_i) is
---    begin
---    if rising_edge(vrst_i) then
---       vfreq_intr_ff <= '1';
---    end if;
---    if falling_edge(n_vid_w2_i) then
---      case data_i is
---        when "0000" => scroll_latch_L <= "00";
---        when "0001" => scroll_latch_L <= "01";
---        when "0010" => scroll_latch_L <= "10";
---        when "0011" => scroll_latch_L <= "11";
---        when "0100" => scroll_latch_H <= "00";
---        when "0101" => scroll_latch_H <= "01";
---        when "0110" => scroll_latch_H <= "10";
---        when "0111" => scroll_latch_H <= "11";
---        when "1000" => blink_ff <= not blink_ff;
---        when "1001" => vfreq_intr_ff <= '0';
---        when "1010" => reverse_field_ff <= '1';
---        when "1011" => reverse_field_ff  <= '0';
---        when "1100" => basic_attribute <= ATTR_UNDERLINE; blink_ff <= '0';
---        when "1101" => basic_attribute <= ATTR_REVERSE_VIDEO; blink_ff <= '0';
---        when others => blink_ff <= '0';
---      end case;
---    end if;
---    
---  end process command_decode;
+  command_decode: process (n_vid_w2_i,vrst_i) is
+    begin
+    if vrst_i = '1' then
+       vfreq_intr_ff <= '1';
+    end if;
+    if falling_edge(n_vid_w2_i) then
+      case data_i is
+        when "0000" => scroll_latch_L <= "00";
+        when "0001" => scroll_latch_L <= "01";
+        when "0010" => scroll_latch_L <= "10";
+        when "0011" => scroll_latch_L <= "11";
+        when "0100" => scroll_latch_H <= "00";
+        when "0101" => scroll_latch_H <= "01";
+        when "0110" => scroll_latch_H <= "10";
+        when "0111" => scroll_latch_H <= "11";
+        when "1000" => blink_ff <= not blink_ff;
+        when "1001" => vfreq_intr_ff <= '0';
+        when "1010" => reverse_field_ff <= '1';
+        when "1011" => reverse_field_ff  <= '0';
+        when "1100" => basic_attribute <= ATTR_UNDERLINE; blink_ff <= '0';
+        when "1101" => basic_attribute <= ATTR_REVERSE_VIDEO; blink_ff <= '0';
+        when others => blink_ff <= '0';
+      end case;
+    end if;
+  end process command_decode;
   --SCAN_COUNT_SEQ
   scan_count_proc: process (hblank_i) is
     begin
@@ -205,9 +200,9 @@ begin
   
    CNT <= hblank_delayed;
    scroll_gate1out <= top_scan or new_scrol_zone_out; 
-   hreq_gate1out <= hold_req_int; --  TODO and addr_ld;
+   hreq_gate1out <= hold_req_int and (latch2(1) or latch2(0)); --  TODO and addr_ld;
    hold_req_int <= not CNT and scroll_gate1out and not term_ff;
-   -- hold_req <= hold_req_int or hreq_gate1out_delayed; -- TODO
+   hold_req_o <= hold_req_int  or hreq_gate1out_delayed; -- TODO
 
   -- O-Off/D-Dim/N-Normal/B-Bright/X-NA 
   -- char attr vector -> Rev,Underline,Bold,Blink
@@ -244,3 +239,66 @@ begin
     
 
 end architecture;
+---------------------------------------
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+use ieee.numeric_std.all;
+use ieee.math_real.all;
+use work.dc0112_pkg.all;
+
+
+--  latch1_proc: process (n_addr_ld_i, vrst_i) is
+entity latch1_comp is
+    Port ( clk_i: in  STD_LOGIC; -- Το γρήγορο κύριο ρολόι
+           n_addr_ld_i, vrst_i : in  std_ulogic;
+           reset_i            : in  std_ulogic;
+           latch_in         : in std_ulogic_vector(2 downto 0);
+           latch_out        : out std_ulogic_vector(2 downto 0));
+end latch1_comp;
+
+architecture Behavioral of latch1_comp  is
+    -- Σήματα για συγχρονισμό και ανίχνευση ακμής
+    signal clk1_r, clk1_rr, clk1_rrr : std_ulogic := '0';
+    signal clk2_r, clk2_rr, clk2_rrr : std_ulogic := '0';
+
+    signal en_n_addr, en_vrst : std_ulogic := '0';
+begin
+
+    -- Διαδικασία Συγχρονισμού στο Κύριο Ρολόι
+    process(clk_i)
+    begin
+        if rising_edge(clk_i) then
+            -- Συγχρονισμός clk1
+            clk1_r   <= n_addr_ld_i;
+            clk1_rr  <= clk1_r;
+            clk1_rrr <= clk1_rr;
+
+            -- Συγχρονισμός clk2
+            clk2_r   <= vrst_i;
+            clk2_rr  <= clk2_r;
+            clk2_rrr <= clk2_rr;
+
+        end if;
+    end process;
+
+    -- Ανίχνευση Ανερχόμενης Ακμής (Rising Edge Detection)
+    en_n_addr <= clk1_rr and (not clk1_rrr);
+    en_vrst <= clk2_rr and (not clk2_rrr);
+
+    -- Ανίχνευση Ακμής (Falling Edge Detection)
+    --en_n_addr <= clk1_rrr and (not clk1_rr);
+    --en_vrst <= clk2_rrr and (not clk2_rr);
+    process(clk_i, reset_i)
+    begin
+        if reset_i = '1' then
+            latch_out <= (others => '0');
+        elsif rising_edge(clk_i) then
+            if en_vrst = '1' then latch_out <= (others => '0'); 
+	    elsif en_n_addr = '1' then latch_out <= latch_in ; end if;
+        end if;
+    end process;
+
+end Behavioral;
+

@@ -1,3 +1,55 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+entity AD_LUT_32x10 is
+	port (address : in  std_ulogic_vector (4 downto 0); 
+-- switch position where on = 0
+	      data_out: out std_ulogic_vector (9 downto 0)  -- 10-bit quantized headroom voltage
+      );
+end AD_LUT_32x10;
+architecture rtl of AD_LUT_32x10 is
+begin
+process(address)
+begin
+	case address is
+		when "00000" => data_out <= "0000000000"; -- 0.000 V (index 31 original table)
+		when "00001" => data_out <= "0000001011"; -- 0.045 V
+		when "00010" => data_out <= "0000010111"; -- 0.091 V
+		when "00011" => data_out <= "0000100011"; -- 0.139 V
+		when "00100" => data_out <= "0000111011"; -- 0.189 V
+		when "00101" => data_out <= "0001001100"; -- 0.242 V
+		when "00110" => data_out <= "0001011010"; -- 0.297 V
+		when "00111" => data_out <= "0010010010"; -- 0.355 V
+		when "01000" => data_out <= "0010100110"; -- 0.415 V
+		when "01001" => data_out <= "0100011110"; -- 0.479 V
+		when "01010" => data_out <= "0100010010"; -- 0.546 V
+		when "01011" => data_out <= "0101001101"; -- 0.616 V
+		when "01100" => data_out <= "0101010111"; -- 0.691 V
+		when "01101" => data_out <= "0111000000"; -- 0.769 V
+		when "01110" => data_out <= "0111010101"; -- 0.852 V
+		when "01111" => data_out <= "0111101011"; -- 0.940 V
+		when "10000" => data_out <= "1000111110"; -- 1.147 V (index 15 original table)
+		when "10001" => data_out <= "1001110010"; -- 1.253 V
+		when "10010" => data_out <= "1010101011"; -- 1.367 V
+		when "10011" => data_out <= "1011101010"; -- 1.489 V
+		when "10100" => data_out <= "1100101011"; -- 1.620 V
+		when "10101" => data_out <= "1101101101"; -- 1.760 V
+		when "10110" => data_out <= "1110110111"; -- 1.911 V
+		when "10111" => data_out <= "1000000101"; -- 2.075 V
+		when "11000" => data_out <= "1000110010"; -- 2.253 V
+		when "11001" => data_out <= "1001100110"; -- 2.446 V
+		when "11010" => data_out <= "1010011001"; -- 2.657 V
+		when "11011" => data_out <= "1011010010"; -- 2.889 V
+		when "11100" => data_out <= "1100010011"; -- 3.144 V
+		when "11101" => data_out <= "1101011001"; -- 3.427 V
+		when "11110" => data_out <= "1110101000"; -- 3.743 V
+		when "11111" => data_out <= "1111111111"; -- 4.096 V (index 0 original table)
+		when others  => data_out <= (others => '0');
+	end case;
+end process;
+end rtl;
+
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -45,6 +97,7 @@ entity BV4 is
       BV5_RV_H_i: in std_ulogic;
       BV4_SC_H_o : out std_ulogic_vector(3 downto 0);
       J9_COMP_o: out std_ulogic_vector(3 downto 0);
+      DIRECT_DRIVE_VID_o: out std_ulogic_vector(3 downto 0);
       BV4_VIDEO_OUT_1_H_o: out std_ulogic;
       BV4_VIDEO_OUT_2_H_o: out std_ulogic
       );
@@ -57,6 +110,13 @@ architecture rtl of BV4 is
      signal V1,V2: std_ulogic;
      signal DW: std_ulogic;
      signal DA: std_ulogic_vector(4 downto 0) := (others => '0');
+     signal DA_CONV: std_ulogic_vector(9 downto 0) := (others => '0');
+     signal VIDOUT: std_ulogic_vector(7 downto 0) := (others => '0');
+     component AD_LUT_32x10 is
+	port (address : in  std_ulogic_vector (4 downto 0); 
+	      data_out: out std_ulogic_vector (9 downto 0)  -- 10-bit quantized headroom voltage
+      );
+     end component;
 begin
   DC011_INT: dc011 port map(
      clk24_i => clk24_i,
@@ -122,9 +182,17 @@ begin
       end if;
     end process DA_LATCH_PROC;
     -- Video
-    V1 <= BV1_GRAPHIC_1_IN_L_i and (BV4_VIDEO_OUT_1_H_o nand BV4_VERT_BLANK_L_o) and BV4_COMP_SYNC_L_o;
-    V2 <= BV1_GRAPHIC_2_IN_L_i and (BV4_VIDEO_OUT_2_H_o nand BV4_VERT_BLANK_L_o) and BV4_COMP_SYNC_L_o;
-    J9_COMP_o <= V2 & '0' &  V1 & '0';
+    V1 <= BV1_GRAPHIC_1_IN_L_i and (BV4_VIDEO_OUT_1_H_o nand BV4_VERT_BLANK_L_o);
+    V2 <= BV1_GRAPHIC_2_IN_L_i and (BV4_VIDEO_OUT_2_H_o nand BV4_VERT_BLANK_L_o);
+    -- approximation of video analog circuit
+    J9_COMP_o <= ("00" & (V2 and BV4_COMP_SYNC_L_o) & (V1 and BV4_COMP_SYNC_L_o)) +  BV4_COMP_SYNC_L_o;
+    AD_LUT_32x10_INST: AD_LUT_32x10 port map (
+         address => (DA),
+	 data_out => DA_CONV
+      );
+    VIDOUT <= '0' & DA_CONV(9 downto 3) + ('0' & V2 & V1 & "00000");
+    DIRECT_DRIVE_VID_o <= VIDOUT(3 downto 0);
+
     BV4_HS_CLK_H_o <= clk24_i;
     BV4_T_HOLD_REQ_H_o <= BV4_HOLD_REQ_H_o;
     SR_FF_1: SR_FF

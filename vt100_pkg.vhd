@@ -122,6 +122,8 @@ impure function init_fontrom_hex(romfilename : in string) return fontrom_type;
       BV4_VERT_FREQ_INT_L_o : out std_ulogic;
       BV4_SC_H_o : out std_ulogic_vector(3 downto 0);
       BV5_RV_H_i: in  std_ulogic;
+      J9_COMP_o: out std_ulogic_vector(3 downto 0);
+      DIRECT_DRIVE_VID_o: out std_ulogic_vector(3 downto 0);
       BV4_VIDEO_OUT_1_H_o: out std_ulogic;
       BV4_VIDEO_OUT_2_H_o: out std_ulogic);
    end component;

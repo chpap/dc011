@@ -105,8 +105,7 @@ begin
 
 	   end if;
    end process FLAG_BUF_PROC;
-   flag_buffer <= BV6_KBD_TBMT_H & LBA_i(7) & BV2_NVR_DATA_H_i & BV4_EVEN_FIELD_L_i & BV3_OPTION_PRESENT_H_i & BV1_GRAPHICS_FLAG_L & \
-		  BV1_ADVANCED_VIDEO_L_i & BV3_XMIT_FLAG_H_i;
+   flag_buffer <= BV6_KBD_TBMT_H & LBA_i(7) & BV2_NVR_DATA_H_i & BV4_EVEN_FIELD_L_i & BV3_OPTION_PRESENT_H_i & BV1_GRAPHICS_FLAG_L &  BV1_ADVANCED_VIDEO_L_i & BV3_XMIT_FLAG_H_i;
 
    DEBUG <= DB_0_i & DO_0_o & A0_H_o;
 

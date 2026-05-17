@@ -57,6 +57,7 @@ architecture rtl of vt100 is
   signal BV6_MEM_RD_L: std_ulogic;
   signal BV6_HLDA_H: std_ulogic;
   signal BV1_MEM_DISABLE_L: std_ulogic;
+  signal BV1_ADVANCED_VIDEO_L: std_ulogic;
   signal BV2_NVR_DATA_H: std_ulogic;
   signal BV2_KBD_RD_L: std_ulogic;
   signal BV2_FLAG_RD_L: std_ulogic;
@@ -133,7 +134,6 @@ begin
       BV2_VID_WR_2L_o => BV2_VID_WR_2L,
       BV2_NVR_WR_L_o => BV2_NVR_WR_L,
       BV2_DA_WR_L_o => BV2_DA_WR_L,
-      BV2_WRITE_BAUD_H_o => BV2_WRITE_BAUD_H,
       BV2_SEL_8_12K_L_o => BV2_SEL_8_12K_L,
       BV2_SEL_ATT_RAM_L_o => BV2_SEL_ATT_RAM_L
       );
@@ -245,7 +245,7 @@ begin
       LBA_i => LBA,
       BV6_INTR_H_i => '0',
       BV6_HLDA_H_o => BV6_HLDA_H,
-      BV4_DMA_ENA_H_i: => not BV4_DMA_ENA_L,
+      BV4_DMA_ENA_H_i => not BV4_DMA_ENA_L,
       BV4_T_HOLD_REQ_H_i => BV4_T_HOLD_REQ_H,
       BV3_XMIT_FLAG_H_i => BV3_XMIT_FLAG_H,
       BV3_REC_FLAG_H_i => BV3_REC_FLAG_H,
