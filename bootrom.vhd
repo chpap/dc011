@@ -9,7 +9,8 @@ entity bootrom is
 	GENERIC(
 	   DATAWIDTH : positive := 13;
 	   RAM_WIDTH  : NATURAL := 8;
-	   RAM_DEPTH  : NATURAL := 8192
+	   RAM_DEPTH  : NATURAL := 8192;
+           BOOTROM_FILE: string := "rom1.hex"
 	);
 	port
 	(
@@ -63,7 +64,7 @@ signal ROM : bootrom_type:= (
     others => x"00"    -- Όλες οι υπόλοιπες 8189 θέσεις γίνονται 00
 );
 --    21 00 00 11 01 30 7E 23 7D BB C2 06 01 7C BA C2 06 01 C3 00 01
---signal ROM2 : bootrom_type := init_bootrom_hex("rom1.hex");
+--signal ROM : bootrom_type := init_bootrom_hex(BOOTROM_FILE);
 
 
 begin

@@ -33,17 +33,18 @@ entity BV3 is
       CTS_i: in std_ulogic;
       SPDI_i: in std_ulogic;
       RI_i: in std_ulogic;
-      DEBUG     : out std_ulogic_vector(31 downto 0);
+      DEBUG     : out std_ulogic_vector(31 downto 0));
 end BV3;
 
 architecture rtl of BV3 is
 
 begin
-   begin
-     if(rising_edge(clk_i)) then
-        DEBUG(15 downto 0) <= A0_H_i;
-	DEBUG(31 downto 16) <= (others => '0');
-     end if;
-   end process debug_proc;
+debug_proc: process(clk_i)
+begin
+  if(rising_edge(clk_i)) then
+    DEBUG(15 downto 0) <= A0_H_i;
+    DEBUG(31 downto 16) <= (others => '0');
+  end if;
+end process debug_proc;
     
 end rtl;

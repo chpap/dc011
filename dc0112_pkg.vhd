@@ -184,6 +184,18 @@ package dc0112_pkg is
       data_o   : out std_logic_vector (7 downto 0)
 	);
   end component;
+  component fontrom is
+  GENERIC(
+	   DATAWIDTH : positive := 11;
+	   RAM_WIDTH  : NATURAL := 8;
+	   RAM_DEPTH  : NATURAL := 2048
+  );
+  port (
+       addr_i  : in std_logic_vector (DATAWIDTH - 1 downto 0);
+       clk	: in std_logic  := '1';
+       data_o  : out std_logic_vector (7 downto 0)
+	);
+  end component;
   component vtiming is
   port (
        i_clk: in  std_ulogic;

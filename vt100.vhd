@@ -101,9 +101,8 @@ architecture rtl of vt100 is
   signal BV4_VIDEO_OUT_2_H: std_ulogic;
   signal BV5_RV_H:  std_ulogic;
   signal BV5_TERM_L:  std_ulogic;
-  signal BV5_DW_H: std_ulogic;
-  signal BV5_DV_H: std_ulogic;
-  signal BV5_DH_H: std_ulogic;
+  signal BV5_DW_L: std_ulogic;
+  signal BV5_DH_L: std_ulogic;
   signal BV6_KBD_DATA_AVAIL_H: std_ulogic := '0';
   signal debug_bv5: std_ulogic_vector(31 downto 0);
   signal debug_bv6: std_ulogic_vector(31 downto 0);
@@ -184,8 +183,8 @@ begin
       BV6_HLDA_H_i => BV6_HLDA_H,
       BV4_DMA_ENA_H_o => open,
       BV4_DMA_ENA_L_o => BV4_DMA_ENA_L,
-      BV5_DW_L_i => not BV5_DW_H,
-      BV5_DH_L_i => not BV5_DH_H,
+      BV5_DW_L_i => BV5_DW_L,
+      BV5_DH_L_i => BV5_DH_L,
       BV5_TERM_L_i => BV5_TERM_L,
       BV5_SERIAL_VIDEO_H_i => BV5_SERIAL_VIDEO_H,
       BV1_BLINK_L_i => BV1_BLINK_L,
@@ -230,8 +229,8 @@ begin
       BV4_HORIZ_BLK_H_i => BV4_HORIZ_BLK_H,
       BV4_VERT_RESET_H_i => BV4_VERT_RESET_H,
       BV5_RV_H_o => BV5_RV_H,
-      BV5_DV_H_o => BV5_DV_H,
-      BV5_DW_H_o => BV5_DW_H,
+      BV5_DH_L_o => BV5_DH_L,
+      BV5_DW_L_o => BV5_DW_L,
       BV5_TERM_L_o => BV5_TERM_L,
       DEBUG => debug_bv5
       );

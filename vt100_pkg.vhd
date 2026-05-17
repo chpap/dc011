@@ -145,8 +145,8 @@ impure function init_fontrom_hex(romfilename : in string) return fontrom_type;
       BV4_HORIZ_BLK_H_i: in std_ulogic;
       BV4_VERT_RESET_H_i: in std_ulogic;
       BV5_RV_H_o: out  std_ulogic;
-      BV5_DV_H_o: out  std_ulogic;
-      BV5_DW_H_o: out  std_ulogic;
+      BV5_DH_L_o: out  std_ulogic;
+      BV5_DW_L_o: out  std_ulogic;
       BV5_TERM_L_o: out  std_ulogic;
       DEBUG: out std_ulogic_vector(31 downto 0)
       );

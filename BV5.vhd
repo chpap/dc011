@@ -94,8 +94,8 @@ entity BV5 is
       BV4_HORIZ_BLK_H_i: in std_ulogic;
       BV4_VERT_RESET_H_i: in std_ulogic;
       BV5_RV_H_o: out  std_ulogic;
-      BV5_DV_H_o: out  std_ulogic;
-      BV5_DW_H_o: out  std_ulogic;
+      BV5_DH_L_o: out  std_ulogic;
+      BV5_DW_L_o: out  std_ulogic;
       BV5_TERM_L_o: out  std_ulogic;
       DEBUG: out  std_ulogic_vector(31 downto 0)
       );
@@ -111,11 +111,25 @@ architecture rtl of BV5 is
            count_out        : out std_ulogic_vector(11 downto 0));
      end component;
      signal addr_counter: std_ulogic_vector(11 downto 0) := (others => '0');
-     signal addr_counter_in: std_ulogic_vector(11 downto 0) := (others => '0');
+     signal addr_counter_in: std_ulogic_vector(11 downto 0);
+     signal line_buffer: std_ulogic_vector(7 downto 0) := (others => '0');
+     signal scren_ram_latch: std_ulogic_vector(7 downto 0) := (others => '0');
+     signal char_gen_latch: std_ulogic_vector(7 downto 0) := (others => '0');
+     signal char_gen_latch_in: std_ulogic_vector(7 downto 0);
+     signal char_gen_address: std_ulogic_vector(10 downto 0);
+     signal char_gen_data: std_ulogic_vector(7 downto 0);
+     signal char_gen_data_norm: std_ulogic_vector(7 downto 0);
+     signal char_gen_data_alt: std_ulogic_vector(7 downto 0);
+     signal video_shift_reg: std_ulogic_vector(7 downto 0) := (others => '0');
+     signal lbuf_data_in: std_ulogic_vector(7 downto 0);
+     signal lbuf_data_out: std_ulogic_vector(7 downto 0);
+     signal addr_latch: std_ulogic_vector(11 downto 0) := (others => '0');
+     signal addr_latch_in: std_ulogic_vector(11 downto 0);
+     signal addr_latch_out: std_ulogic_vector(15 downto 0) := (others => '0');
+     signal SR : std_ulogic;
 
 begin
-    addr_counter_in(7 downto 0) <= DO_0_i;
-
+    --------------------------------------------
     GLOBAL_ADDR_COUNTER1: global_addr_counter
     port map( main_clk => clk_i,
            clk1 => BV4_ADDR_CNT_H_i,
@@ -133,5 +147,88 @@ begin
 	DEBUG(31 downto 16) <= (others => '0');
      end if;
    end process debug_proc;
+    --------------------------------------------
+   --- LINE BUFFER
+   LATCH_PROC: process(BV4_HOLD_REQ_H_i)
+   begin
+     if rising_edge(BV4_HOLD_REQ_H_i) then
+	     scren_ram_latch <= DO_0_i;
+	     char_gen_latch <= char_gen_latch_in;
+             A0_H_o <= addr_latch_out;
+     end if;
+   end process LATCH_PROC;
     
+   FONTROM_INST: fontrom port map (
+      addr_i => char_gen_address,
+      clk => clk24_i,
+      data_o => char_gen_data_norm
+   );
+
+   FONTROM_ALT_INST: fontrom port map (
+      addr_i => char_gen_address,
+      clk => clk24_i,
+      data_o => char_gen_data_alt
+   );
+----------- fontrom selection
+   char_gen_data <= char_gen_data_norm when BV1_ALT_CHAR_SEL_L_i = '1' else char_gen_data_alt;
+---- VSR
+   VSR_PROC: process(BV4_DOT_CLK_H_i,BV4_VSR_LOAD_H_i)
+   begin
+      if(BV4_VSR_LOAD_H_i = '1') then
+          video_shift_reg <= char_gen_data(7 downto 1) & video_shift_reg(7);
+      elsif rising_edge(BV4_DOT_CLK_H_i) then
+          video_shift_reg <= std_ulogic_vector(shift_left(unsigned(video_shift_reg),1)) or ("0000000" & SR) ;
+      end if;
+   end process;
+   BV5_SERIAL_VIDEO_H_o <= video_shift_reg(7);
+--------------   
+   SR_FF_1: SR_FF
+     port map(
+      D => char_gen_data(0),
+      S => '1',
+      R => not BV4_HORIZ_BLK_H_i,
+      n_clk_i => not BV4_VSR_LOAD_H_i,
+      Q => SR,
+      n_Q => open
+     );
+-------------
+    BV5_RV_H_o <= char_gen_latch(0);
+    BV5_DH_L_o <= char_gen_latch(1);
+    BV5_DW_L_o <= char_gen_latch(2);
+---------------
+   SR_FF_2: SR_FF
+     port map(
+      D => char_gen_latch(3),
+      S => not BV4_VERT_RESET_H_i,
+      R => '1',
+      n_clk_i => not BV4_ADDR_LD_L_i,
+      Q => addr_latch_out(13),
+      n_Q => addr_latch_out(14)
+     );
+     addr_latch_out(15) <= '0';
+     addr_latch_out(12) <= '0';
+     addr_latch_out(11 downto 0) <= addr_counter;
+--
+-------------
+---- TERMINATOR DETECT
+    BV5_TERM_L_o <= nand char_gen_address(10 downto 4);
+  LINE_BUF_INST: sram generic map (
+	   DATAWIDTH =>8 
+   )
+  port map (
+      addr_i => LBA_i,
+      clk => clk_i,
+      data_i => lbuf_data_in,
+      wren_i => BV4_WRITE_LB_L_i,
+      data_o => lbuf_data_out
+   );
+-------- ADDRESS /DATA MUXES
+    char_gen_address(3 downto 0) <= BV4_SC_H_i;
+    char_gen_address(10 downto 4) <= char_gen_latch(7 downto 1);
+    addr_counter_in(7 downto 0) <= scren_ram_latch;
+    lbuf_data_in <= scren_ram_latch when BV4_DMA_ENA_L_i = '1' else lbuf_data_out;
+    char_gen_latch_in <= lbuf_data_out when BV4_DMA_ENA_L_i = '1' else scren_ram_latch;
+
+
+
 end rtl;
