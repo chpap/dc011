@@ -14,6 +14,7 @@ entity BV6 is
       BV6_RESET_H_o : out std_ulogic;
       BV6_INTR_H_i : in std_ulogic;
       BV4_T_HOLD_REQ_H_i : in std_ulogic;
+      BV4_DMA_ENA_H_i: in std_ulogic;
       BV6_INTA_L_o: out std_ulogic;
       BV6_IO_WR_L_o: out std_ulogic;
       BV6_IO_RD_L_o: out std_ulogic;
@@ -28,6 +29,8 @@ entity BV6 is
       BV3_OPTION_PRESENT_H_i: in std_ulogic;
       BV2_NVR_DATA_H_i: in std_ulogic;
       BV2_FLAG_RD_L_i: in std_ulogic;
+      BV1_GRAPHICS_FLAG_L: in std_ulogic;
+      BV1_ADVANCED_VIDEO_L_i: in std_ulogic;
       DEBUG: out std_ulogic_vector(31 downto 0));
 end BV6;
 
@@ -35,12 +38,14 @@ architecture rtl of BV6 is
    signal BV6_RESET_H : std_ulogic;
    signal BV6_INTR_H : std_ulogic;
    signal BV6_KBD_TBMT_H: std_ulogic;
+   signal BV6_MEM_RD_L: std_ulogic;
    signal ready : std_ulogic := '1';
    signal wait80 : std_ulogic;
    signal n_stsb : std_ulogic;
    signal inte : std_ulogic;
    signal dbin : std_ulogic;
    signal n_wr: std_ulogic;
+   signal flag_buffer: std_ulogic_vector(7 downto 0);
 
    component i8xxx is
    port( clk_i : in std_logic;
@@ -83,7 +88,7 @@ begin
    n_wr_o => n_wr,
    reset_o => BV6_RESET_H,
    n_stsb_o => n_stsb,
-   n_memr_o => BV6_MEM_RD_L_o,
+   n_memr_o => BV6_MEM_RD_L,
    n_memw_o => BV6_MEM_WR_L_o,
    n_ior_o => BV6_IO_RD_L_o,
    n_iow_o => BV6_IO_WR_L_o,
@@ -91,6 +96,18 @@ begin
 
    BV6_RESET_H_o <= BV6_RESET_H;
    BV6_INTR_H <= BV6_INTR_H_i;
+   BV6_MEM_RD_L_o <= BV6_MEM_RD_L and not BV4_DMA_ENA_H_i;
+   --- FLAG BUFFER
+   ---------------------
+   FLAG_BUF_PROC: process(BV2_FLAG_RD_L_i)
+   begin
+	   if falling_edge(BV2_FLAG_RD_L_i) then
+
+	   end if;
+   end process FLAG_BUF_PROC;
+   flag_buffer <= BV6_KBD_TBMT_H & LBA_i(7) & BV2_NVR_DATA_H_i & BV4_EVEN_FIELD_L_i & BV3_OPTION_PRESENT_H_i & BV1_GRAPHICS_FLAG_L & \
+		  BV1_ADVANCED_VIDEO_L_i & BV3_XMIT_FLAG_H_i;
+
    DEBUG <= DB_0_i & DO_0_o & A0_H_o;
 
 end rtl;

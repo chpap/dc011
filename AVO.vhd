@@ -40,6 +40,7 @@ begin
    BV1_BOLD_L_o <= '1';
    BV1_UNDERLINE_L_o <= '1';
    BV1_MEM_DISABLE_L_o <= '1';
+   BV1_ALT_CHAR_SEL_L_o <= '1';
 
    debug_proc: process(clk_i)
    begin

@@ -161,6 +161,7 @@ impure function init_fontrom_hex(romfilename : in string) return fontrom_type;
       LBA_i  : in std_ulogic_vector(7 downto 0);
       BV6_HLDA_H_o  : out std_ulogic;
       BV6_RESET_H_o  :out std_logic;
+      BV4_DMA_ENA_H_i: in std_ulogic;
       BV6_INTR_H_i : in std_ulogic;
       BV4_T_HOLD_REQ_H_i : in std_ulogic;
       BV6_INTA_L_o: out std_ulogic;
@@ -176,6 +177,8 @@ impure function init_fontrom_hex(romfilename : in string) return fontrom_type;
       BV3_OPTION_PRESENT_H_i: in std_ulogic;
       BV2_NVR_DATA_H_i: in std_ulogic;
       BV2_FLAG_RD_L_i: in std_ulogic;
+      BV1_GRAPHICS_FLAG_L: in std_ulogic;
+      BV1_ADVANCED_VIDEO_L_i: in std_ulogic;
       DEBUG: out std_ulogic_vector(31 downto 0));
    end component;
    component AVO is

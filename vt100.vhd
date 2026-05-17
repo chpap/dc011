@@ -62,8 +62,8 @@ architecture rtl of vt100 is
   signal BV2_FLAG_RD_L: std_ulogic;
   signal BV2_MODEM_RD_L: std_ulogic;
   signal BV2_GRAPHIC_WR_L: std_ulogic;
-  signal BV1_GRAPHIC_1_IN_L: std_ulogic;
-  signal BV1_GRAPHIC_2_IN_L: std_ulogic;
+  signal BV1_GRAPHIC_1_IN_L: std_ulogic := '1';
+  signal BV1_GRAPHIC_2_IN_L: std_ulogic := '1';
   signal BV2_VID_WR_1L: std_ulogic;
   signal BV2_VID_WR_2L: std_ulogic;
   signal BV2_NVR_WR_L: std_ulogic;
@@ -245,6 +245,7 @@ begin
       LBA_i => LBA,
       BV6_INTR_H_i => '0',
       BV6_HLDA_H_o => BV6_HLDA_H,
+      BV4_DMA_ENA_H_i: => not BV4_DMA_ENA_L,
       BV4_T_HOLD_REQ_H_i => BV4_T_HOLD_REQ_H,
       BV3_XMIT_FLAG_H_i => BV3_XMIT_FLAG_H,
       BV3_REC_FLAG_H_i => BV3_REC_FLAG_H,
@@ -256,6 +257,8 @@ begin
       BV2_FLAG_RD_L_i => BV2_FLAG_RD_L,
       BV6_MEM_RD_L_o => BV6_MEM_RD_L,
       BV6_MEM_WR_L_o => BV6_MEM_WR_L,
+      BV1_GRAPHICS_FLAG_L => '1',
+      BV1_ADVANCED_VIDEO_L_i => BV1_ADVANCED_VIDEO_L,
       DEBUG => debug_bv6
      );
     AVO_INST: AVO port map( 
@@ -270,7 +273,7 @@ begin
       BV4_DMA_ENA_L_i => BV4_DMA_ENA_L,
       BV6_MEM_RD_L_i => BV6_MEM_RD_L,
       BV6_MEM_WR_L_i => BV6_MEM_WR_L,
-      BV1_ADVANCED_VIDEO_L_o => open,
+      BV1_ADVANCED_VIDEO_L_o => BV1_ADVANCED_VIDEO_L,
       BV1_MEM_DISABLE_L_o => BV1_MEM_DISABLE_L,
       AVO_EN_PATCH_ROM_L_o => open,
       BV2_SEL_ATT_RAM_L_i => BV2_SEL_ATT_RAM_L,
