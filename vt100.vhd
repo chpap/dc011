@@ -56,7 +56,7 @@ architecture rtl of vt100 is
   signal BV6_MEM_WR_L: std_ulogic;
   signal BV6_MEM_RD_L: std_ulogic;
   signal BV6_HLDA_H: std_ulogic;
-  signal BV1_MEM_DISABLE_L: std_ulogic := '1';
+  signal BV1_MEM_DISABLE_L: std_ulogic;
   signal BV2_NVR_DATA_H: std_ulogic;
   signal BV2_KBD_RD_L: std_ulogic;
   signal BV2_FLAG_RD_L: std_ulogic;
@@ -71,6 +71,7 @@ architecture rtl of vt100 is
   signal BV2_WRITE_BAUD_H: std_ulogic;
   signal BV2_SEL_8_12K_L: std_ulogic;
   signal BV2_SEL_ATT_RAM_L: std_ulogic;
+  signal BV2_n_SPDS: std_ulogic;
   signal BV2_KBD_WR_L: std_ulogic := '0';
   signal BV3_XMIT_FLAG_H: std_ulogic := '0';
   signal BV3_REC_FLAG_H: std_ulogic := '0';
@@ -123,7 +124,7 @@ begin
       BV6_MEM_WR_L_i => BV6_MEM_WR_L,
       BV6_MEM_RD_L_i => BV6_MEM_RD_L,
       BV1_MEM_DISABLE_L_i => BV1_MEM_DISABLE_L,
-      BV2_n_SPDS_o   => open,
+      BV2_n_SPDS_o   => BV2_n_SPDS,
       BV2_NVR_DATA_H_o => BV2_NVR_DATA_H,
       BV2_KBD_RD_L_o => BV2_KBD_RD_L,
       BV2_FLAG_RD_L_o => BV2_FLAG_RD_L,
@@ -137,7 +138,35 @@ begin
       BV2_SEL_8_12K_L_o => BV2_SEL_8_12K_L,
       BV2_SEL_ATT_RAM_L_o => BV2_SEL_ATT_RAM_L
       );
-
+   BV3_INST :BV3 port map( 
+      clk_i => clk100_i,
+      clk24_i => clk24_07_i,
+      A0_H_i => A0_H,
+      DB_0_o => open,
+      DB_0_i => DB_0,
+      DO_0_i => DO_0,
+      LBA_i => LBA,
+      BV6_IO_WR_L_i => BV6_IO_WR_L,
+      BV6_IO_RD_L_i => BV6_IO_RD_L,
+      BV6_RESET_H_i => not BV6_RESET_L,
+      BV6_F2_TTL_i => '0',
+      BV3_XMIT_FLAG_H_o => BV3_XMIT_FLAG_H,
+      BV3_REC_FLAG_H_o => BV3_REC_FLAG_H,
+      BV2_WRITE_BAUD_H_i => BV2_WRITE_BAUD_H,
+      BV3_OPTION_PRESENT_H_o => BV3_OPTION_PRESENT_H,
+      BV2_n_SPDS_i => BV2_n_SPDS,
+      BV2_MODEM_RD_L_i => BV2_MODEM_RD_L,
+      DSR_i => '0',
+      DTR_o => open,
+      RTS_o => open,
+      TXD_o => open,
+      SPD_SEL_o => open,
+      RXD_i => '0',
+      CTS_i => '0',
+      SPDI_i => '0',
+      RI_i => '0',
+      DEBUG => open
+     ); 
    BV4_INST :BV4 port map( 
       clk_i => clk100_i,
       clk24_i => clk24_07_i,
@@ -242,8 +271,8 @@ begin
       BV4_DMA_ENA_L_i => BV4_DMA_ENA_L,
       BV6_MEM_RD_L_i => BV6_MEM_RD_L,
       BV6_MEM_WR_L_i => BV6_MEM_WR_L,
-      AVO_ADVANCED_VIDEO_L_o => open,
-      AVO_MEM_DISABLE_L_o => open,
+      BV1_ADVANCED_VIDEO_L_o => open,
+      BV1_MEM_DISABLE_L_o => BV1_MEM_DISABLE_L,
       AVO_EN_PATCH_ROM_L_o => open,
       BV2_SEL_ATT_RAM_L_i => BV2_SEL_ATT_RAM_L,
       BV2_SEL_8_12K_L_i => BV2_SEL_8_12K_L,

@@ -44,6 +44,7 @@ entity BV4 is
       BV4_VERT_FREQ_INT_L_o : out std_ulogic;
       BV5_RV_H_i: in std_ulogic;
       BV4_SC_H_o : out std_ulogic_vector(3 downto 0);
+      J9_COMP_o: out std_ulogic_vector(3 downto 0);
       BV4_VIDEO_OUT_1_H_o: out std_ulogic;
       BV4_VIDEO_OUT_2_H_o: out std_ulogic
       );
@@ -53,7 +54,9 @@ architecture rtl of BV4 is
      signal LBA: std_ulogic_vector(7 downto 0);
      signal BV4_HORIZ_DRIVE_L: std_ulogic;
      signal BV4_VERT_DRIVE_H: std_ulogic;
+     signal V1,V2: std_ulogic;
      signal DW: std_ulogic;
+     signal DA: std_ulogic_vector(4 downto 0) := (others => '0');
 begin
   DC011_INT: dc011 port map(
      clk24_i => clk24_i,
@@ -100,7 +103,7 @@ begin
      n_underline_i => BV1_UNDERLINE_L_i,
      n_blink_i => BV1_BLINK_L_i,
      n_bold_i => BV1_BOLD_L_i,
-     vid_in_i => '0'
+     vid_in_i => BV5_SERIAL_VIDEO_H_i
     );
     D_FF_1: D_FF
       port map(
@@ -110,4 +113,30 @@ begin
       );
     BV4_VERT_DRIVE_L_o <= not BV4_VERT_DRIVE_H;
     DW <= BV5_DW_L_i nand BV5_DH_L_i;
+    -- D/A Latch
+    DA_LATCH_PROC: process(BV2_DA_WR_L_i)
+    begin
+      if rising_edge(BV2_DA_WR_L_i) then
+	BV4_INIT_H_o <= DO_0_i(5);
+	DA <= DO_0_i(4 downto 0);
+      end if;
+    end process DA_LATCH_PROC;
+    -- Video
+    V1 <= BV1_GRAPHIC_1_IN_L_i and (BV4_VIDEO_OUT_1_H_o nand BV4_VERT_BLANK_L_o) and BV4_COMP_SYNC_L_o;
+    V2 <= BV1_GRAPHIC_2_IN_L_i and (BV4_VIDEO_OUT_2_H_o nand BV4_VERT_BLANK_L_o) and BV4_COMP_SYNC_L_o;
+    J9_COMP_o <= V2 & '0' &  V1 & '0';
+    BV4_HS_CLK_H_o <= clk24_i;
+    BV4_T_HOLD_REQ_H_o <= BV4_HOLD_REQ_H_o;
+    SR_FF_1: SR_FF
+      port map(
+       D => BV6_HLDA_H_i,
+       S => '1',
+       R => BV4_HOLD_REQ_H_o,
+       n_clk_i => LBA_o(4),
+       Q => BV4_DMA_ENA_H_o,
+       n_Q => BV4_DMA_ENA_L_o
+      );
+    -- SYNC 1.2k  --v1 1.8  v2 1.1
+    -- v1  180 / 1.8k = 0.1  - csync 180 / 720 = 0.25
+    -- v2  180 / 1.1k = 0.16  -cs 180 / 570 = 0.315   v1 + v2 180 / 680 = 0.265 - cs 180 /435 = 0.41
 end rtl;
