@@ -8,13 +8,15 @@ use work.dc0112_pkg.all;
 
  
 architecture behavioral of D_FF is
+  signal TMP: std_ulogic := '0';
 begin
   process(n_clk_i)
   begin
     if(falling_edge(n_clk_i)) then
-    Q <= D;
-  end if;
-end process;
+      TMP <= D;
+    end if;
+  end process;
+  Q <= TMP;
 end behavioral;
 
 library ieee;
