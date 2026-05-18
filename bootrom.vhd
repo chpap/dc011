@@ -10,7 +10,7 @@ entity bootrom is
 	   DATAWIDTH : positive := 13;
 	   RAM_WIDTH  : NATURAL := 8;
 	   RAM_DEPTH  : NATURAL := 8192;
-           BOOTROM_FILE: string := "rom1.hex"
+           BOOTROM_FILE: string := "roms/vt100.rom.hex"
 	);
 	port
 	(
@@ -38,33 +38,33 @@ architecture syn of bootrom is
 --LXI D, 3001H   // 11 01 30
 
     
-    -- Εδώ γίνεται η κλήση της συνάρτησης για την αρχικοποίηση
-signal ROM : bootrom_type:= (
-    0      => x"21",
-    1      => x"00",
-    2      => x"00",
-    3      => x"11",
-    4      => x"01",
-    5      => x"30",
-    6      => x"7e",
-    7      => x"23",
-    8      => x"7d",
-    9      => x"bb",
-    10      => x"c2",
-    11      => x"06",
-    12      => x"00",
-    13      => x"7c",
-    14      => x"ba",
-    15      => x"c2",
-    16      => x"06",
-    17      => x"00",
-    18      => x"c3",
-    19      => x"00", --
-    20      => x"00",
-    others => x"00"    -- Όλες οι υπόλοιπες 8189 θέσεις γίνονται 00
-);
+--    -- Εδώ γίνεται η κλήση της συνάρτησης για την αρχικοποίηση
+--signal ROM : bootrom_type:= (
+--    0      => x"21",
+--    1      => x"00",
+--    2      => x"00",
+--    3      => x"11",
+--    4      => x"01",
+--    5      => x"30",
+--    6      => x"7e",
+--    7      => x"23",
+--    8      => x"7d",
+--    9      => x"bb",
+--    10      => x"c2",
+--    11      => x"06",
+--    12      => x"00",
+--    13      => x"7c",
+--    14      => x"ba",
+--    15      => x"c2",
+--    16      => x"06",
+--    17      => x"00",
+--    18      => x"c3",
+--    19      => x"00", --
+--    20      => x"00",
+--    others => x"00"    -- Όλες οι υπόλοιπες 8189 θέσεις γίνονται 00
+--);
 --    21 00 00 11 01 30 7E 23 7D BB C2 06 01 7C BA C2 06 01 C3 00 01
---signal ROM : bootrom_type := init_bootrom_hex(BOOTROM_FILE);
+signal ROM : bootrom_type := init_bootrom_hex(BOOTROM_FILE);
 
 
 begin

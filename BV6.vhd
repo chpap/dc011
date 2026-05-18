@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use work.vt100_pkg.all;
 
 entity BV6 is
    port( clk_i : in std_ulogic;
@@ -12,7 +13,6 @@ entity BV6 is
       LBA_i  : in std_ulogic_vector(7 downto 0);
       BV6_HLDA_H_o  : out std_ulogic;
       BV6_RESET_H_o : out std_ulogic;
-      BV6_INTR_H_i : in std_ulogic;
       BV4_T_HOLD_REQ_H_i : in std_ulogic;
       BV4_DMA_ENA_H_i: in std_ulogic;
       BV6_INTA_L_o: out std_ulogic;
@@ -25,12 +25,17 @@ entity BV6 is
       BV3_REC_FLAG_H_i : in std_ulogic;
       BV6_KBD_DATA_AVAIL_H_i: in std_ulogic;
       BV2_KBD_WR_L_i: in std_ulogic;
+      BV2_KBD_RD_L_i: in std_ulogic;
       BV4_EVEN_FIELD_L_i: in std_ulogic;
       BV3_OPTION_PRESENT_H_i: in std_ulogic;
       BV2_NVR_DATA_H_i: in std_ulogic;
       BV2_FLAG_RD_L_i: in std_ulogic;
       BV1_GRAPHICS_FLAG_L: in std_ulogic;
       BV1_ADVANCED_VIDEO_L_i: in std_ulogic;
+      BV4_VERT_FREQ_INT_L_i : in std_ulogic;
+      BV6_F2_TTL_o : out std_ulogic;
+      ps2_clk	: inout std_ulogic;
+      ps2_data  : inout std_ulogic;
       DEBUG: out std_ulogic_vector(31 downto 0));
 end BV6;
 
@@ -46,11 +51,17 @@ architecture rtl of BV6 is
    signal dbin : std_ulogic;
    signal n_wr: std_ulogic;
    signal flag_buffer: std_ulogic_vector(7 downto 0);
+   signal intr_buffer: std_ulogic_vector(7 downto 0);
+   signal BV6_KBD_DATA_AVAIL_H: std_ulogic;
+   signal DB_0: std_ulogic_vector(7 downto 0);
+   signal D_FLAG_BUF : std_ulogic_vector(7 downto 0) := (others=> '0');
+   signal D_INT_VEC_BUF : std_ulogic_vector(7 downto 0);
 
    component i8xxx is
    port( clk_i : in std_logic;
       clk24_i    : in  std_logic;
       n_reset_i : in std_logic;
+      f2_ttl_o  : out std_ulogic;
       a_o     : out std_logic_vector(15 downto 0);
       d_i     : in std_logic_vector(7 downto 0);
       d_o     : out std_logic_vector(7 downto 0);
@@ -75,8 +86,9 @@ begin
    i8xxx_inst: i8xxx port map( clk_i => clk_i,
    clk24_i => clk24_i,
    n_reset_i => n_reset_i,
+   f2_ttl_o  => BV6_F2_TTL_o,
    a_o => A0_H_o,
-   d_i => DB_0_i,
+   d_i => DB_0,
    d_o => DO_0_o,
    hold_i => BV4_T_HOLD_REQ_H_i,
    hlda_o => BV6_HLDA_H_o,
@@ -94,18 +106,46 @@ begin
    n_iow_o => BV6_IO_WR_L_o,
    n_inta_o => BV6_INTA_L_o);
 
+   KB_UART_INST: kb_uart port map(
+     clk_i => clk_i,
+     DB_0_o => DO_0_o,
+     DO_0_i => DB_0_i, 
+     LBA_i => LBA_i,
+     BV2_KBD_RD_L_i => BV2_KBD_RD_L_i,
+     BV2_KBD_WR_L_i => BV2_KBD_WR_L_i,
+     BV6_RESET_H_i => BV6_RESET_H,
+     BV6_KBD_TBMT_H_o => BV6_KBD_TBMT_H,
+     BV6_KBD_DATA_AVAIL_H_o => BV6_KBD_DATA_AVAIL_H,
+     ps2_clk => ps2_clk,
+     ps2_data => ps2_data);
+
    BV6_RESET_H_o <= BV6_RESET_H;
-   BV6_INTR_H <= BV6_INTR_H_i;
    BV6_MEM_RD_L_o <= BV6_MEM_RD_L and not BV4_DMA_ENA_H_i;
    --- FLAG BUFFER
    ---------------------
    FLAG_BUF_PROC: process(BV2_FLAG_RD_L_i)
    begin
-	   if falling_edge(BV2_FLAG_RD_L_i) then
-
-	   end if;
+     if falling_edge(BV2_FLAG_RD_L_i) then
+       D_FLAG_BUF <= flag_buffer;
+     end if;
    end process FLAG_BUF_PROC;
    flag_buffer <= BV6_KBD_TBMT_H & LBA_i(7) & BV2_NVR_DATA_H_i & BV4_EVEN_FIELD_L_i & BV3_OPTION_PRESENT_H_i & BV1_GRAPHICS_FLAG_L &  BV1_ADVANCED_VIDEO_L_i & BV3_XMIT_FLAG_H_i;
+
+   --- INTR BUFFER
+   ---------------------
+   INTR_BUF_PROC: process(BV6_INTA_L_o)
+   begin
+     if BV6_INTA_L_o = '0'  then
+       D_INT_VEC_BUF <= intr_buffer;
+     end if;
+   end process INTR_BUF_PROC;
+   intr_buffer <= "11" & not BV4_VERT_FREQ_INT_L_i & (BV3_XMIT_FLAG_H_i or BV3_REC_FLAG_H_i) & BV6_KBD_DATA_AVAIL_H_i & "111";
+   BV6_INTR_H <= (not BV4_VERT_FREQ_INT_L_i) or (BV6_KBD_DATA_AVAIL_H_i or BV3_XMIT_FLAG_H_i or BV3_REC_FLAG_H_i  );
+   -------------- DATA BUS MUX
+   DB_0 <= D_INT_VEC_BUF when BV6_INTA_L_o = '0' else 
+	   DB_0_i when dbin = '1' else
+	   D_FLAG_BUF when BV2_FLAG_RD_L_i = '0' else
+	   (others => '1' );
 
    DEBUG <= DB_0_i & DO_0_o & A0_H_o;
 

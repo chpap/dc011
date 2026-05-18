@@ -47,5 +47,7 @@ begin
   end if;
 end process debug_proc;
    BV3_OPTION_PRESENT_H_o <= '0';
+   BV3_REC_FLAG_H_o <= '0';
+   BV3_XMIT_FLAG_H_o <= '0';
     
 end rtl;

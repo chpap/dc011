@@ -26,9 +26,9 @@ entity top_vt100  is
      ce: out  std_logic;
      cf: out  std_logic;
      cg: out  std_logic;
-     dp: out  std_logic
-     --ps2clk: inout std_logic;
-     --ps2data: inout std_logic;
+     dp: out  std_logic;
+     ps2clk: inout std_logic;
+     ps2data: inout std_logic
     );
 end entity;
 
@@ -83,6 +83,8 @@ begin
      vsync_o => vsync,
      btnc_i => btnc,
      led_o => led,
+     ps2_clk => ps2clk,
+     ps2_data => ps2data,
      debug_o => debug
     );
 

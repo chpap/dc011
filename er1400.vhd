@@ -22,11 +22,12 @@ architecture syn of er1400 is
    shared variable nvram : nvram_type := (others => (others => '0'));
    type t_State is (Standby,Accept_Address, Read, Shift_Data_Out, Erase,Accept_Data, Write, Not_Used );
    signal state : t_State := Standby;
-   signal data_buf : std_ulogic_vector(13 downto 0);
+   signal data_buf : std_ulogic_vector(13 downto 0) := (others => '0');
+   signal data_o_buf: std_ulogic := '0';
    signal address_buf : std_ulogic_vector(20 downto 0);
-   signal address10 : integer range 0 to 9;
-   signal address1 : integer range 0 to 9;
-   signal address : integer range 0 to 99;
+   signal address10 : integer range 0 to 9 := 0;
+   signal address1 : integer range 0 to 9 := 0;
+   signal address : integer range 0 to 99 := 0;
 begin
 
 process(clk_i)
@@ -48,7 +49,7 @@ begin
     --when Accept_Address => address_buf(counter) <= data_i; counter <= counter - 1;
     when Accept_Address => address_buf <= std_ulogic_vector(shift_left(unsigned(address_buf),1)) or "0000000000000" & data_i ;
     when Read  => data_buf <= nvram(address);
-    when Shift_Data_Out => data_o <= data_buf(13) ;data_buf <= std_ulogic_vector(shift_left(unsigned(data_buf),1));
+    when Shift_Data_Out => data_o_buf <= data_buf(13) ;data_buf <= std_ulogic_vector(shift_left(unsigned(data_buf),1));
     when Erase => nvram(address) := (others => '0');
     --when Accept_Data => data_buf(counter) <= data_i; counter <= counter - 1;
     when Accept_Data => data_buf <= std_ulogic_vector(shift_left(unsigned(data_buf),1)) or "0000000000000" & data_i ;
@@ -83,6 +84,7 @@ end process;
 	               9 when "1000000000",
 		       0 when others;
    address <= address10 * 10 + address1;
+   data_o <= data_o_buf;
 
 
 end syn;

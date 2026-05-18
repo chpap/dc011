@@ -189,8 +189,8 @@ set_property -dict { PACKAGE_PIN D4    IOSTANDARD LVCMOS33 } [get_ports  rxd0 ]
 #set_property -dict { PACKAGE_PIN E5    IOSTANDARD LVCMOS33 } [get_ports  RTS0]
 
 ##USB HID (PS/2)
-##set_property -dict { PACKAGE_PIN F4    IOSTANDARD LVCMOS33 } [get_ports  ps2clk ]
-##set_property -dict { PACKAGE_PIN B2    IOSTANDARD LVCMOS33 } [get_ports  ps2data ]
+set_property -dict { PACKAGE_PIN F4    IOSTANDARD LVCMOS33 } [get_ports  ps2clk ]
+set_property -dict { PACKAGE_PIN B2    IOSTANDARD LVCMOS33 } [get_ports  ps2data ]
 
 ##SMSC Ethernet PHY
 #set_property -dict { PACKAGE_PIN C9    IOSTANDARD LVCMOS33 } [get_ports { ETH_MDC }]; #IO_L11P_T1_SRCC_16 Sch=eth_mdc

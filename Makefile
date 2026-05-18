@@ -25,8 +25,9 @@ VT100_TOP_VHDL = top_vt100.vhd
 VT100_TOP_MODULE = top_vt100
 #.gvi/i8xxx/i8xxx_wrapper.vhd 
 VT100_VHDL_SOURCES = dc0112_pkg.vhd utils_pkg.vhd xilinx_block_ram_pkg.vhd xilinx_block_ram.vhd sram.vhd delay.vhd vtiming.vhd \
-                     htiming.vhd ff.vhd ripple_counter.vhd clk_divider.vhd frac_divider.vhd kb_uart.vhd \
+                     htiming.vhd ff.vhd ripple_counter.vhd clk_divider.vhd frac_divider.vhd kb_uart.vhd er1400.vhd \
 		     static_clk_divider.vhd hor_counter.vhd ver_counter.vhd dot_counter.vhd dc011.vhd dc012.vhd vt100_pkg.vhd bootrom.vhd \
+		     debounce.vhd ps2_keyboard.vhd \
 		     fontrom.vhd  BV2.vhd BV3.vhd BV4.vhd BV5.vhd BV6.vhd AVO.vhd vt100.vhd  clk_plle2.vhd decod_component.vhd
 EXTRA_SIM_SOURCES = .gvi/i8xxx/i8xxx_wrapper.vhd
 #		.gvi/plle2_adv/plle2_adv_wrapper.vhd

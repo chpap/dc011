@@ -40,6 +40,7 @@ async def vt100_simple_test(dut):
     clock24 = Clock(dut.clk_24_07, 41.6, unit="ns")
     clock24.start(start_high=False)
     dut.n_reset_i.value = "0"
+    dut.clk_locked.value = "1"
     # Create a 10us period clock driver on port `clk`
     # Start the clock. Start it low to avoid issues on the first RisingEdge
 

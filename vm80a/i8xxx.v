@@ -6,6 +6,7 @@ module i8xxx(
     input          clk_i,       // global module clock (no in original 8080)
     input          clk24_i,       // global module clock (no in original 8080)
     input          n_reset_i,
+    output         f2_ttl_o,      //
     output[15:0]   a_o,         // address bus outputs
     input [7:0]    d_i,         // data bus inouts
     output[7:0]    d_o,         // data bus inouts

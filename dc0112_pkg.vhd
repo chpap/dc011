@@ -213,7 +213,8 @@ package dc0112_pkg is
   component er1400 is
    port (
       data_i	: in std_logic;
-      clk	: in std_logic  := '1';
+      data_o	: out std_logic;
+      clk_i	: in std_logic  := '1';
       c_i     : in std_logic_vector (2 downto 0)
    );
   end component;
@@ -281,6 +282,8 @@ package dc0112_pkg is
      hsync_o: out  std_logic;
      vsync_o: out  std_logic;
      led_o: out  std_logic_vector(7 downto 0);
+     ps2_clk: inout std_logic;
+     ps2_data: inout std_logic;
      debug_o: out  std_logic_vector(31 downto 0)
     );
   end component;
@@ -493,6 +496,8 @@ entity vt100 is
 	     hsync_o: out  std_logic;
 	     vsync_o: out  std_logic;
 	     led_o: out  std_logic_vector(7 downto 0);
+             ps2_clk: inout std_logic;
+             ps2_data: inout std_logic;
              debug_o: out  std_logic_vector(31 downto 0)
      );
 end entity;

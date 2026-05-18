@@ -11,7 +11,7 @@ entity kb_uart is
       DO_0_i    : in std_ulogic_vector(7 downto 0);
       LBA_i     : in std_ulogic_vector(7 downto 0);
 
-      BV2_KBD_RD_L_o: out std_ulogic;
+      BV2_KBD_RD_L_i: in std_ulogic;
       BV2_KBD_WR_L_i: in std_ulogic;
       BV6_RESET_H_i : in std_ulogic;
       BV6_KBD_TBMT_H_o : out std_ulogic;
@@ -24,6 +24,8 @@ end kb_uart;
 architecture rtl of kb_uart is
 
 begin
+     BV6_KBD_TBMT_H_o <= '0';
+     BV6_KBD_DATA_AVAIL_H_o <= '0';
 debug_proc: process(clk_i)
 begin
   if(rising_edge(clk_i)) then

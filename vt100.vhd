@@ -67,7 +67,6 @@ architecture rtl of vt100 is
   signal BV1_GRAPHIC_2_IN_L: std_ulogic := '1';
   signal BV2_VID_WR_1L: std_ulogic;
   signal BV2_VID_WR_2L: std_ulogic;
-  signal BV2_NVR_WR_L: std_ulogic;
   signal BV2_DA_WR_L: std_ulogic;
   signal BV2_WRITE_BAUD_H: std_ulogic;
   signal BV2_SEL_8_12K_L: std_ulogic;
@@ -104,6 +103,7 @@ architecture rtl of vt100 is
   signal BV5_TERM_L:  std_ulogic;
   signal BV5_DW_L: std_ulogic;
   signal BV5_DH_L: std_ulogic;
+  signal BV6_F2_TTL: std_ulogic;
   signal BV6_KBD_DATA_AVAIL_H: std_ulogic := '0';
   signal debug_bv5: std_ulogic_vector(31 downto 0);
   signal debug_bv6: std_ulogic_vector(31 downto 0);
@@ -118,7 +118,6 @@ begin
       A0_H_i  => A0_H,
       LBA_i => LBA,
       BV6_RESET_L_i => BV6_RESET_L  ,
-      BV2_NVR_WR_L_i => BV2_NVR_WR_L  ,
       BV6_IO_RD_L_i => BV6_IO_RD_L ,
       BV6_IO_WR_L_i => BV6_IO_WR_L ,
       BV6_MEM_WR_L_i => BV6_MEM_WR_L,
@@ -132,7 +131,6 @@ begin
       BV2_GRAPHIC_WR_L_o => BV2_GRAPHIC_WR_L,
       BV2_VID_WR_1L_o => BV2_VID_WR_1L,
       BV2_VID_WR_2L_o => BV2_VID_WR_2L,
-      BV2_NVR_WR_L_o => BV2_NVR_WR_L,
       BV2_DA_WR_L_o => BV2_DA_WR_L,
       BV2_SEL_8_12K_L_o => BV2_SEL_8_12K_L,
       BV2_SEL_ATT_RAM_L_o => BV2_SEL_ATT_RAM_L
@@ -243,10 +241,11 @@ begin
       DB_0_i => DB_0,
       DO_0_o => DO_0,
       LBA_i => LBA,
-      BV6_INTR_H_i => '0',
       BV6_HLDA_H_o => BV6_HLDA_H,
       BV4_DMA_ENA_H_i => not BV4_DMA_ENA_L,
       BV4_T_HOLD_REQ_H_i => BV4_T_HOLD_REQ_H,
+      BV6_IO_RD_L_o => BV6_IO_RD_L,
+      BV6_IO_WR_L_o => BV6_IO_WR_L,
       BV3_XMIT_FLAG_H_i => BV3_XMIT_FLAG_H,
       BV3_REC_FLAG_H_i => BV3_REC_FLAG_H,
       BV6_KBD_DATA_AVAIL_H_i => BV6_KBD_DATA_AVAIL_H,
@@ -259,6 +258,10 @@ begin
       BV6_MEM_WR_L_o => BV6_MEM_WR_L,
       BV1_GRAPHICS_FLAG_L => '1',
       BV1_ADVANCED_VIDEO_L_i => BV1_ADVANCED_VIDEO_L,
+      BV4_VERT_FREQ_INT_L_i => BV4_VERT_FREQ_INT_L,
+      BV6_F2_TTL_o => BV6_F2_TTL,
+      ps2_clk => ps2_clk,
+      ps2_data => ps2_data,
       DEBUG => debug_bv6
      );
     AVO_INST: AVO port map( 

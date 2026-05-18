@@ -13,7 +13,6 @@ entity BV2 is
       LBA_i     : in std_ulogic_vector(7 downto 0);
       A0_H_i : in std_ulogic_vector(15 downto 0);
       BV6_RESET_L_i  : in std_ulogic;
-      BV2_NVR_WR_L_i  : in std_ulogic;
       BV6_IO_RD_L_i : in std_ulogic;
       BV6_IO_WR_L_i : in std_ulogic;
       BV6_MEM_WR_L_i: in std_ulogic;
@@ -28,7 +27,6 @@ entity BV2 is
       BV2_GRAPHIC_WR_L_o: out std_ulogic;
       BV2_VID_WR_1L_o: out std_ulogic;
       BV2_VID_WR_2L_o: out std_ulogic;
-      BV2_NVR_WR_L_o: out std_ulogic;
       BV2_DA_WR_L_o: out std_ulogic;
       BV2_WRITE_BAUD_H_o: out std_ulogic;
       BV2_SEL_8_12K_L_o: out std_ulogic;
@@ -47,14 +45,8 @@ architecture rtl of BV2 is
 	type D_mem_t is array (0 to 2) of std_ulogic_vector(7 downto 0);
 	signal D_mem_o: D_mem_t;
 	signal D_ROM: std_ulogic_vector(7 downto 0);
+        signal BV2_NVR_WR_L: std_ulogic;
 begin
-
-  ER1400_INST: er1400 port map(
-       data_i => BV2_NVR_DATA_H_o,
-       clk => not LBA_i(7),
-       c_i => nvr_latch(3 downto 1)
-  );
-
 -----  IO MEMORY DECODER -----
   iomux_in <= A0_H_i(7) & A0_H_i(6) & A0_H_i(5) & (A0_H_i(1) and not BV6_IO_WR_L_i ); 
   with iomux_in select iomux_out <=
@@ -71,26 +63,37 @@ begin
   BV2_VID_WR_1L_o <= iomux_out(6);
   BV2_VID_WR_2L_o <= iomux_out(5);
   BV2_KBD_WR_L_o <= iomux_out(4);
-  BV2_NVR_WR_L_o <= iomux_out(3);
+  BV2_NVR_WR_L <= iomux_out(3);
   BV2_DA_WR_L_o <= iomux_out(2);
   BV2_WRITE_BAUD_H_o <= not iomux_out(0);
 -------------------------- 
 ----NVR LATCH ------------
 
-  nvr_latch_proc: process (BV2_NVR_WR_L_i) is
-    variable nvr_latch_next: std_ulogic_vector(5 downto 0);
+  nvr_latch_proc: process (BV2_NVR_WR_L,BV6_RESET_L_i) is
+    variable nvr_latch_next: std_ulogic_vector(5 downto 0) := (others => '0');
     begin
-      if rising_edge(BV2_NVR_WR_L_i) then 
+      if rising_edge(BV2_NVR_WR_L) then 
          if BV6_RESET_L_i = '1' then
              nvr_latch_next := DO_0_i(5 downto 0);
           else
              nvr_latch_next := (others => '0');
           end if;
       end if;
+      if BV6_RESET_L_i = '0' then
+             nvr_latch_next := (others => '0');
+      end if;
       nvr_latch <= nvr_latch_next;
     end process nvr_latch_proc; 
   BV2_n_SPDS_o <= nvr_latch(5);
-  BV2_NVR_DATA_H_o <= nvr_latch (0);
+
+  -- BV2_NVR_DATA_H_o <= nvr_latch (0);
+  ER1400_INST: er1400 port map(
+       data_i => nvr_latch(0),
+       data_o => BV2_NVR_DATA_H_o,
+       clk_i => not LBA_i(7),
+       c_i => nvr_latch(3 downto 1)
+  );
+
 -------------------------
   BV2_KBD_RD_L_o <= (not BV6_IO_RD_L_i) and A0_H_i(7);
   BV2_FLAG_RD_L_o <= (not BV6_IO_RD_L_i) and A0_H_i(6);
