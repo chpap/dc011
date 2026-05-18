@@ -16,18 +16,23 @@ PART = xc7a100tcsg324-1
 CHIPFAM = artix7
 
 SYNTH_OPTS = -m ghdl
-TOP_MODULE = top_vt100
+TOP_MODULE = i8xxx
 #TOP_VERILOG = $(BUILD_DIR)/$(PROJECT)_vhdl.v
-TOP_VERILOG = top_vt100.v
+TOP_VERILOG = i8xxx.v
 #TOP_MODULE = $(VT100_TOP_MODULE)
 #TOP_VHDL = $(VT100_TOP_VHDL)
 #VT100_TOP_VHDL = top_vt100.vhd
 VT100_TOP_MODULE = top_vt100
-ADDITIONAL_SOURCES = dc0112_pkg.vhd  delay.vhd vtiming.vhd htiming.vhd ff.vhd ripple_counter.vhd clk_divider.vhd frac_divider.vhd static_clk_divider.vhd hor_counter.vhd ver_counter.vhd dot_counter.vhd dc011.vhd vt100.vhd \
-		     clk_plle2.vhd  \
-		     vm80a/i8xxx_stub.vhd \
-                     .gvi/i8xxx/i8xxx_wrapper.vhd
-VT100_VERILOG_SOURCES = vm80a/i8xxx.v vm80a/vm80a.v vm80a/i8224.v vm80a/i8228.v vt100.v top_vt100.v
+#.gvi/i8xxx/i8xxx_wrapper.vhd 
+VT100_VHDL_SOURCES = dc0112_pkg.vhd utils_pkg.vhd xilinx_block_ram_pkg.vhd xilinx_block_ram.vhd sram.vhd delay.vhd vtiming.vhd \
+                     htiming.vhd ff.vhd ripple_counter.vhd clk_divider.vhd frac_divider.vhd kb_uart.vhd er1400.vhd \
+		     static_clk_divider.vhd hor_counter.vhd ver_counter.vhd dot_counter.vhd dc011.vhd dc012.vhd vt100_pkg.vhd bootrom.vhd \
+		     debounce.vhd ps2_keyboard.vhd \
+		     fontrom.vhd  BV2.vhd BV3.vhd BV4.vhd BV5.vhd BV6.vhd AVO.vhd vt100.vhd  clk_plle2.vhd decod_component.vhd
+EXTRA_SIM_SOURCES = .gvi/i8xxx/i8xxx_wrapper.vhd
+#		.gvi/plle2_adv/plle2_adv_wrapper.vhd
+VT100_VERILOG_SOURCES = vm80a/i8xxx.v vm80a/vm80a.v vm80a/i8224.v vm80a/i8228.v $(PLLE2_FILES)
+PLLE2_FILES = pll/plle2_adv_wrapper.v
 #VT100_VERILOG_SOURCES = vm80a/i8xxx_dummy.v  vm80a/i8224.v
 #VERILOG_SOURCES = $(BUILD_DIR)/$(PROJECT).v
 VERILOG_SOURCES = $(VT100_VERILOG_SOURCES)          #$(BUILD_DIR)/$(PROJECT)_vhdl.v
@@ -37,19 +42,16 @@ VERILOG_SOURCES = $(VT100_VERILOG_SOURCES)          #$(BUILD_DIR)/$(PROJECT)_vhd
 #LINK_ARGS = -Wl,$(PWD)/obj_dir/libVi8xxx.a
 #GVI_LINK_ARGS = -Wl,.gvi/common.o -Wl,.gvi/i8xxx/verilated.o -Wl,.gvi/i8xxx/verilated_threads.o -Wl,.gvi/i8xxx/verilated_vcd_c.o -Wl,-lm -Wl,-lstdc++  -Wl,.gvi/i8xxx/i8xxx_wrapper_c.o -Wl,.gvi/i8xxx/Vi8xxx__ALL.a
 
-LINK_ARGS=$(shell cat .gvi/common.flags ) $(shell cat .gvi/i8xxx/i8xxx_wrapper.flags)
+#LINK_ARGS=$(shell cat .gvi/common.flags ) $(shell cat .gvi/i8xxx/i8xxx_wrapper.flags)
 GVI_LINK_ARGS=$(shell cat .gvi/common.flags ) $(shell cat .gvi/i8xxx/i8xxx_wrapper.flags)
 #VHDL_SOURCES = $(VT100_VHDL_SOURCES) 
 #COMPILE_ARGS = $(GHDL_FLAGS)
-VT100_VHDL_SOURCES = $(ADDITIONAL_SOURCES) $(TOP_VHDL)
 #VHDL_SOURCES = $(ADDITIONAL_SOURCES) $(TOP_VERILOG)
 #LIGHT8080 = light8080/light8080_ucode_pkg.vhdl light8080/light8080.vhdl light8080/mcu80_pkg.vhdl light8080/mcu80_uart.vhdl light8080/mcu80_irq.vhdl light8080/mcu80.vhdl light8080/txt_util.vhdl light8080/light8080_tb_pkg.vhdl light8080/obj_code_pkg.vhdl 
 T = dc011.test.vhd
-I8080=i8080/types.vhd i8080/regfile.vhd i8080/decode.vhd  i8080/cpu8080_top.vhd i8080/control.vhd \
-	i8080/ctrlreg.vhd i8080/alu.vhd i8080/cpudiag-tb.vhd i8080/cpudiag-memory-sim.vhd
 
 # Αρχεία Εισόδου
-XDC = constraints/nexys-a7.xdc
+XDC = constraints/nexys-a7-i8xxx.xdc
 
 # Εργαλεία
 YOSYS = yosys
@@ -62,8 +64,8 @@ SIM ?= icarus         # Verilog simulator
 #SIM ?= ghdl         # Verilog simulator
 #TOPLEVEL_LANG ?= vhdl
 COCOTB_HDL_TIMEPRECISION ?= 1ps
-#COCOTB_TEST_MODULES ?= test_i8xxx
-COCOTB_TEST_MODULES ?= test_vt100
+COCOTB_TEST_MODULES ?= test_i8xxx
+#COCOTB_TEST_MODULES ?= test_vt100
 #COCOTB_TOPLEVEL ?= i8xxx
 COCOTB_TOPLEVEL ?= $(TOP_MODULE)
 # Include the Cocotb make rules
@@ -146,7 +148,7 @@ S_TIME3 = 1ms
 #
 $(BUILD_DIR)/$(PROJECT)_vhdl.v: $(VT100_VHDL_SOURCES)
 	@mkdir -p $(BUILD_DIR)
-	$(YOSYS)  -m ghdl -p 'ghdl -read --std=08 -frelaxed  $(GHDL_FLAGS) $(VT100_VHDL_SOURCES) $(VT100_TOP_VHDL)  chformal -remove ; write_verilog $@'
+	$(YOSYS)  -m ghdl -p 'ghdl -read $(GHDL_FLAGS) $(VT100_VHDL_SOURCES) $(VT100_TOP_VHDL);   proc ; flatten; opt; write_verilog $@'
 
 dc011:
 	@mkdir -p $(WAVES_DIR)
