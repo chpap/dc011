@@ -36,6 +36,7 @@ entity BV6 is
       BV6_F2_TTL_o : out std_ulogic;
       ps2_clk	: inout std_ulogic;
       ps2_data  : inout std_ulogic;
+      kbd_LEDs_o : out std_ulogic_vector(5 downto 0);
       DEBUG: out std_ulogic_vector(31 downto 0));
 end BV6;
 
@@ -56,6 +57,7 @@ architecture rtl of BV6 is
    signal DB_0: std_ulogic_vector(7 downto 0);
    signal D_FLAG_BUF : std_ulogic_vector(7 downto 0) := (others=> '0');
    signal D_INT_VEC_BUF : std_ulogic_vector(7 downto 0);
+   signal D_KB_UART : std_ulogic_vector(7 downto 0);
 
    component i8xxx is
    port( clk_i : in std_logic;
@@ -108,14 +110,15 @@ begin
 
    KB_UART_INST: kb_uart port map(
      clk_i => clk_i,
-     DB_0_o => DO_0_o,
-     DO_0_i => DB_0_i, 
+     DB_0_o => D_KB_UART,
+     DO_0_i => DO_0_o, 
      LBA_i => LBA_i,
      BV2_KBD_RD_L_i => BV2_KBD_RD_L_i,
      BV2_KBD_WR_L_i => BV2_KBD_WR_L_i,
      BV6_RESET_H_i => BV6_RESET_H,
      BV6_KBD_TBMT_H_o => BV6_KBD_TBMT_H,
      BV6_KBD_DATA_AVAIL_H_o => BV6_KBD_DATA_AVAIL_H,
+     LEDs => kbd_LEDs_o,
      ps2_clk => ps2_clk,
      ps2_data => ps2_data);
 
@@ -145,6 +148,7 @@ begin
    DB_0 <= D_INT_VEC_BUF when BV6_INTA_L_o = '0' else 
 	   DB_0_i when dbin = '1' else
 	   D_FLAG_BUF when BV2_FLAG_RD_L_i = '0' else
+	   D_KB_UART when BV2_KBD_RD_L_i = '0' else
 	   (others => '1' );
 
    DEBUG <= DB_0_i & DO_0_o & A0_H_o;

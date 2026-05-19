@@ -17,6 +17,7 @@ entity top_vt100  is
      videor: out  std_logic_vector(3 downto 0);
      videog: out  std_logic_vector(3 downto 0);
      videob: out  std_logic_vector(3 downto 0);
+     kbd_led: out  std_logic_vector(5 downto 0);
      led: out  std_logic_vector(7 downto 0);
      an: out  std_logic_vector(7 downto 0);
      ca: out  std_logic;
@@ -83,6 +84,7 @@ begin
      vsync_o => vsync,
      btnc_i => btnc,
      led_o => led,
+     kbd_leds_o => kbd_led,
      ps2_clk => ps2clk,
      ps2_data => ps2data,
      debug_o => debug

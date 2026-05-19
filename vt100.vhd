@@ -253,6 +253,7 @@ begin
       BV3_REC_FLAG_H_i => BV3_REC_FLAG_H,
       BV6_KBD_DATA_AVAIL_H_i => BV6_KBD_DATA_AVAIL_H,
       BV2_KBD_WR_L_i => BV2_KBD_WR_L,
+      BV2_KBD_RD_L_i => BV2_KBD_RD_L,
       BV4_EVEN_FIELD_L_i => BV4_EVEN_FIELD_L,
       BV3_OPTION_PRESENT_H_i => BV3_OPTION_PRESENT_H,
       BV2_NVR_DATA_H_i => BV2_NVR_DATA_H,
@@ -265,6 +266,7 @@ begin
       BV6_F2_TTL_o => BV6_F2_TTL,
       ps2_clk => ps2_clk,
       ps2_data => ps2_data,
+      kbd_leds_o => kbd_leds_o,
       DEBUG => debug_bv6
      );
     AVO_INST: AVO port map( 
