@@ -271,14 +271,14 @@ begin
     begin
         if rising_edge(clk_i) then
             -- Συγχρονισμός clk1
-            clk1_r   <= n_addr_ld_i;
-            clk1_rr  <= clk1_r;
             clk1_rrr <= clk1_rr;
+            clk1_rr  <= clk1_r;
+            clk1_r   <= n_addr_ld_i;
 
             -- Συγχρονισμός clk2
-            clk2_r   <= vrst_i;
-            clk2_rr  <= clk2_r;
             clk2_rrr <= clk2_rr;
+            clk2_rr  <= clk2_r;
+            clk2_r   <= vrst_i;
 
         end if;
     end process;

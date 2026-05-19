@@ -78,6 +78,7 @@ end
     );
 
 i8228 I8228_INST(
+    .clk_i(clk_i),
     .dbin_i(dbin),
     .n_wr_i(n_wr),
     .n_stsb_i(n_stsb),
@@ -93,6 +94,8 @@ i8228 I8228_INST(
     .n_iow_o(n_iow_o),
     .n_inta_o(n_inta_o)
     );
+
+assign f2_ttl_o = f2_core;
 
 
 endmodule

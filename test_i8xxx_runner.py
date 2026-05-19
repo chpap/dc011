@@ -22,28 +22,30 @@ async def sync_8080(dut):
       await Timer(150, unit="ns")
       dut.sync.value=1
 
-async def start_clocks(dut):
-    """Start 100 and 24 Mhz clocks"""
-    # Create a 10us period clock driver on port `clk`
-
 @cocotb.test()
 async def i8xxx_simple_test(dut):
-    """Test that d propagates to q"""
+    """Start 100 and 24 Mhz clocks"""
     #task = cocotb.start_soon(sync_8080(dut))
+    # Create a 10us period clock driver on port `clk`
     clock = Clock(dut.clk_i, 10, unit="ns")
     clock.start(start_high=False)
     clock24 = Clock(dut.clk24_i, 41.6, unit="ns")
     clock24.start(start_high=False)
-    dut.n_reset_i.value = "1"
-    # Create a 10us period clock driver on port `clk`
+    dut.n_reset_i.value = "0"
+    dut.hold_i.value = "0"
+    dut.int_i.value = "0"
+    dut.ready_i.value = "1"
+    dut.d_i.value = "00000000"
     # Start the clock. Start it low to avoid issues on the first RisingEdge
-
-    # Synchronize with the clock. This will register the initial `d` value
     await RisingEdge(dut.clk24_i)
     await Timer(200, unit="ns")
+    dut.n_reset_i.value = "1"
+    await Timer(5000, unit="ns")
     dut.n_reset_i.value = "0"
-    await Timer(1, unit="ms")
+    await Timer(1000, unit="ns")
+    dut.n_reset_i.value = "1"
 
+    await Timer(2, unit="ms")
     # Check the final input on the next clock
     #await RisingEdge(dut.clk)
 

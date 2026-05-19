@@ -198,16 +198,16 @@ package dc0112_pkg is
   end component;
   component vtiming is
   port (
-       i_clk: in  std_ulogic;
-       i_rst: in  std_ulogic; 
-       n_vrst: in  std_ulogic; 
-       clk_2hf: in  std_ulogic; 
-       vcdiv_in : in std_ulogic_vector(0 to 9);
-       hertz60: in  std_ulogic; 
-       interlaced: in  std_ulogic; 
-       vdrive: out  std_ulogic;
-       n_vblank : out  std_ulogic;
-       vrst : out  std_ulogic
+       clk_i: in  std_ulogic;
+       rst_i: in  std_ulogic; 
+       n_vrst_i: in  std_ulogic; 
+       clk_2hf_i: in  std_ulogic; 
+       vcdiv_i : in std_ulogic_vector(0 to 9);
+       hertz60_i: in  std_ulogic; 
+       interlaced_i: in  std_ulogic; 
+       vdrive_o: out  std_ulogic;
+       n_vblank_o : out  std_ulogic;
+       vrst_o : out  std_ulogic
   );
   end component;
   component er1400 is
@@ -450,16 +450,16 @@ use ieee.std_logic_unsigned.all;
 
 entity vtiming is
     port (
-        i_clk: in  std_ulogic;
-        i_rst: in  std_ulogic; 
-        n_vrst: in  std_ulogic; 
-        clk_2hf: in  std_ulogic; 
-        vcdiv_in: in std_ulogic_vector(9 downto 0);
-        hertz60: in  std_ulogic; 
-        interlaced: in  std_ulogic; 
-        vdrive: out  std_ulogic;
-        n_vblank : out  std_ulogic;
-        vrst : out  std_ulogic
+        clk_i: in  std_ulogic;
+        rst_i: in  std_ulogic; 
+        n_vrst_i: in  std_ulogic; 
+        clk_2hf_i: in  std_ulogic; 
+        vcdiv_i: in std_ulogic_vector(9 downto 0);
+        hertz60_i: in  std_ulogic; 
+        interlaced_i: in  std_ulogic; 
+        vdrive_o: out  std_ulogic;
+        n_vblank_o : out  std_ulogic;
+        vrst_o : out  std_ulogic
     );
 end entity vtiming;
 ------------------------------------------------------------------------

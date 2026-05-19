@@ -24,9 +24,10 @@ TOP_VHDL = $(VT100_TOP_VHDL)
 VT100_TOP_VHDL = top_vt100.vhd
 VT100_TOP_MODULE = top_vt100
 #.gvi/i8xxx/i8xxx_wrapper.vhd 
-VT100_VHDL_SOURCES = dc0112_pkg.vhd utils_pkg.vhd xilinx_block_ram_pkg.vhd xilinx_block_ram.vhd sram.vhd delay.vhd vtiming.vhd \
-                     htiming.vhd ff.vhd ripple_counter.vhd clk_divider.vhd frac_divider.vhd kb_uart.vhd er1400.vhd \
-		     static_clk_divider.vhd hor_counter.vhd ver_counter.vhd dot_counter.vhd dc011.vhd dc012.vhd vt100_pkg.vhd bootrom.vhd \
+DC0112_SOURCES = dc0112_pkg.vhd delay.vhd vtiming.vhd htiming.vhd ff.vhd ripple_counter.vhd clk_divider.vhd frac_divider.vhd static_clk_divider.vhd hor_counter.vhd ver_counter.vhd dot_counter.vhd dc011.vhd dc012.vhd
+VT100_VHDL_SOURCES = $(DC0112_SOURCES) utils_pkg.vhd xilinx_block_ram_pkg.vhd xilinx_block_ram.vhd sram.vhd \
+                      kb_uart.vhd er1400.vhd \
+		      vt100_pkg.vhd bootrom.vhd \
 		     debounce.vhd ps2_keyboard.vhd \
 		     fontrom.vhd  BV2.vhd BV3.vhd BV4.vhd BV5.vhd BV6.vhd AVO.vhd vt100.vhd  clk_plle2.vhd decod_component.vhd
 EXTRA_SIM_SOURCES = .gvi/i8xxx/i8xxx_wrapper.vhd
@@ -152,12 +153,12 @@ $(JSON) : $(VT100_VHDL_SOURCES) $(VT100_TOP_VHDL)
 
 include openXC7.mk
 
-I = ${ADDITIONAL_SOURCES}
-T = dc011.test.vhd
+I = ${DC0112_SOURCES}
+T = tb/dc011.test.vhd
 E = dc011_tb
 
 I2 = $(I) dc012.vhd
-T2 = dc012.test.vhd
+T2 = tb/dc012.test.vhd
 E2 = dc012_tb
 
 E3 = $(VT100_TOP_MODULE)

@@ -29,14 +29,14 @@ begin
     begin
         if rising_edge(main_clk) then
             -- Συγχρονισμός clk1
-            clk1_r   <= clk1;
-            clk1_rr  <= clk1_r;
             clk1_rrr <= clk1_rr;
+            clk1_rr  <= clk1_r;
+            clk1_r   <= clk1;
 
             -- Συγχρονισμός clk2
-            clk2_r   <= clk2;
-            clk2_rr  <= clk2_r;
             clk2_rrr <= clk2_rr;
+            clk2_rr  <= clk2_r;
+            clk2_r   <= clk2;
 
         end if;
     end process;
@@ -110,10 +110,10 @@ architecture rtl of BV5 is
            count_in         : in std_ulogic_vector(11 downto 0);
            count_out        : out std_ulogic_vector(11 downto 0));
      end component;
-     signal addr_counter: std_ulogic_vector(11 downto 0) := (others => '0');
+     signal addr_counter: std_ulogic_vector(11 downto 0);
      signal addr_counter_in: std_ulogic_vector(11 downto 0);
      signal line_buffer: std_ulogic_vector(7 downto 0) := (others => '0');
-     signal scren_ram_latch: std_ulogic_vector(7 downto 0) := (others => '0');
+     signal screen_ram_latch: std_ulogic_vector(7 downto 0) := (others => '0');
      signal char_gen_latch: std_ulogic_vector(7 downto 0) := (others => '0');
      signal char_gen_latch_in: std_ulogic_vector(7 downto 0);
      signal char_gen_address: std_ulogic_vector(10 downto 0);
@@ -123,8 +123,6 @@ architecture rtl of BV5 is
      signal video_shift_reg: std_ulogic_vector(7 downto 0) := (others => '0');
      signal lbuf_data_in: std_ulogic_vector(7 downto 0);
      signal lbuf_data_out: std_ulogic_vector(7 downto 0);
-     signal addr_latch: std_ulogic_vector(11 downto 0) := (others => '0');
-     signal addr_latch_in: std_ulogic_vector(11 downto 0);
      signal addr_latch_out: std_ulogic_vector(15 downto 0) := (others => '0');
      signal SR : std_ulogic;
 
@@ -133,7 +131,7 @@ begin
     GLOBAL_ADDR_COUNTER1: global_addr_counter
     port map( main_clk => clk_i,
            clk1 => BV4_ADDR_CNT_H_i,
-	   clk2 => BV4_VSR_LOAD_H_i,
+	   clk2 => BV4_ADDR_LD_L_i,
 	   reset => BV4_VERT_RESET_H_i,
            count_in => addr_counter_in,
            count_out => addr_counter
@@ -152,7 +150,7 @@ begin
    LATCH_PROC: process(BV4_HOLD_REQ_H_i)
    begin
      if rising_edge(BV4_HOLD_REQ_H_i) then
-	     scren_ram_latch <= DO_0_i;
+	     screen_ram_latch <= DO_0_i;
 	     char_gen_latch <= char_gen_latch_in;
              A0_H_o <= addr_latch_out;
      end if;
@@ -225,9 +223,10 @@ begin
 -------- ADDRESS /DATA MUXES
     char_gen_address(3 downto 0) <= BV4_SC_H_i;
     char_gen_address(10 downto 4) <= char_gen_latch(7 downto 1);
-    addr_counter_in(7 downto 0) <= scren_ram_latch;
-    lbuf_data_in <= scren_ram_latch when BV4_DMA_ENA_L_i = '1' else lbuf_data_out;
-    char_gen_latch_in <= lbuf_data_out when BV4_DMA_ENA_L_i = '1' else scren_ram_latch;
+    addr_counter_in(11 downto 8) <= char_gen_latch(7 downto 4);
+    addr_counter_in(7 downto 0) <= screen_ram_latch;
+    lbuf_data_in <= screen_ram_latch when BV4_DMA_ENA_L_i = '1' else lbuf_data_out;
+    char_gen_latch_in <= lbuf_data_out when BV4_DMA_ENA_L_i = '1' else screen_ram_latch;
 
 
 

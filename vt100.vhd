@@ -9,6 +9,8 @@ architecture rtl of vt100 is
   signal DO_0 :std_ulogic_vector(7 downto 0);
   signal DB_0: std_ulogic_vector(7 downto 0);
   signal A0_H :std_ulogic_vector(15 downto 0);
+  signal AC0_H :std_ulogic_vector(15 downto 0);
+  signal AV0_H :std_ulogic_vector(15 downto 0);
 
   signal LBA:   std_ulogic_vector (7 downto 0);
   signal dot_clock:   std_ulogic;
@@ -211,7 +213,7 @@ begin
       clk_i => clk100_i,
       clk24_i => clk24_07_i,
       DO_0_i  => DO_0,
-      A0_H_o => open,
+      A0_H_o => AV0_H,
       LBA_i => LBA,
       BV4_SC_H_i  =>  BV4_SC_H ,
       BV4_WRITE_LB_L_i  => BV4_WRITE_LB_L ,
@@ -237,7 +239,7 @@ begin
       clk_i => clk100_i,
       clk24_i => clk24_88_i,
       n_reset_i => not reset_i,
-      A0_H_o => A0_H,
+      A0_H_o => AC0_H,
       DB_0_i => DB_0,
       DO_0_o => DO_0,
       LBA_i => LBA,
@@ -290,6 +292,8 @@ begin
       AVO_SW_E19_8_i => '0',
       DEBUG => open
     );
+   ------ ADDRESS MUX
+   A0_H <= AV0_H when BV6_HLDA_H else AC0_H;
    led_o(0) <= not BV4_CHAR_CLK_H;
    --led_o(0) <= not BV4_VERT_RESET_H;
    --led_o(1) <= A0_H(3);

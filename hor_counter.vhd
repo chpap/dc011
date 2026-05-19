@@ -84,7 +84,7 @@ begin
    
     clock_2hf_o <= div2_out;
     clock_hf_o <= div3_out;
-    LBA_o(7) <= div_o(8);
+    LBA_o(7) <= div_o(8) xor div_o(7);
     LBA_o(6) <= div_o(6);
     LBA_o(5) <= div_o(5) or (div_o(7) and div_o(1));
     LBA_o(4) <= not div_o(4);

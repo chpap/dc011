@@ -48,7 +48,7 @@ architecture rtl of BV2 is
         signal BV2_NVR_WR_L: std_ulogic;
 begin
 -----  IO MEMORY DECODER -----
-  iomux_in <= A0_H_i(7) & A0_H_i(6) & A0_H_i(5) & (A0_H_i(1) and not BV6_IO_WR_L_i ); 
+  iomux_in <= A0_H_i(7) & A0_H_i(6) & A0_H_i(5) & ((not A0_H_i(1)) or BV6_IO_WR_L_i) ; 
   with iomux_in select iomux_out <=
     "01111111" when "0000",
     "10111111" when "0010",

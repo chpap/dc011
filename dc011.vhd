@@ -122,16 +122,16 @@ begin
     );
     vtiming_inst: vtiming
     port map (
-        i_clk => clk_2hf,
-        i_rst => reset_count,
-        n_vrst => n_vrst,
-        clk_2hf => clk_2hf,
-        vcdiv_in => vcdiv_out,
-        hertz60 => hertz60,
-        interlaced => interlaced,
-        vdrive => vdrive,
-        n_vblank => n_vblank,
-        vrst => vrst
+        clk_i => clk_2hf,
+        rst_i => reset_count,
+        n_vrst_i => n_vrst,
+        clk_2hf_i => clk_2hf,
+        vcdiv_i => vcdiv_out,
+        hertz60_i => hertz60,
+        interlaced_i => interlaced,
+        vdrive_o => vdrive,
+        n_vblank_o => n_vblank,
+        vrst_o => vrst
     );
     clock_divider_132_half :static_clk_divider
        generic map(
@@ -195,30 +195,32 @@ begin
 -- dot_clock MUX
   dot_clock <= dot_clock_s when double_width = '0' else dot_clock_d;
   n_write_lb <= write_lb nand hold_req;
-  demux_vsr_ld_h :process(dot_clock,char_clk,double_width) is
-  begin
-     if rising_edge(dot_clock)  then
-       if char_clk = '1' and (double_width = '0')  then
-         vsr_ld_tmp_h <= '0';
-       elsif char_clk = '0' and (double_width = '0') then
-         vsr_ld_tmp_h <= '1';
-       end if;
-     end if;
-  end process demux_vsr_ld_h;
-  demux_vsr_ld_l :process(dot_clock,char_clk,double_width) is
-  begin
-     if  falling_edge(dot_clock) then
-       --if char_clk = '1' and (double_width = '0' or (double_width = '1' and dot_clock = '0'))  then
-       if char_clk = '1' then
-         vsr_ld_tmp_l <= '0';
-       elsif char_clk = '0' and (double_width = '1') then
-         vsr_ld_tmp_l <= '1';
-       end if;
-     end if;
-  end process demux_vsr_ld_l;
-  vsr_ld_tmp <= vsr_ld_tmp_h when dot_clock = '1' else vsr_ld_tmp_l;
---  -- vsr_ld MUX
-  vsr_ld <= vsr_ld_tmp  when double_width = '0' else vsr_ld_tmp and not char_clk_half;
+
+--  demux_vsr_ld_h :process(dot_clock,char_clk,double_width) is
+--  begin
+--     if rising_edge(dot_clock)  then
+--       if char_clk = '1' and (double_width = '0')  then
+--         vsr_ld_tmp_h <= '0';
+--       elsif char_clk = '0' and (double_width = '0') then
+--         vsr_ld_tmp_h <= '1';
+--       end if;
+--     end if;
+--  end process demux_vsr_ld_h;
+--  demux_vsr_ld_l :process(dot_clock,char_clk,double_width) is
+--  begin
+--     if  falling_edge(dot_clock) then
+--       --if char_clk = '1' and (double_width = '0' or (double_width = '1' and dot_clock = '0'))  then
+--       if char_clk = '1' then
+--         vsr_ld_tmp_l <= '0';
+--       elsif char_clk = '0' and (double_width = '1') then
+--         vsr_ld_tmp_l <= '1';
+--       end if;
+--     end if;
+--  end process demux_vsr_ld_l;
+--  vsr_ld_tmp <= vsr_ld_tmp_h when char_clk = '1' else vsr_ld_tmp_l;
+  -- vsr_ld MUX
+  vsr_ld_tmp <= dot_div(0) and (not dot_div(1)) and (not dot_div(2)) and dot_div(3);
+  vsr_ld <= vsr_ld_tmp  when double_width = '0' else vsr_ld_tmp and not dot_clock and not char_clk_half;
   comp_sync <= comp_sync_out;
   addr_count <= ( ( char_clk and not hblank and hold_req )  or (hblank and not addr_cnt_on) or vrst) ;
   

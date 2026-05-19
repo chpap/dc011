@@ -7,21 +7,21 @@ use ieee.math_real.all;
 
 architecture behavior of onetoN_divider is
     -- internal signals
+    signal clk1_r, clk1_rr, clk1_rrr : std_ulogic := '0';
+    signal clk2_r, clk2_rr, clk2_rrr : std_ulogic := '0';
+
+    signal en1, en2 : std_ulogic := '0';
+    signal counter_reg   : std_ulogic_vector(11 downto 0) := (others => '0');
+
     signal count        : integer range 0 to N;
     signal count_l      : integer range 0 to N;
     signal count_h      : integer range 0 to N;
     signal rising_ff    : std_ulogic := '0';
     signal falling_ff   : std_ulogic := '0';
-    -- TODO check falling_ff
-        --BIT_WIDTH : integer := integer(ceil(log2(real(g_FREQ_DIV_MAX + 1))))
 begin
 
     process(clk_i)
     begin
-        --if rising_edge(rst_i) then
-        --   count <= 0;
-        --   rising_ff <= '0';
-        --end if;
         if rising_edge(clk_i) then
             if rst_i = '1' or count = N - 1 then
                 count_h <= 0;
@@ -44,12 +44,8 @@ begin
             end if;
          end if;
     end process;
-    --count <= std_logic_vector(count_h + count_l);
     count <= count_h + count_l;
     with modulus_sel select clk_o <=
        (rising_ff and not rst_i) when '0',
-       (rising_ff or '0') and not rst_i when others;
-    --   (rising_ff or falling_ff) and not rst_i when others;
-    --TODO    report "Was only rising_ff (falling_ff <= '0')"
-    -- clk_o <= rising_ff when modulus_sel = '0' else (rising_ff or falling_ff);
+       (rising_ff xor falling_ff) and not rst_i when others;
 end behavior;
