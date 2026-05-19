@@ -7,7 +7,7 @@ use work.vt100_pkg.all;
 
 entity fontrom is
 	GENERIC(
-	   DATAWIDTH : positive := 13;
+	   DATAWIDTH : positive := 11;
 	   RAM_WIDTH  : NATURAL := 8;
 	   RAM_DEPTH  : NATURAL := 8192;
 	   FONTROM_FILE: string := "/Users/chpap/Documents/VHDL/vhdl_ghdl_examples/dc011/VGA-ROM-8x16.hex"

@@ -148,24 +148,38 @@ begin
    end process debug_proc;
     --------------------------------------------
    --- LINE BUFFER
-   LATCH_PROC: process(BV4_HOLD_REQ_H_i)
+   LATCH_PROC: process(BV4_CHAR_CLK_H_i)
    begin
-     if rising_edge(BV4_HOLD_REQ_H_i) then
+     if rising_edge(BV4_CHAR_CLK_H_i) then
 	     screen_ram_latch <= DO_0_i;
 	     char_gen_latch <= char_gen_latch_in;
      end if;
    end process LATCH_PROC;
    A0_H_o <= addr_latch_out when BV4_DMA_ENA_L_i = '0' else (others => '1');
     
-   FONTROM_INST: fontrom port map (
+   FONTROM_INST: fontrom 
+   generic map(
+	   DATAWIDTH => 11,
+	   RAM_WIDTH => 8,
+	   RAM_DEPTH => 2048,
+	   FONTROM_FILE => "roms/character_rom.hex"
+	)
+   port map (
       addr_i => char_gen_address,
-      clk => clk24_i,
+      clk => clk_i,
       data_o => char_gen_data_norm
    );
 
-   FONTROM_ALT_INST: fontrom port map (
+   FONTROM_ALT_INST: fontrom 
+   generic map(
+	   DATAWIDTH => 11,
+	   RAM_WIDTH => 8,
+	   RAM_DEPTH => 2048,
+	   FONTROM_FILE => "roms/character_rom.hex"
+	)
+   port map (
       addr_i => char_gen_address,
-      clk => clk24_i,
+      clk => clk_i,
       data_o => char_gen_data_alt
    );
 ----------- fontrom selection
@@ -191,13 +205,13 @@ begin
       n_Q => open
      );
 -------------
-    BV5_RV_H_o <= char_gen_latch(0);
-    BV5_DH_L_o <= char_gen_latch(1);
-    BV5_DW_L_o <= char_gen_latch(2);
+    BV5_RV_H_o <= char_gen_latch(7);
+    BV5_DH_L_o <= char_gen_latch(6);
+    BV5_DW_L_o <= char_gen_latch(5);
 ---------------
    SR_FF_2: SR_FF
      port map(
-      D => char_gen_latch(3),
+      D => char_gen_latch(4),
       S => not BV4_VERT_RESET_H_i,
       R => '1',
       n_clk_i => not BV4_ADDR_LD_L_i,
@@ -224,7 +238,7 @@ begin
 -------- ADDRESS /DATA MUXES
     char_gen_address(3 downto 0) <= BV4_SC_H_i;
     char_gen_address(10 downto 4) <= char_gen_latch(7 downto 1);
-    addr_counter_in(11 downto 8) <= char_gen_latch(7 downto 4);
+    addr_counter_in(11 downto 8) <= char_gen_latch(3 downto 0);
     addr_counter_in(7 downto 0) <= screen_ram_latch;
     lbuf_data_in <= screen_ram_latch when BV4_DMA_ENA_L_i = '1' else lbuf_data_out;
     char_gen_latch_in <= lbuf_data_out when BV4_DMA_ENA_L_i = '1' else screen_ram_latch;

@@ -188,7 +188,8 @@ package dc0112_pkg is
   GENERIC(
 	   DATAWIDTH : positive := 11;
 	   RAM_WIDTH  : NATURAL := 8;
-	   RAM_DEPTH  : NATURAL := 2048
+	   RAM_DEPTH  : NATURAL := 2048;
+	   FONTROM_FILE: string := "roms/character_rom.hex"
   );
   port (
        addr_i  : in std_logic_vector (DATAWIDTH - 1 downto 0);
@@ -252,8 +253,8 @@ package dc0112_pkg is
      vrst_i:  in  std_ulogic;
      vf_intr_o:   out std_ulogic;
      revvid_i:  in  std_ulogic;
-     d_h_i:   in std_ulogic;
-     d_l_i:   in std_ulogic;
+     n_d_h_i:   in std_ulogic;
+     n_d_w_i:   in std_ulogic;
      n_addr_ld_i:   in std_ulogic;
      hold_req_o:   out std_ulogic;
      char_clk_i:   in std_ulogic;

@@ -17,8 +17,8 @@ port (
    vrst_i:  in  std_ulogic;
    vf_intr_o:   out std_ulogic;
    revvid_i:  in  std_ulogic;
-   d_h_i:   in std_ulogic;
-   d_l_i:   in std_ulogic;
+   n_d_h_i:   in std_ulogic;
+   n_d_w_i:   in std_ulogic;
    n_addr_ld_i:   in std_ulogic;
    hold_req_o:   out std_ulogic;
    char_clk_i:   in std_ulogic;
@@ -44,6 +44,7 @@ architecture behaviour of dc012 is
    signal attribute_vector: basic_attribute_vector := (ATTR_NONE, ATTR_UNDERLINE, ATTR_REVERSE_VIDEO, TERMINATE,UNDERLINE,BOLD,BLINK);
    signal beam_code: beam_code_vector:= (D,D,O,O);
    signal current_beam_code: beam_code_type;
+   signal scan_cnt:  std_ulogic_vector(3 downto 0) := (others => '0');
 
 
 
@@ -108,24 +109,24 @@ begin
          input => ""&vid_in_i, 
          output(0) => vid_in_delayed 
     );
+
+  LATCH1_PROC: latch1_comp port map(
+  	clk_i => clk_i,
+	n_addr_ld_i => not n_addr_ld_i,
+	vrst_i => vrst_i,
+	reset_i => vrst_i,
+	latch_in => ( revvid_i & n_d_h_i & n_d_w_i ),
+	latch_out => latch1
+      );
    --LATCH 2 TODO vrst ?
   latch2_proc: process (hold_req_o,vrst_i) is
     begin
     if rising_edge(hold_req_o) then
-       latch2 <= latch1(1 downto 0); -- (d_h_i,d_l_i) 
+       latch2 <= latch1(1 downto 0); -- (n_d_h_i,n_d_w_i) 
     end if;
   end process latch2_proc;
 
 
-
-  LATCH1_PROC: latch1_comp port map(
-  	clk_i => clk_i,
-	n_addr_ld_i => n_addr_ld_i,
-	vrst_i => vrst_i,
-	reset_i => vrst_i,
-	latch_in => ( revvid_i & d_h_i & d_l_i ),
-	latch_out => latch1
-      );
 --
 --  -- SCAn COUNTER
   scan_counter_proc: process (CNT,vrst_i) is
@@ -168,15 +169,18 @@ begin
   scan_count_proc: process (hblank_i) is
     begin
     if rising_edge(hblank_i) then
---      when "00" => scan_cnt_o <= to_signed(scroll_mux_out - 1,4) mod 16;
---      when "01" => scan_cnt_o <= (scroll_mux_out - 1) mod 16;
---      when "10" => scan_cnt_o <= (shift_left(unsigned(scroll_mux_out),1)  - 1) mod 16;
-      case latch2 is
-      when "11" => scan_cnt_o <= scroll_mux_out - 1 mod 16;
-      when others => scan_cnt_o <= scroll_mux_out - 1 mod 16;
+      case latch2 is -- dh dw
+      -- double height top half
+      when "00" => scan_cnt <= (('0' & scroll_mux_out(3 downto 1)) - 1);
+      -- double height bottom half
+      when "01" => scan_cnt <= (('0' & scroll_mux_out(3 downto 1)) + 4);
+      --when others => scan_cnt <= (scroll_mux_out - 1) mod 16;
+      -- no double height
+      when others => scan_cnt <= scroll_mux_out - 1;
       end case;
      end if;
     end process scan_count_proc;
+    scan_cnt_o <= scan_cnt;
   
 
   -- SCROLL MUX
