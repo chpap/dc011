@@ -8,6 +8,7 @@ architecture rtl of vt100 is
   signal n_vid_wr: std_ulogic := '1';
   signal DO_0 :std_ulogic_vector(7 downto 0);
   signal DB_0: std_ulogic_vector(7 downto 0);
+  signal DV_0: std_ulogic_vector(7 downto 0);
   signal A0_H :std_ulogic_vector(15 downto 0);
   signal AC0_H :std_ulogic_vector(15 downto 0);
   signal AV0_H :std_ulogic_vector(15 downto 0);
@@ -212,7 +213,7 @@ begin
    BV5_INST: BV5 port map (
       clk_i => clk100_i,
       clk24_i => clk24_07_i,
-      DO_0_i  => DO_0,
+      DO_0_i  => DV_0,
       A0_H_o => AV0_H,
       LBA_i => LBA,
       BV4_SC_H_i  =>  BV4_SC_H ,
@@ -293,7 +294,10 @@ begin
       DEBUG => open
     );
    ------ ADDRESS MUX
-   A0_H <= AV0_H when BV6_HLDA_H else AC0_H;
+   A0_H <= AV0_H when BV6_HLDA_H = '1' else AC0_H;
+   ------DATA MUX
+   DV_0 <= DB_0 when BV6_HLDA_H = '1'  else (others=>'1');
+   --------------------------------
    led_o(0) <= not BV4_CHAR_CLK_H;
    --led_o(0) <= not BV4_VERT_RESET_H;
    --led_o(1) <= A0_H(3);

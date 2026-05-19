@@ -124,6 +124,7 @@ architecture rtl of BV5 is
      signal lbuf_data_in: std_ulogic_vector(7 downto 0);
      signal lbuf_data_out: std_ulogic_vector(7 downto 0);
      signal addr_latch_out: std_ulogic_vector(15 downto 0) := (others => '0');
+     signal A0_H: std_ulogic_vector(15 downto 0) := (others => '1');
      signal SR : std_ulogic;
 
 begin
@@ -152,9 +153,9 @@ begin
      if rising_edge(BV4_HOLD_REQ_H_i) then
 	     screen_ram_latch <= DO_0_i;
 	     char_gen_latch <= char_gen_latch_in;
-             A0_H_o <= addr_latch_out;
      end if;
    end process LATCH_PROC;
+   A0_H_o <= addr_latch_out when BV4_DMA_ENA_L_i = '0' else (others => '1');
     
    FONTROM_INST: fontrom port map (
       addr_i => char_gen_address,
@@ -200,8 +201,8 @@ begin
       S => not BV4_VERT_RESET_H_i,
       R => '1',
       n_clk_i => not BV4_ADDR_LD_L_i,
-      Q => addr_latch_out(13),
-      n_Q => addr_latch_out(14)
+      Q => addr_latch_out(14),
+      n_Q => addr_latch_out(13)
      );
      addr_latch_out(15) <= '0';
      addr_latch_out(12) <= '0';

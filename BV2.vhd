@@ -104,18 +104,18 @@ begin
 
   memmux_in(5 downto 3) <= A0_H_i(13) & A0_H_i(12) & n_mem_dec_en;
   with memmux_in(5 downto 3) select memmux_out(7 downto 4) <=
-    "1110" when "000",
-    "1101" when "010",
-    "1011" when "100",
-    "0111" when "110",
+    "0111" when "000",
+    "1011" when "010",
+    "1101" when "100",
+    "1110" when "110",
     "1111" when others;
 
   memmux_in(2 downto 0) <= A0_H_i(11) & A0_H_i(10) & memmux_out(6);
   with memmux_in(2 downto 0) select memmux_out(3 downto 0) <=
-    "1110" when "000",
-    "1101" when "010",
-    "1011" when "100",
-    "0111" when "110",
+    "0111" when "000",
+    "1011" when "010",
+    "1101" when "100",
+    "1110" when "110",
     "1111" when others;
 
   BV2_SEL_8_12K_L_o <= memmux_out(6);
