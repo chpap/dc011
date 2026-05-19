@@ -15,3 +15,4 @@ tools/gvi
 *.log
 *.jou
 build_vivado
+.Xil
