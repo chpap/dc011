@@ -24,23 +24,24 @@ end entity ver_counter;
 architecture rtl of ver_counter is
     signal div: std_ulogic_vector(9 downto 0) := (others => '0'); 
     signal maxcount: integer range 1 to 630;
-    signal div1_out: std_ulogic := '0';
 begin
     maxcount <= 524 when (hertz60_i = '1' and interlaced_i = '0') else 525  when (hertz60_i = '1' and interlaced_i = '1') else 630 when (hertz60_i = '0' and interlaced_i = '0') else 629;
-    vert_div: process(clock_2hf_i)
+    vert_div: process(clock_2hf_i,rst_i)
     begin
-       if rising_edge(clock_2hf_i) then
-	     if(rst_i = '1' or div = std_ulogic_vector(to_unsigned(maxcount - 1,10))) then
-		     div <= (others => '0');
-                     div1_out <= '1';
-             else
-		     div <= div + 1;
-                     div1_out <= '0';
-	     end if;
+	if rst_i = '1' then
+	  div <= (others => '0');
+        elsif rising_edge(clock_2hf_i) then
+	  if( div = std_ulogic_vector(to_unsigned(maxcount - 1,10))) then
+	     div <= (others => '0');
+          else
+	     div <= div + 1;
+    	  end if;
        end if;
     end process vert_div;
 
     div_o(9 downto 0) <= div;
-    n_vrst_o <=  not hcdiv_i(8) or  ((hcdiv_i(7) or hcdiv_i(5))  or not hcdiv_i(6)  or (hcdiv_i(4) and hcdiv_i(3)));
-    
+    n_vrst_o <=  ((nor hcdiv_i(6 downto 4)) and (hcdiv_i(7) xor hcdiv_i(8))) 
+		 nand 
+		 (nor div(9 downto 6)and(and div(5 downto 1) ));
+		
 end architecture rtl;

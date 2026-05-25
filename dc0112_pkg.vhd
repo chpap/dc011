@@ -18,14 +18,32 @@ package dc0112_pkg is
   --attribute foreign of getMatPointer : function is "VHPIDIRECT getMatPointer";
 
   -- shared variable matrix: matrix_acc_t := getMatPointer;
-  component D_FF is
+  component D_FF_p is
+   port( 
+     D: in std_ulogic;
+     clk_i: in std_ulogic;
+     Q: out std_ulogic
+   );
+  end component;
+  component D_FF_n is
    port( 
      D: in std_ulogic;
      n_clk_i: in std_ulogic;
      Q: out std_ulogic
    );
   end component;
-  component JK_FF is
+  component JK_FF_p is
+  port( 
+    J: in std_ulogic;
+    K: in std_ulogic;
+    R: in std_ulogic;
+    S: in std_ulogic;
+    clk_i: in std_ulogic;
+    Q: out std_ulogic;
+    n_Q: out std_ulogic
+  );
+  end component;
+  component JK_FF_n is
   port( 
     J: in std_ulogic;
     K: in std_ulogic;
@@ -36,12 +54,24 @@ package dc0112_pkg is
     n_Q: out std_ulogic
   );
   end component;
-  component SR_FF is
+  -- negative triggered FF
+  component SR_FF_n is
   port( 
     D: in std_ulogic;
     S: in std_ulogic;
     R: in std_ulogic;
     n_clk_i: in std_ulogic;
+    Q: out std_ulogic;
+    n_Q: out std_ulogic
+  );
+  end component;
+  -- positive triggered FF
+  component SR_FF_p is
+  port( 
+    D: in std_ulogic;
+    S: in std_ulogic;
+    R: in std_ulogic;
+    clk_i: in std_ulogic;
     Q: out std_ulogic;
     n_Q: out std_ulogic
   );
@@ -90,6 +120,32 @@ package dc0112_pkg is
       modulus_sel : in std_ulogic;
       clk_o       : out std_ulogic
   );
+  end component;
+  component NtoM_divider is
+    generic (
+        N           : integer range 1 to 15;
+        M           : integer range 1 to 15
+    );
+    port (
+        rst_i         : in std_ulogic;
+        clk_i       : in std_ulogic;
+        clk_f_i       : in std_ulogic;
+        clk_o       : out std_ulogic
+    );
+  end component;
+  component comp_sync_gen is
+    port (
+       clk132_half_i: in std_ulogic; -- input clock signal
+       char_clk_i: in std_ulogic;
+       rst_i : in  std_ulogic;
+       mode80_i: in std_ulogic;
+       hblank_i : in std_ulogic;
+       vblank_i : in std_ulogic;
+       vcdiv_i : in std_ulogic_vector(9 downto 0);
+       hcdiv_i : in std_ulogic_vector(8 downto 0);
+       dot_div_i : in std_ulogic_vector(0 to 3);
+       comp_sync_o:out std_ulogic
+    );
   end component;
   component counter10b_ripple is
    generic (
@@ -221,6 +277,7 @@ package dc0112_pkg is
   end component;
   component dc011
     port(
+     clk_i: in std_ulogic;
      clk24_i:    in  std_ulogic;
      n_rst_i:  in  std_ulogic;
      d0_i:  in  std_ulogic;
@@ -231,16 +288,16 @@ package dc0112_pkg is
      LBA_o:   out std_ulogic_vector (7 downto 0);
      dot_clock_o:   out std_ulogic;
      char_clk_o:   out std_ulogic;
-     n_write_lb:   out std_ulogic;
-     vsr_ld:   out std_ulogic;
-     n_addr_ld: out std_ulogic;
-     n_hdrive: out  std_ulogic;
-     hblank : out  std_ulogic;
-     vrst : out  std_ulogic;
-     vdrive: out  std_ulogic;
-     n_vblank : out  std_ulogic;
-     comp_sync: out  std_ulogic;
-     addr_count: out  std_ulogic
+     n_write_lb_o:   out std_ulogic;
+     vsr_ld_o:   out std_ulogic;
+     n_addr_ld_o: out std_ulogic;
+     n_hdrive_o: out  std_ulogic;
+     hblank_o : out  std_ulogic;
+     vrst_o : out  std_ulogic;
+     vdrive_o: out  std_ulogic;
+     n_vblank_o : out  std_ulogic;
+     comp_sync_o: out  std_ulogic;
+     addr_count_o: out  std_ulogic
     );
   end component;
   component dc012 is
@@ -282,6 +339,7 @@ package dc0112_pkg is
      videob_o: out  std_logic_vector(3 downto 0);
      hsync_o: out  std_logic;
      vsync_o: out  std_logic;
+     dot_clock_o: out  std_logic;
      led_o: out  std_logic_vector(7 downto 0);
      kbd_leds_o: out  std_logic_vector(5 downto 0);
      ps2_clk: inout std_logic;
@@ -295,18 +353,44 @@ end package dc0112_pkg;
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
-entity D_FF is
+entity D_FF_n is
     port( 
       D: in std_ulogic;
       n_clk_i: in std_ulogic;
       Q: out std_ulogic
     );
-end entity D_FF;
+end entity D_FF_n;
 ------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
-entity JK_FF is
+entity D_FF_p is
+    port( 
+      D: in std_ulogic;
+      clk_i: in std_ulogic;
+      Q: out std_ulogic
+    );
+end entity D_FF_p;
+------------------------------------------------------------------------
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
+entity JK_FF_p is
+    port( 
+      J: in std_ulogic;
+      K: in std_ulogic;
+      S: in std_ulogic;
+      R: in std_ulogic;
+      clk_i: in std_ulogic;
+      Q: out std_ulogic;
+      n_Q: out std_ulogic
+    );
+end entity JK_FF_p;
+------------------------------------------------------------------------
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
+entity JK_FF_n is
     port( 
       J: in std_ulogic;
       K: in std_ulogic;
@@ -316,12 +400,12 @@ entity JK_FF is
       Q: out std_ulogic;
       n_Q: out std_ulogic
     );
-end entity JK_FF;
+end entity JK_FF_n;
 ------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
-entity SR_FF is
+entity SR_FF_n is
     port( 
       D: in std_ulogic;
       S: in std_ulogic;
@@ -330,7 +414,21 @@ entity SR_FF is
       Q: out std_ulogic;
       n_Q: out std_ulogic
     );
-end entity SR_FF;
+end entity SR_FF_n;
+------------------------------------------------------------------------
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
+entity SR_FF_p is
+    port( 
+      D: in std_ulogic;
+      S: in std_ulogic;
+      R: in std_ulogic;
+      clk_i: in std_ulogic;
+      Q: out std_ulogic;
+      n_Q: out std_ulogic
+    );
+end entity SR_FF_p;
 ------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -339,8 +437,7 @@ use ieee.numeric_std.all;
 use ieee.math_real.all;
 entity onetoN_divider is
     generic (
-        N           : integer; -- Base divide
-        BIT_WIDTH : integer := integer(ceil(log2(real(N + 1))))
+        N           : integer
     );
     port (
         rst_i         : in std_ulogic;
@@ -423,6 +520,7 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 entity dc011 is
 port (
+  clk_i: in std_ulogic;
   clk24_i:    in  std_ulogic;
   n_rst_i:  in  std_ulogic;
   d0_i:  in  std_ulogic;
@@ -433,16 +531,16 @@ port (
   LBA_o:   out std_ulogic_vector (7 downto 0);
   dot_clock_o:   out std_ulogic;
   char_clk_o:   out std_ulogic;
-  n_write_lb:   out std_ulogic;
-  vsr_ld:   out std_ulogic;
-  n_addr_ld:   out std_ulogic;
-  n_hdrive: out  std_ulogic;
-  hblank : out  std_ulogic;
-  vrst : out  std_ulogic;
-  vdrive: out  std_ulogic;
-  n_vblank : out  std_ulogic;
-  comp_sync : out  std_ulogic;
-  addr_count: out  std_ulogic
+  n_write_lb_o:   out std_ulogic;
+  vsr_ld_o:   out std_ulogic;
+  n_addr_ld_o:   out std_ulogic;
+  n_hdrive_o: out  std_ulogic;
+  hblank_o : out  std_ulogic;
+  vrst_o : out  std_ulogic;
+  vdrive_o: out  std_ulogic;
+  n_vblank_o : out  std_ulogic;
+  comp_sync_o : out  std_ulogic;
+  addr_count_o: out  std_ulogic
 );
 end entity;
 ------------------------------------------------------------------------
@@ -497,6 +595,7 @@ entity vt100 is
 	     videob_o: out  std_logic_vector(3 downto 0);
 	     hsync_o: out  std_logic;
 	     vsync_o: out  std_logic;
+             dot_clock_o: out  std_logic;
 	     led_o: out  std_logic_vector(7 downto 0);
              kbd_leds_o: out  std_logic_vector(5 downto 0);
              ps2_clk: inout std_logic;

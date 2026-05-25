@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
+use ieee.std_logic_unsigned.all;
 
 entity decod_component is
     port(
@@ -38,7 +39,8 @@ constant segmenton : segmenton_array := (
 ); -- Constant array with 7-segment encoding
 
 signal psc     : integer range 0 to 50001 := 0; -- Prescaler for clock division
-signal sel_dig : integer range 0 to 7 := 0; -- Signal to select the current digit
+--signal sel_dig : integer range 0 to 7 := 0; -- Signal to select the current digit
+signal sel_dig : std_logic_vector(2 downto 0) := (others => '0'); -- Signal to select the current digit
 
 begin
     -- Assign input digits to the array
@@ -67,18 +69,18 @@ begin
     process(sel_dig, digits)
     begin
         case sel_dig is
-            when 0 => sel_display <= "01111111"; -- Enable first display
-            when 1 => sel_display <= "10111111"; -- Enable second display
-            when 2 => sel_display <= "11011111"; -- Enable third display
-            when 3 => sel_display <= "11101111"; -- Enable fourth display
-            when 4 => sel_display <= "11110111"; -- Enable fifth display
-            when 5 => sel_display <= "11111011"; -- Enable sixth display
-            when 6 => sel_display <= "11111101"; -- Enable seventh display
-            when 7 => sel_display <= "11111110"; -- Enable eighth display
+            when "000" => sel_display <= "01111111"; -- Enable first display
+            when "001" => sel_display <= "10111111"; -- Enable second display
+            when "010" => sel_display <= "11011111"; -- Enable third display
+            when "011" => sel_display <= "11101111"; -- Enable fourth display
+            when "100" => sel_display <= "11110111"; -- Enable fifth display
+            when "101" => sel_display <= "11111011"; -- Enable sixth display
+            when "110" => sel_display <= "11111101"; -- Enable seventh display
+            when "111" => sel_display <= "11111110"; -- Enable eighth display
             when others => sel_display <= "11111111"; -- Default case (disable all)
         end case;
 
         -- Set the segment output based on the current digit
-        segment <= segmenton(to_integer(unsigned(digits(sel_dig))));
+        segment <= segmenton(to_integer(unsigned(digits(to_integer(unsigned(sel_dig))))));
     end process;
 end hardware;

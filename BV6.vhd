@@ -55,8 +55,8 @@ architecture rtl of BV6 is
    signal intr_buffer: std_ulogic_vector(7 downto 0);
    signal BV6_KBD_DATA_AVAIL_H: std_ulogic;
    signal DB_0: std_ulogic_vector(7 downto 0);
-   signal D_FLAG_BUF : std_ulogic_vector(7 downto 0) := (others=> '0');
-   signal D_INT_VEC_BUF : std_ulogic_vector(7 downto 0);
+   signal D_FLAG_BUF : std_ulogic_vector(7 downto 0) := (others => '0');
+   signal D_INT_VEC_BUF : std_ulogic_vector(7 downto 0) := (others => '0');
    signal D_KB_UART : std_ulogic_vector(7 downto 0);
 
    component i8xxx is
@@ -138,7 +138,7 @@ begin
    ---------------------
    INTR_BUF_PROC: process(BV6_INTA_L_o)
    begin
-     if BV6_INTA_L_o = '0'  then
+     if falling_edge(BV6_INTA_L_o)  then
        D_INT_VEC_BUF <= intr_buffer;
      end if;
    end process INTR_BUF_PROC;

@@ -90,7 +90,7 @@ entity BV4 is
       BV4_ADDR_CNT_H_o : out std_ulogic;
       BV4_VSR_LOAD_H_o: out std_ulogic;
       BV4_WRITE_LB_L_o : out std_ulogic;
-      BV4_HORIZ_DRIVE_H_o : out std_ulogic;
+      BV4_HORIZ_DRIVE_L_o : out std_ulogic;
       BV4_VERT_DRIVE_L_o : out std_ulogic;
       BV4_EVEN_FIELD_L_o : out std_ulogic;
       BV4_VERT_FREQ_INT_L_o : out std_ulogic;
@@ -99,7 +99,8 @@ entity BV4 is
       J9_COMP_o: out std_ulogic_vector(3 downto 0);
       DIRECT_DRIVE_VID_o: out std_ulogic_vector(3 downto 0);
       BV4_VIDEO_OUT_1_H_o: out std_ulogic;
-      BV4_VIDEO_OUT_2_H_o: out std_ulogic
+      BV4_VIDEO_OUT_2_H_o: out std_ulogic;
+      DEBUG: out  std_ulogic_vector(31 downto 0):= (others => '0')
       );
 
 end BV4;
@@ -119,6 +120,7 @@ architecture rtl of BV4 is
      end component;
 begin
   DC011_INT: dc011 port map(
+     clk_i => clk_i,
      clk24_i => clk24_i,
      n_rst_i => '1',
      d0_i => DO_0_i(4),
@@ -129,16 +131,16 @@ begin
      LBA_o => LBA_o,
      dot_clock_o => BV4_DOT_CLK_H_o,
      char_clk_o => BV4_CHAR_CLK_H_o,
-     n_write_lb => BV4_WRITE_LB_L_o,
-     vsr_ld => BV4_VSR_LOAD_H_o,
-     n_addr_ld => BV4_ADDR_LD_L_o,
-     n_hdrive => BV4_HORIZ_DRIVE_L,
-     hblank  => BV4_HORIZ_BLK_H_o,
-     vrst  => BV4_VERT_RESET_H_o,
-     vdrive => BV4_VERT_DRIVE_H,
-     n_vblank  => BV4_VERT_BLANK_L_o,
-     comp_sync => BV4_COMP_SYNC_L_o,
-     addr_count => BV4_ADDR_CNT_H_o
+     n_write_lb_o => BV4_WRITE_LB_L_o,
+     vsr_ld_o => BV4_VSR_LOAD_H_o,
+     n_addr_ld_o => BV4_ADDR_LD_L_o,
+     n_hdrive_o => BV4_HORIZ_DRIVE_L,
+     hblank_o  => BV4_HORIZ_BLK_H_o,
+     vrst_o  => BV4_VERT_RESET_H_o,
+     vdrive_o => BV4_VERT_DRIVE_H,
+     n_vblank_o  => BV4_VERT_BLANK_L_o,
+     comp_sync_o => BV4_COMP_SYNC_L_o,
+     addr_count_o => BV4_ADDR_CNT_H_o
     );
     
   DC012_INT: dc012 port map(
@@ -165,12 +167,13 @@ begin
      n_bold_i => BV1_BOLD_L_i,
      vid_in_i => BV5_SERIAL_VIDEO_H_i
     );
-    D_FF_1: D_FF
+    D_FF_1: D_FF_p
       port map(
-       n_clk_i => not BV4_VERT_DRIVE_H,
+       clk_i => not BV4_VERT_DRIVE_H,
        D => BV4_HORIZ_DRIVE_L,
        Q => BV4_EVEN_FIELD_L_o
       );
+    BV4_HORIZ_DRIVE_L_o <= BV4_HORIZ_DRIVE_L;
     BV4_VERT_DRIVE_L_o <= not BV4_VERT_DRIVE_H;
     DW <= BV5_DW_L_i nand BV5_DH_L_i;
     -- D/A Latch
@@ -182,10 +185,10 @@ begin
       end if;
     end process DA_LATCH_PROC;
     -- Video
-    V1 <= BV1_GRAPHIC_1_IN_L_i and (BV4_VIDEO_OUT_1_H_o nand BV4_VERT_BLANK_L_o);
-    V2 <= BV1_GRAPHIC_2_IN_L_i and (BV4_VIDEO_OUT_2_H_o nand BV4_VERT_BLANK_L_o);
+    V1 <= (not BV1_GRAPHIC_1_IN_L_i) or (BV4_VIDEO_OUT_1_H_o and BV4_VERT_BLANK_L_o);
+    V2 <= (not BV1_GRAPHIC_2_IN_L_i) or (BV4_VIDEO_OUT_2_H_o and BV4_VERT_BLANK_L_o);
     -- approximation of video analog circuit
-    J9_COMP_o <= ("00" & (V2 and BV4_COMP_SYNC_L_o) & (V1 and BV4_COMP_SYNC_L_o)) +  BV4_COMP_SYNC_L_o;
+    J9_COMP_o <= ('0' & V2 & V1 & '1') and BV4_VERT_BLANK_L_o and  BV4_COMP_SYNC_L_o;
     AD_LUT_32x10_INST: AD_LUT_32x10 port map (
          address => (DA),
 	 data_out => DA_CONV
@@ -195,16 +198,19 @@ begin
 
     BV4_HS_CLK_H_o <= clk24_i;
     BV4_T_HOLD_REQ_H_o <= BV4_HOLD_REQ_H_o;
-    SR_FF_1: SR_FF
+    SR_FF_1: SR_FF_p
       port map(
        D => BV6_HLDA_H_i,
        S => '1',
        R => BV4_HOLD_REQ_H_o,
-       n_clk_i => LBA_o(4),
+       clk_i => LBA_o(4),
        Q => BV4_DMA_ENA_H_o,
        n_Q => BV4_DMA_ENA_L_o
       );
     -- SYNC 1.2k  --v1 1.8  v2 1.1
     -- v1  180 / 1.8k = 0.1  - csync 180 / 720 = 0.25
     -- v2  180 / 1.1k = 0.16  -cs 180 / 570 = 0.315   v1 + v2 180 / 680 = 0.265 - cs 180 /435 = 0.41
+     --DEBUG(2) <= BV4_DOT_CLK_H_o;
+     DEBUG(7 downto 0) <= LBA_o;
+     DEBUG(8) <= BV4_DOT_CLK_H_o;
 end rtl;

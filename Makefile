@@ -3,7 +3,7 @@ GHDL_CMD = ghdl
 GHDL_FLAGS  = -fsynopsys --std=08 -frelaxed
 FAMILY  = artix7
 PART    = xc7a100tcsg324-1
-BOARD   = arty
+BOARD   = nexys_a7_100
 PROJECT = vt100
 #CHIPDB  = ${ARTIX7_CHIPDB}
 CHIPDB  = chipdb
@@ -15,6 +15,8 @@ BUILD_DIR ?= build
 PART = xc7a100tcsg324-1
 CHIPFAM = artix7
 PNR_ARGS = --pre-pack constraints/constraints.py
+X11_INCLUDE_DIR = /opt/homebrew/include
+X11_LIB_DIR = /opt/homebrew/lib
 
 #SYNTH_OPTS = -m ghdl
 ###TOP_MODULE = i8xxx
@@ -24,10 +26,10 @@ TOP_VHDL = $(VT100_TOP_VHDL)
 VT100_TOP_VHDL = top_vt100.vhd
 VT100_TOP_MODULE = top_vt100
 #.gvi/i8xxx/i8xxx_wrapper.vhd 
-DC0112_SOURCES = dc0112_pkg.vhd delay.vhd vtiming.vhd htiming.vhd ff.vhd ripple_counter.vhd clk_divider.vhd frac_divider.vhd static_clk_divider.vhd hor_counter.vhd ver_counter.vhd dot_counter.vhd dc011.vhd dc012.vhd
+DC0112_SOURCES = dc0112_pkg.vhd delay.vhd vtiming.vhd htiming.vhd ff.vhd NtoMdiv.vhd hor_counter.vhd ver_counter.vhd dot_counter.vhd comp_sync_gen.vhd dc011.vhd dc012.vhd
 VT100_VHDL_SOURCES = $(DC0112_SOURCES) utils_pkg.vhd xilinx_block_ram_pkg.vhd xilinx_block_ram.vhd sram.vhd \
-                      kb_uart.vhd er1400.vhd \
-		      vt100_pkg.vhd bootrom.vhd \
+                      kb_uart.vhd er1400.vhd framebuffer.vhd x11_pkg.vhd \
+		      vt100_pkg.vhd bootrom.vhd comp_sync_gen.vhd \
 		     debounce.vhd ps2_keyboard.vhd \
 		     fontrom.vhd  BV2.vhd BV3.vhd BV4.vhd BV5.vhd BV6.vhd AVO.vhd vt100.vhd  clk_plle2.vhd decod_component.vhd
 EXTRA_SIM_SOURCES = .gvi/i8xxx/i8xxx_wrapper.vhd
@@ -43,7 +45,7 @@ SIM_ARGS += --vcd=vt100.vcd --wave=simulation.ghw --ieee-asserts=disable
 #GVI_LINK_ARGS = -Wl,.gvi/common.o -Wl,.gvi/i8xxx/verilated.o -Wl,.gvi/i8xxx/verilated_threads.o -Wl,.gvi/i8xxx/verilated_vcd_c.o -Wl,-lm -Wl,-lstdc++  -Wl,.gvi/i8xxx/i8xxx_wrapper_c.o -Wl,.gvi/i8xxx/Vi8xxx__ALL.a
 
 #LINK_ARGS=$(shell cat .gvi/common.flags ) $(shell cat .gvi/i8xxx/i8xxx_wrapper.flags)
-GVI_LINK_ARGS=$(shell cat .gvi/common.flags ) $(shell cat .gvi/i8xxx/i8xxx_wrapper.flags)
+GVI_LINK_ARGS=$(shell cat .gvi/common.flags ) $(shell cat .gvi/i8xxx/i8xxx_wrapper.flags) -Wl,caux_x11.c -Wl,-I$(X11_INCLUDE_DIR) -Wl,-lx11 -Wl,-L$(X11_LIB_DIR)
 VHDL_SOURCES = $(VT100_VHDL_SOURCES) $(EXTRA_SIM_SOURCES) $(TOP_VHDL)
 COMPILE_ARGS = $(GHDL_FLAGS)
 #VHDL_SOURCES = $(ADDITIONAL_SOURCES) $(TOP_VERILOG)
@@ -119,7 +121,7 @@ YOSYS_SYNTH_FLAGS = -widemux 5
 $(JSON) : $(VT100_VHDL_SOURCES) $(VT100_TOP_VHDL)
 	mkdir -p $(BUILD_DIR)
 	#$(YOSYS) -l yosys.log -p "scratchpad -set abc9.D 5000 ; synth_xilinx -arch xc7 -top $(VT100_TOP_VHDL) $(YOSYS_SYNTH_FLAGS) ; write_json $@" $^
-	$(YOSYS)  -m ghdl -p 'ghdl -read $(GHDL_FLAGS) $(VT100_VHDL_SOURCES) $(VT100_TOP_VHDL) ; proc ; hierarchy -top $(VT100_TOP_MODULE) ; read_verilog $(VT100_VERILOG_SOURCES); scratchpad -set abc9.D 5000 ; synth_xilinx  -flatten -abc9 -arch xc7 -top $(VT100_TOP_MODULE); write_verilog $(BUILD_DIR)/$(VT100_TOP_MODULE).synth.v ; write_json $@'
+	$(YOSYS)  -m ghdl -p 'ghdl -read $(GHDL_FLAGS) $(VT100_VHDL_SOURCES) $(VT100_TOP_VHDL) ; proc ; hierarchy -top $(VT100_TOP_MODULE) ; read_verilog $(VT100_VERILOG_SOURCES); scratchpad -set abc9.D 5000 ; synth_xilinx  $(SYNTH_OPTS) -flatten -abc9 -arch xc7 -top $(VT100_TOP_MODULE); write_verilog $(BUILD_DIR)/$(VT100_TOP_MODULE).synth.v ; write_json $@'
 
 	#$(GHDL_CMD) -a $(GHDL_FLAGS) $(VT100_VHDL_SOURCES)
 	#$(GHDL_CMD) -e $(GHDL_FLAGS) $(GVI_LINK_ARGS) $(VT100_TOP_MODULE)
@@ -199,6 +201,7 @@ vt100:
 
 x11:
 	$(GHDL_CMD) --vpi-compile gcc -c caux_x11.c $(CFLAGS) -o tb_caux.o
+
 verilate: $(BUILD_DIR)/libVi8xxx.a
 
 obj_dir/libVi8xxx.a: $(BUILD_DIR)/$(PROJECT)_vhdl.v

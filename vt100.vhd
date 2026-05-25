@@ -14,18 +14,10 @@ architecture rtl of vt100 is
   signal AV0_H :std_ulogic_vector(15 downto 0);
 
   signal LBA:   std_ulogic_vector (7 downto 0);
-  signal dot_clock:   std_ulogic;
-  signal char_clk:   std_ulogic;
-  signal n_write_lb:   std_ulogic;
-  signal vsr_ld:   std_ulogic;
-  signal n_addr_ld:   std_ulogic;
-  signal dw:   std_ulogic;
-  signal hold_req:   std_ulogic;
   signal n_hdrive: std_ulogic;
   signal hblank : std_ulogic;
   signal vrst : std_ulogic;
   signal vdrive: std_ulogic;
-  signal n_vblank : std_ulogic;
   signal comp_sync: std_ulogic;
   signal addr_count: std_ulogic;
 
@@ -90,7 +82,7 @@ architecture rtl of vt100 is
   signal BV4_DMA_ENA_L : std_ulogic;
   signal BV4_DOT_CLK_H: std_ulogic;
   signal BV4_VSR_LOAD_H: std_ulogic;
-  signal BV4_HORIZ_DRIVE_H: std_ulogic;
+  signal BV4_HORIZ_DRIVE_L: std_ulogic;
   signal BV4_VERT_DRIVE_L: std_ulogic;
   signal BV5_SERIAL_VIDEO_H: std_ulogic;
   signal BV4_HORIZ_BLK_H: std_ulogic;
@@ -108,8 +100,10 @@ architecture rtl of vt100 is
   signal BV5_DH_L: std_ulogic;
   signal BV6_F2_TTL: std_ulogic;
   signal BV6_KBD_DATA_AVAIL_H: std_ulogic := '0';
+  signal debug_bv4: std_ulogic_vector(31 downto 0);
   signal debug_bv5: std_ulogic_vector(31 downto 0);
   signal debug_bv6: std_ulogic_vector(31 downto 0);
+  signal J9_COMP: std_ulogic_vector(3 downto 0);
 
 begin
 
@@ -201,14 +195,16 @@ begin
       BV4_ADDR_CNT_H_o => BV4_ADDR_CNT_H,
       BV4_VSR_LOAD_H_o => BV4_VSR_LOAD_H,
       BV4_WRITE_LB_L_o => BV4_WRITE_LB_L,
-      BV4_HORIZ_DRIVE_H_o => BV4_HORIZ_DRIVE_H,
+      BV4_HORIZ_DRIVE_L_o => BV4_HORIZ_DRIVE_L,
       BV4_VERT_DRIVE_L_o => BV4_VERT_DRIVE_L,
       BV4_EVEN_FIELD_L_o => BV4_EVEN_FIELD_L,
       BV4_VERT_FREQ_INT_L_o => BV4_VERT_FREQ_INT_L,
       BV4_SC_H_o => BV4_SC_H,
       BV5_RV_H_i => BV5_RV_H,
+      J9_COMP_o => J9_COMP,
       BV4_VIDEO_OUT_1_H_o => BV4_VIDEO_OUT_1_H,
-      BV4_VIDEO_OUT_2_H_o => BV4_VIDEO_OUT_2_H);
+      BV4_VIDEO_OUT_2_H_o => BV4_VIDEO_OUT_2_H,
+      DEBUG => debug_bv4);
 
    BV5_INST: BV5 port map (
       clk_i => clk100_i,
@@ -307,13 +303,16 @@ begin
    --debug_o(15 downto 8) <= DO_0;
    --debug_o(7 downto 0) <= DB_0;
    --debug_o(31 downto 16)<= A0_H;
-   debug_o(15 downto 0) <= debug_bv5(15 downto 0);
-   debug_o(31 downto 16) <= debug_bv6(15 downto 0);
-   videor_o <= (others => '0');
-   videog_o <= (others => '0');
-   videob_o <= (others => '0');
-   hsync_o <= '0';
-   vsync_o <= '0';
+   --debug_o(15 downto 0) <= debug_bv5(15 downto 0);
+   --debug_o(31 downto 16) <= debug_bv6(15 downto 0);
+   debug_o <= debug_bv4;
+   videor_o <= J9_COMP;
+   videog_o <= J9_COMP;
+   videob_o <= J9_COMP;
+   hsync_o <= not BV4_HORIZ_DRIVE_L;
+   vsync_o <= not BV4_VERT_DRIVE_L;
    rxd0 <= rxd0_i;
    txd0_o <= '0';
+   dot_clock_o <= BV4_DOT_CLK_H;
+   --dot_clock_o <= BV4_HORIZ_DRIVE_L;
 end;

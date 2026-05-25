@@ -24,7 +24,7 @@ architecture syn of er1400 is
    signal state : t_State := Standby;
    signal data_buf : std_ulogic_vector(13 downto 0) := (others => '0');
    signal data_o_buf: std_ulogic := '0';
-   signal address_buf : std_ulogic_vector(20 downto 0);
+   signal address_buf : std_ulogic_vector(19 downto 0);
    signal address10 : integer range 0 to 9 := 0;
    signal address1 : integer range 0 to 9 := 0;
    signal address : integer range 0 to 99 := 0;
@@ -47,12 +47,14 @@ begin
   if rising_edge(clk_i) then
   case state is
     --when Accept_Address => address_buf(counter) <= data_i; counter <= counter - 1;
-    when Accept_Address => address_buf <= std_ulogic_vector(shift_left(unsigned(address_buf),1)) or "0000000000000" & data_i ;
+    --when Accept_Address => address_buf <= std_ulogic_vector(shift_left(unsigned(address_buf),1)) or "0000000000000" & data_i ;
+    when Accept_Address => address_buf <= address_buf(19 downto 1)  & data_i ;
     when Read  => data_buf <= nvram(address);
     when Shift_Data_Out => data_o_buf <= data_buf(13) ;data_buf <= std_ulogic_vector(shift_left(unsigned(data_buf),1));
     when Erase => nvram(address) := (others => '0');
     --when Accept_Data => data_buf(counter) <= data_i; counter <= counter - 1;
-    when Accept_Data => data_buf <= std_ulogic_vector(shift_left(unsigned(data_buf),1)) or "0000000000000" & data_i ;
+    --when Accept_Data => data_buf <= std_ulogic_vector(shift_left(unsigned(data_buf),1)) or "0000000000000" & data_i ;
+    when Accept_Data => data_buf <= data_buf(13 downto 1) & data_i ;
     when Write => nvram(address) := data_buf;
     when others =>  -- Default case (disable all)
   end case;

@@ -195,12 +195,12 @@ begin
    end process;
    BV5_SERIAL_VIDEO_H_o <= video_shift_reg(7);
 --------------   
-   SR_FF_1: SR_FF
+   SR_FF_1: SR_FF_p
      port map(
       D => char_gen_data(0),
       S => '1',
       R => not BV4_HORIZ_BLK_H_i,
-      n_clk_i => not BV4_VSR_LOAD_H_i,
+      clk_i => BV4_VSR_LOAD_H_i,
       Q => SR,
       n_Q => open
      );
@@ -209,14 +209,14 @@ begin
     BV5_DH_L_o <= char_gen_latch(6);
     BV5_DW_L_o <= char_gen_latch(5);
 ---------------
-   SR_FF_2: SR_FF
+   SR_FF_2: SR_FF_p
      port map(
       D => char_gen_latch(4),
       S => not BV4_VERT_RESET_H_i,
       R => '1',
-      n_clk_i => not BV4_ADDR_LD_L_i,
-      Q => addr_latch_out(14),
-      n_Q => addr_latch_out(13)
+      clk_i => BV4_ADDR_LD_L_i,
+      Q => addr_latch_out(13),
+      n_Q => addr_latch_out(14)
      );
      addr_latch_out(15) <= '0';
      addr_latch_out(12) <= '0';
@@ -232,16 +232,18 @@ begin
       addr_i => LBA_i,
       clk => clk_i,
       data_i => lbuf_data_in,
-      wren_i => BV4_WRITE_LB_L_i,
+      wren_i => not BV4_WRITE_LB_L_i,
       data_o => lbuf_data_out
    );
 -------- ADDRESS /DATA MUXES
     char_gen_address(3 downto 0) <= BV4_SC_H_i;
-    char_gen_address(10 downto 4) <= char_gen_latch(7 downto 1);
+    char_gen_address(10 downto 4) <= char_gen_latch(6 downto 0);
     addr_counter_in(11 downto 8) <= char_gen_latch(3 downto 0);
     addr_counter_in(7 downto 0) <= screen_ram_latch;
-    lbuf_data_in <= screen_ram_latch when BV4_DMA_ENA_L_i = '1' else lbuf_data_out;
-    char_gen_latch_in <= lbuf_data_out when BV4_DMA_ENA_L_i = '1' else screen_ram_latch;
+    lbuf_data_in <= screen_ram_latch when BV4_DMA_ENA_L_i = '0' else (others => 'U');
+    char_gen_latch_in <= lbuf_data_out when (BV4_HOLD_REQ_H_i = '0') -- Output Disable <= 1 TODO check polarities? 
+			 else  screen_ram_latch when (BV4_DMA_ENA_L_i = '0') -- buffer en1 and 2 <= 0
+			 else (others => '0');
 
 
 

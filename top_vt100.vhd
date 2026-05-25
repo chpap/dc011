@@ -39,11 +39,40 @@ architecture testbench of top_vt100  is
   signal  clk_24_88:    std_ulogic :=  '0';
   signal  clk_6_25:    std_ulogic :=  '0';
   signal  clk_locked:    std_ulogic :=  '0';
+  signal  dot_clock:    std_ulogic;
   signal  segment:    std_logic_vector(7 downto 0);
-  signal  debug:    std_logic_vector(31 downto 0) := (others => '0');
+  signal  debug:    std_logic_vector(31 downto 0);
   type disp_array_t is array (0 to 7) of std_logic_vector(3 downto 0);
   signal  display:    disp_array_t := (others => (others => '0'));
+  signal  debug_fb: std_logic_vector(31 downto 0);
+  signal  debug_vt100: std_logic_vector(31 downto 0);
+  signal maxh: std_ulogic_vector(15 downto 0):= (others => '0');
+  signal maxv: std_ulogic_vector(15 downto 0):= (others => '0');
 
+-- synthesis translate_off
+  package fb_pkg is new work.x11_pkg
+    generic map (
+      G_WIDTH  => 800,
+      G_HEIGHT => 600
+    --G_WIDTH  => 2048,
+    --G_HEIGHT => 512
+    );
+  use fb_pkg.all;
+
+  component fb is
+  generic (
+    WIDTH  : natural := 800;
+    HEIGHT : natural := 600 
+  );
+  port(
+    pixel_clock_i : in std_ulogic;
+    rgb_i :in std_ulogic_vector(11 downto 0);
+    hsync_i: in std_ulogic;
+    vsync_i: in std_ulogic;
+    debug: out std_ulogic_vector(31 downto 0)
+      );
+  end component;
+-- synthesis translate_on
 
   component clk_plle2 is
   port ( 
@@ -58,6 +87,16 @@ architecture testbench of top_vt100  is
   end component;
 
 begin
+-- synthesis translate_off
+  fb_inst: fb port map(
+    pixel_clock_i => dot_clock,
+    rgb_i => videor & videog & videob,
+    hsync_i => hsync,
+    vsync_i => vsync,
+    debug => debug_fb
+      );
+    
+-- synthesis translate_on
 
   plle2_inst: clk_plle2
     port map(clk_100 => clk_100,
@@ -83,11 +122,12 @@ begin
      hsync_o => hsync,
      vsync_o => vsync,
      btnc_i => btnc,
-     led_o => led,
+     led_o => open,
      kbd_leds_o => kbd_led,
+     dot_clock_o => dot_clock,
      ps2_clk => ps2clk,
      ps2_data => ps2data,
-     debug_o => debug
+     debug_o => debug_vt100
     );
 
    ca <= segment(7); cb <= segment(6); cc <= segment(5); cd <= segment(4); 
@@ -100,6 +140,50 @@ begin
    display(5) <= debug(11 downto 8);
    display(6) <= debug(7 downto 4);
    display(7) <= debug(3 downto 0);
+   led(0) <=  dot_clock;
+   led(1) <=  hsync;
+   led(2) <=  clk100;
+   led(3) <=  clk_24_07;
+   led(4) <=  clk_24_88;
+   ------------------
+   process(dot_clock)
+	   variable counter: std_ulogic_vector(15 downto 0) := (others => '0');
+   begin
+	   if(rising_edge(dot_clock)) then
+	      if(hsync = '1') then
+		      counter := (others => '0');
+	      else
+		      counter := counter + 1;
+	      end if;
+	      if(counter > maxh) then
+		   maxh <= counter;
+	      end if;
+           end if;
+   end process;
+   ----------------------
+   process(hsync)
+	   --variable maxv: std_ulogic_vector(15 downto 0):= (others => '0');
+	   variable counter: std_ulogic_vector(15 downto 0) := (others => '0');
+   begin
+	   if(rising_edge(hsync)) then
+	      if(vsync = '1') then
+		      counter := (others => '0');
+	      else
+		      counter := counter + 1;
+	      end if;
+	   if(counter > maxv ) then
+		   maxv <= counter;
+	   end if;
+           end if;
+
+   end process;
+   debug(31 downto 16) <= maxh;
+   debug(15 downto 0) <= maxv;
+
+--   debug <= debug_vt100;
+-- synthesis translate_off
+   --debug <= debug_fb;
+-- synthesis translate_on
 
    SEVEN_DIG_DEC: decod_component
      port map(

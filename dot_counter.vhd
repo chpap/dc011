@@ -13,19 +13,21 @@ architecture rtl of dot_counter is
     type ctdata is array (0 to 1) of std_ulogic_vector(3 downto 0);
     signal counter_prev: ctdata := (others => (others => '0'));
     signal char_clk_delayed: std_ulogic_vector(1 downto 0) := "00";
-    -- signal char_clk_tmp : std_ulogic;
     signal maxcount: integer range 1 to 10 := 10;
 begin
     maxcount <= 10 when mode80_i = '1' else 9;
     process(dot_clk_s_i) begin
-	    if(rising_edge(dot_clk_s_i)) then
-	    if counter = std_ulogic_vector(to_unsigned(maxcount - 1,4)) then
-		    counter <= (others => '0');
-	    else
-		    counter <= counter + 1;
-	    end if;
-	    end if;
+       if rst_i = '1' then
+	 counter <= (others => '0');
+       elsif(rising_edge(dot_clk_s_i)) then
+	 if counter = std_ulogic_vector(to_unsigned(maxcount - 1,4)) then
+	   counter <= (others => '0');
+	 else
+	    counter <= counter + 1;
+	 end if;
+       end if;
     end process;
+
     GEN_DELAY: for i in 0 to 1 generate
     delay_inst: delay
     generic map(CYCLES => i + 1,
@@ -33,10 +35,7 @@ begin
     port map(clk => dot_clk_i,
          rst => rst_i,
          en  => '1',
-         --input => ""&char_clk_tmp, 
-         --input => ""&counter(3), 
          input => counter, 
-         -- output(0) => char_clk_delayed(i)
          output => counter_prev(i)
     );
     end generate GEN_DELAY;

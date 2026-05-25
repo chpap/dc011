@@ -20,6 +20,7 @@ signal rxd :                std_logic;
   signal d1: std_ulogic := '0';
   signal n_vid_wr: std_ulogic := '1';
 
+  signal  clk100:    std_ulogic :=  '0';
   signal  clk24:    std_ulogic :=  '0';
   signal  n_rst:  std_ulogic;
   signal  LBA:   std_ulogic_vector (7 downto 0);
@@ -60,12 +61,20 @@ signal rxd :                std_logic;
 
 
 begin
-  dut: dc011 port map (clk24, n_rst, d0, d1, n_vid_wr, dw, hold_req, LBA, dot_clock, char_clk, n_write_lb,vsr_ld,n_addr_ld,n_hdrive,hblank,vrst,vdrive,n_vblank,comp_sync,addr_count);
+  dut: dc011 port map (
+     clk_i => clk100,
+     clk24_i =>clk24,
+     n_rst_i => n_rst,
+     d0_i => d0,
+     d1_i => d1,
+     n_vid_wr_i => n_vid_wr,
+     dw_i => dw,
+     hold_req_i => hold_req);
 --  dut2: dc012 port map (
 -- dot_clock, n_rst, data, n_vid_w2, vrst, vf_intr, revvid, d_h,
 --      d_l, n_addr_ld, hold_req, vsr_ld, char_clk, hblank, scan_cnt, vid1out,
 --      vid2out, term, n_underline, n_blink, n_bold, vid_in);
-  dut3: cpu8080_testbench port map(clk_i => clk24, reset_i => not n_rst);
+--  dut3: cpu8080_testbench port map(clk_i => clk24, reset_i => not n_rst);
 
   process
   begin
@@ -73,6 +82,14 @@ begin
     wait for 20.7698 ns;
     clk24 <= '1';
     wait for 20.7698 ns;
+  end process;
+
+  process
+  begin
+    clk100 <= '0';
+    wait for 10 ns;
+    clk100 <= '1';
+    wait for 10 ns;
   end process;
 
   process
