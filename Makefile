@@ -29,9 +29,10 @@ VT100_TOP_MODULE = top_vt100
 DC0112_SOURCES = dc0112_pkg.vhd delay.vhd vtiming.vhd htiming.vhd ff.vhd NtoMdiv.vhd hor_counter.vhd ver_counter.vhd dot_counter.vhd comp_sync_gen.vhd dc011.vhd dc012.vhd
 VT100_VHDL_SOURCES = $(DC0112_SOURCES) utils_pkg.vhd xilinx_block_ram_pkg.vhd xilinx_block_ram.vhd sram.vhd \
                       kb_uart.vhd er1400.vhd framebuffer.vhd x11_pkg.vhd \
-		      vt100_pkg.vhd bootrom.vhd comp_sync_gen.vhd \
+		      vt100_pkg.vhd comp_sync_gen.vhd \
+		     fontrom.vhd  bootrom.vhd \
 		     debounce.vhd ps2_keyboard.vhd \
-		     fontrom.vhd  BV2.vhd BV3.vhd BV4.vhd BV5.vhd BV6.vhd AVO.vhd vt100.vhd  clk_plle2.vhd decod_component.vhd
+                     BV2.vhd BV3.vhd BV4.vhd BV5.vhd BV6.vhd AVO.vhd vt100.vhd  clk_plle2.vhd decod_component.vhd
 EXTRA_SIM_SOURCES = .gvi/i8xxx/i8xxx_wrapper.vhd
 #		.gvi/plle2_adv/plle2_adv_wrapper.vhd
 VT100_VERILOG_SOURCES = vm80a/i8xxx.v vm80a/vm80a.v vm80a/i8224.v vm80a/i8228.v $(PLLE2_FILES)

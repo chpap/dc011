@@ -106,6 +106,7 @@ entity BV4 is
 end BV4;
 architecture rtl of BV4 is
      signal LBA: std_ulogic_vector(7 downto 0);
+     signal BV4_VERT_FREQ_INT_H : std_ulogic;
      signal BV4_HORIZ_DRIVE_L: std_ulogic;
      signal BV4_VERT_DRIVE_H: std_ulogic;
      signal V1,V2: std_ulogic;
@@ -150,7 +151,7 @@ begin
      data_i =>  DO_0_i(3 downto 0),
      n_vid_w2_i => BV2_VID_WR_2L_i,
      vrst_i => BV4_VERT_RESET_H_o,
-     vf_intr_o => BV4_VERT_FREQ_INT_L_o,
+     vf_intr_o => BV4_VERT_FREQ_INT_H,
      revvid_i => BV5_RV_H_i,
      n_d_h_i => BV5_DH_L_i,
      n_d_w_i => BV5_DW_L_i,
@@ -161,7 +162,7 @@ begin
      scan_cnt_o => BV4_SC_H_o,
      vid1out_o => BV4_VIDEO_OUT_1_H_o,
      vid2out_o => BV4_VIDEO_OUT_2_H_o,
-     term_i => BV5_TERM_L_i,
+     n_term_i => BV5_TERM_L_i,
      n_underline_i => BV1_UNDERLINE_L_i,
      n_blink_i => BV1_BLINK_L_i,
      n_bold_i => BV1_BOLD_L_i,
@@ -175,6 +176,7 @@ begin
       );
     BV4_HORIZ_DRIVE_L_o <= BV4_HORIZ_DRIVE_L;
     BV4_VERT_DRIVE_L_o <= not BV4_VERT_DRIVE_H;
+    BV4_VERT_FREQ_INT_L_o <= not BV4_VERT_FREQ_INT_H;
     DW <= BV5_DW_L_i nand BV5_DH_L_i;
     -- D/A Latch
     DA_LATCH_PROC: process(BV2_DA_WR_L_i)
@@ -188,7 +190,7 @@ begin
     V1 <= (not BV1_GRAPHIC_1_IN_L_i) or (BV4_VIDEO_OUT_1_H_o and BV4_VERT_BLANK_L_o);
     V2 <= (not BV1_GRAPHIC_2_IN_L_i) or (BV4_VIDEO_OUT_2_H_o and BV4_VERT_BLANK_L_o);
     -- approximation of video analog circuit
-    J9_COMP_o <= ('0' & V2 & V1 & '1') and BV4_VERT_BLANK_L_o and  BV4_COMP_SYNC_L_o;
+    J9_COMP_o <= (V2 & V1 & '0' & '1') and BV4_VERT_BLANK_L_o and  BV4_COMP_SYNC_L_o;
     AD_LUT_32x10_INST: AD_LUT_32x10 port map (
          address => (DA),
 	 data_out => DA_CONV

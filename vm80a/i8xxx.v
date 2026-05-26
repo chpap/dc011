@@ -24,7 +24,8 @@ module i8xxx(
     output         n_memw_o,
     output         n_ior_o,
     output         n_iow_o,
-    output         n_inta_o);
+    output         n_inta_o,
+    output[31:0]    debug_o);
 
     wire[7:0]      dc_i_int;
     wire[7:0]      dc_o_int;
@@ -95,7 +96,12 @@ i8228 I8228_INST(
     .n_inta_o(n_inta_o)
     );
 
+
 assign f2_ttl_o = f2_core;
+assign debug_o[7:0] = dc_o_int;
+assign debug_o[15:8] = dc_i_int;
+assign debug_o[16] = n_stsb;
+assign debug_o[17] = n_wr;
 
 
 endmodule

@@ -319,7 +319,7 @@ package dc0112_pkg is
      scan_cnt_o:  out  std_ulogic_vector(3 downto 0);
      vid1out_o:   out std_ulogic;
      vid2out_o:   out std_ulogic;
-     term_i: in  std_ulogic;
+     n_term_i: in  std_ulogic;
      n_underline_i: in  std_ulogic;
      n_blink_i: in  std_ulogic;
      n_bold_i: in  std_ulogic;

@@ -240,7 +240,7 @@ begin
     char_gen_address(10 downto 4) <= char_gen_latch(6 downto 0);
     addr_counter_in(11 downto 8) <= char_gen_latch(3 downto 0);
     addr_counter_in(7 downto 0) <= screen_ram_latch;
-    lbuf_data_in <= screen_ram_latch when BV4_DMA_ENA_L_i = '0' else (others => 'U');
+    lbuf_data_in <= screen_ram_latch when BV4_DMA_ENA_L_i = '0' else (others => '0');
     char_gen_latch_in <= lbuf_data_out when (BV4_HOLD_REQ_H_i = '0') -- Output Disable <= 1 TODO check polarities? 
 			 else  screen_ram_latch when (BV4_DMA_ENA_L_i = '0') -- buffer en1 and 2 <= 0
 			 else (others => '0');

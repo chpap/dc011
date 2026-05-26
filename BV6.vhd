@@ -52,6 +52,7 @@ architecture rtl of BV6 is
    signal dbin : std_ulogic;
    signal n_wr: std_ulogic;
    signal flag_buffer: std_ulogic_vector(7 downto 0);
+   signal debug_i8xxx: std_ulogic_vector(31 downto 0);
    signal intr_buffer: std_ulogic_vector(7 downto 0);
    signal BV6_KBD_DATA_AVAIL_H: std_ulogic;
    signal DB_0: std_ulogic_vector(7 downto 0);
@@ -81,7 +82,8 @@ architecture rtl of BV6 is
       n_memw_o: out std_logic;
       n_ior_o : out std_logic;
       n_iow_o : out std_logic;
-      n_inta_o: out std_logic);
+      n_inta_o: out std_logic;
+      debug_o: out std_logic_vector(31 downto 0));
    end component;
 
 begin
@@ -106,7 +108,9 @@ begin
    n_memw_o => BV6_MEM_WR_L_o,
    n_ior_o => BV6_IO_RD_L_o,
    n_iow_o => BV6_IO_WR_L_o,
-   n_inta_o => BV6_INTA_L_o);
+   n_inta_o => BV6_INTA_L_o,
+   debug_o => debug_i8xxx
+);
 
    KB_UART_INST: kb_uart port map(
      clk_i => clk_i,

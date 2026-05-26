@@ -50,14 +50,14 @@ begin
 -----  IO MEMORY DECODER -----
   iomux_in <= A0_H_i(7) & A0_H_i(6) & A0_H_i(5) & ((not A0_H_i(1)) or BV6_IO_WR_L_i) ; 
   with iomux_in select iomux_out <=
-    "01111111" when "0000",
-    "10111111" when "0010",
-    "11011111" when "0100",
-    "11101111" when "0110",
-    "11110111" when "1000",
-    "11111011" when "1010",
-    "11111101" when "1100",
-    "11111110" when "1110",
+    "11111110" when "0000",
+    "11111101" when "0010",
+    "11111011" when "0100",
+    "11110111" when "0110",
+    "11101111" when "1000",
+    "11011111" when "1010",
+    "10111111" when "1100",
+    "01111111" when "1110",
     "11111111" when others;
   BV2_GRAPHIC_WR_L_o <= iomux_out(7);
   BV2_VID_WR_1L_o <= iomux_out(6);
@@ -110,7 +110,7 @@ begin
     "1110" when "110",
     "1111" when others;
 
-  memmux_in(2 downto 0) <= A0_H_i(11) & A0_H_i(10) & memmux_out(6);
+  memmux_in(2 downto 0) <= A0_H_i(11) & A0_H_i(10) & BV2_SEL_8_12K_L_o;
   with memmux_in(2 downto 0) select memmux_out(3 downto 0) <=
     "0111" when "000",
     "1011" when "010",
@@ -118,9 +118,9 @@ begin
     "1110" when "110",
     "1111" when others;
 
-  BV2_SEL_8_12K_L_o <= memmux_out(6);
-  BV2_SEL_ATT_RAM_L_o <= memmux_out(7);
-  rom_select <= not (memmux_out(5) and memmux_out(4));
+  BV2_SEL_8_12K_L_o <= memmux_out(5);
+  BV2_SEL_ATT_RAM_L_o <= memmux_out(4);
+  rom_select <= not (memmux_out(7) and memmux_out(6));
 
 -------------------------
 SRAM_INSTS: for i in 0 to 2 generate

@@ -122,6 +122,7 @@ begin
       BV1_MEM_DISABLE_L_i => BV1_MEM_DISABLE_L,
       BV2_n_SPDS_o   => BV2_n_SPDS,
       BV2_NVR_DATA_H_o => BV2_NVR_DATA_H,
+      BV2_KBD_WR_L_o => BV2_KBD_WR_L,
       BV2_KBD_RD_L_o => BV2_KBD_RD_L,
       BV2_FLAG_RD_L_o => BV2_FLAG_RD_L,
       BV2_MODEM_RD_L_o => BV2_MODEM_RD_L,

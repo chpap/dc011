@@ -14,6 +14,9 @@ architecture behaviour of dc011 is
   signal dot_div: std_ulogic_vector (3 downto 0);
   signal clk80: std_ulogic;
   signal comp_sync: std_ulogic := '0' ;
+  signal clk1_r, clk1_rr, clk1_rrr : std_ulogic := '0';
+  signal clk2_r, clk2_rr, clk2_rrr : std_ulogic := '0';
+  signal en_hold_req, en_addr_cnt_on, addr_cnt_mask: std_ulogic := '0';
   signal addr_cnt_on: std_ulogic := '0' ;
   signal clk80_half: std_ulogic;
   signal clk132_half: std_ulogic := '0';
@@ -218,9 +221,46 @@ begin
 --------------------------------------------------------------  
 
   comp_sync_o <= comp_sync;
+
+-------
+  -- Διαδικασία Συγχρονισμού στο Κύριο Ρολόι
+  process(clk_i)
+  begin
+        if rising_edge(clk_i) then
+            -- Συγχρονισμός clk1
+            clk1_rrr <= clk1_rr;
+            clk1_rr  <= clk1_r;
+            clk1_r   <= addr_cnt_on;
+
+            -- Συγχρονισμός clk2
+            clk2_rrr <= clk2_rr;
+            clk2_rr  <= clk2_r;
+            clk2_r   <= hold_req;
+
+        end if;
+  end process;
+
+    -- Ανίχνευση Ανερχόμενης Ακμής (Rising Edge Detection)
+    --en_n_addr <= clk1_rr and (not clk1_rrr);
+  en_addr_cnt_on <= clk1_rr and (not clk1_rrr);
+    -- Ανίχνευση Ακμής (Falling Edge Detection)
+  en_hold_req <= clk2_rrr and (not clk2_rr);
+    --en_vrst <= clk2_rrr and (not clk2_rr);
+  process(clk_i,en_addr_cnt_on,hold_req)
+  begin
+	  if (hold_req = '0') then
+			  addr_cnt_mask <= '0';
+	  elsif(rising_edge(clk_i)) then
+		  if(en_addr_cnt_on = '1') then 
+			  addr_cnt_mask <= '1';
+	  end if;
+	  end if;
+  end process;
+  addr_count_o <= ( ( char_clk and hold_req) or not addr_cnt_mask);
   --addr_count_o <= ( ( char_clk and not hblank and hold_req )  or (hblank and not addr_cnt_on) or vrst_o) ;
-  addr_count_o <=   ((addr_cnt_on or  hold_req) and (char_clk  and   (not hblank))) when double_width = '0'
-		    else  ((addr_cnt_on or  hold_req) and (char_clk  and   (not hblank) and char_clk_half));
+  --addr_count_o <=   ((addr_cnt_on or  hold_req) and (char_clk  )) when double_width = '0'
+  --		    else  ((addr_cnt_on or  hold_req) and (char_clk  and   (not hblank) and char_clk_half));
   ----  TODO check timingsO
   
 end architecture;
+
