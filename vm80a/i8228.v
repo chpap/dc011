@@ -22,10 +22,9 @@ module i8228(
     reg      n_wr_r1, n_wr_r2, n_wr_r3  = 1'b0;
     reg      n_memw_next= 1'b0;
     reg      n_iow_next= 1'b0;
-    wire [7:0]    db_o_int = 8'hff;
     wire     stsb_ne,hold_pe,n_wr_ne;
 
-    assign d_o = n_busen_i ?  8'hff : db_i;
+    assign d_o = db_i; //n_busen_i ?  8'h00 : db_i;
     assign db_o = (n_busen_i | n_wr_i) ?  8'h00 : d_i;
     // Falling Edge Detection)
     assign n_wr_ne = n_wr_r3 & ~n_wr_r2;

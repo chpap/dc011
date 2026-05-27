@@ -160,26 +160,20 @@ begin
    FONTROM_INST: fontrom 
    generic map(
 	   DATAWIDTH => 11,
-	   RAM_WIDTH => 8,
-	   RAM_DEPTH => 2048,
 	   FONTROM_FILE => "roms/character_rom.hex"
 	)
    port map (
       addr_i => char_gen_address,
-      clk => clk_i,
       data_o => char_gen_data_norm
    );
 
    FONTROM_ALT_INST: fontrom 
    generic map(
 	   DATAWIDTH => 11,
-	   RAM_WIDTH => 8,
-	   RAM_DEPTH => 2048,
 	   FONTROM_FILE => "roms/character_rom.hex"
 	)
    port map (
       addr_i => char_gen_address,
-      clk => clk_i,
       data_o => char_gen_data_alt
    );
 ----------- fontrom selection

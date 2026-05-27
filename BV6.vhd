@@ -150,10 +150,10 @@ begin
    BV6_INTR_H <= (not BV4_VERT_FREQ_INT_L_i) or (BV6_KBD_DATA_AVAIL_H_i or BV3_XMIT_FLAG_H_i or BV3_REC_FLAG_H_i  );
    -------------- DATA BUS MUX
    DB_0 <= D_INT_VEC_BUF when BV6_INTA_L_o = '0' else 
-	   DB_0_i when dbin = '1' else
+	   DB_0_i when (BV6_MEM_RD_L = '0' or BV6_MEM_WR_L_o = '0') else
 	   D_FLAG_BUF when BV2_FLAG_RD_L_i = '0' else
 	   D_KB_UART when BV2_KBD_RD_L_i = '0' else
-	   (others => '1' );
+	   (others => '0' );
 
    DEBUG <= DB_0_i & DO_0_o & A0_H_o;
 

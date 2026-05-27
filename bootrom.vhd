@@ -8,8 +8,6 @@ use work.vt100_pkg.all;
 entity bootrom is
 	GENERIC(
 	   DATAWIDTH : positive := 13;
-	   RAM_WIDTH  : NATURAL := 8;
-	   RAM_DEPTH  : NATURAL := 8192;
            BOOTROM_FILE: string := "roms/vt100.rom.hex"
 	);
 	port
@@ -23,14 +21,6 @@ end bootrom;
 
 architecture syn of bootrom is
  -- component generics
-        constant ADDR_A_WIDTH : positive := DATAWIDTH;
-        constant ADDR_B_WIDTH : positive := DATAWIDTH;
-        constant DATA_A_WIDTH : positive := 8;
-        constant DATA_B_WIDTH : positive := 8;
-
-	signal sub_wire0	: std_logic_vector (7 downto 0);
-	signal sub_wire1	: std_logic_vector (7 downto 0);
-
 
 --type rom_type is array (0 to RAM_DEPTH - 1)
 --  of std_logic_vector(RAM_WIDTH - 1 downto 0);
@@ -65,7 +55,6 @@ architecture syn of bootrom is
 --);
 --    21 00 00 11 01 30 7E 23 7D BB C2 06 01 7C BA C2 06 01 C3 00 01
 signal ROM : bootrom_type := init_bootrom_hex(BOOTROM_FILE);
-
 
 begin
     process(clk)

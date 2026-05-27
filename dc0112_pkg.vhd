@@ -232,7 +232,8 @@ package dc0112_pkg is
   end component;
   component bootrom is
   GENERIC(
-   DATAWIDTH : positive := 13
+       BOOTROM_FILE: string := "roms/vt100.rom.hex";
+       DATAWIDTH : positive := 13
   );
   port (
       addr_i : in std_logic_vector (DATAWIDTH - 1  downto 0);
@@ -242,14 +243,11 @@ package dc0112_pkg is
   end component;
   component fontrom is
   GENERIC(
-	   DATAWIDTH : positive := 11;
-	   RAM_WIDTH  : NATURAL := 8;
-	   RAM_DEPTH  : NATURAL := 2048;
-	   FONTROM_FILE: string := "roms/character_rom.hex"
+	DATAWIDTH : positive := 11;
+        FONTROM_FILE: string := "roms/character_rom.hex"
   );
   port (
        addr_i  : in std_logic_vector (DATAWIDTH - 1 downto 0);
-       clk	: in std_logic  := '1';
        data_o  : out std_logic_vector (7 downto 0)
 	);
   end component;

@@ -155,7 +155,7 @@ begin
      revvid_i => BV5_RV_H_i,
      n_d_h_i => BV5_DH_L_i,
      n_d_w_i => BV5_DW_L_i,
-     hold_req_o => BV4_HOLD_REQ_H_o,
+     hold_req_o => open, -- DEBUG BV4_HOLD_REQ_H_o,
      n_addr_ld_i => BV4_ADDR_LD_L_o,
      char_clk_i => BV4_CHAR_CLK_H_o,
      hblank_i => BV4_HORIZ_BLK_H_o,
