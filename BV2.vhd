@@ -44,8 +44,11 @@ architecture rtl of BV2 is
 	signal memmux_in: std_ulogic_vector(5 downto 0);
 	type D_mem_t is array (0 to 2) of std_ulogic_vector(7 downto 0);
 	signal D_mem_o: D_mem_t;
+	--signal D_mem_i: D_mem_t;
+	signal wren: std_ulogic_vector(2 downto 0);
 	signal D_ROM: std_ulogic_vector(7 downto 0);
         signal BV2_NVR_WR_L: std_ulogic;
+        signal wren_null: std_ulogic := 'Z';
 begin
 -----  IO MEMORY DECODER -----
   iomux_in <= A0_H_i(7) & A0_H_i(6) & A0_H_i(5) & ((not A0_H_i(1)) or BV6_IO_WR_L_i) ; 
@@ -95,9 +98,9 @@ begin
   );
 
 -------------------------
-  BV2_KBD_RD_L_o <= (not BV6_IO_RD_L_i) and A0_H_i(7);
-  BV2_FLAG_RD_L_o <= (not BV6_IO_RD_L_i) and A0_H_i(6);
-  BV2_MODEM_RD_L_o <= (not BV6_IO_RD_L_i) and A0_H_i(5);
+  BV2_KBD_RD_L_o <= (not BV6_IO_RD_L_i) nand A0_H_i(7);
+  BV2_FLAG_RD_L_o <= (not BV6_IO_RD_L_i) nand A0_H_i(6);
+  BV2_MODEM_RD_L_o <= (not BV6_IO_RD_L_i) nand A0_H_i(5);
 
 -----  MEMORY DECODER -----
   n_mem_dec_en <= (BV6_MEM_RD_L_i and BV6_MEM_WR_L_i) or not BV1_MEM_DISABLE_L_i;
@@ -126,15 +129,15 @@ begin
 SRAM_INSTS: for i in 0 to 2 generate
   SRAM_INST: sram port map (
       addr_i => A0_H_i(9 downto 0),
-      clk => clk24_i,
+      clk => clk_i,
       data_i => DO_0_i,
-      wren_i => BV6_MEM_WR_L_i,
+      wren_i => wren(i),
       data_o => D_mem_o(i)
 );
 end generate;
 ROM_INST: bootrom port map (
       addr_i => A0_H_i(12 downto 0),
-      clk => clk24_i,
+      clk => clk_i,
       data_o => D_ROM
 );
 -- rom_select  memmux_out(0-2)
@@ -143,5 +146,9 @@ DB_0_o <= D_ROM when rom_select = '1' else
           D_mem_o(1) when memmux_out(1) = '1' else
           D_mem_o(2) when memmux_out(2) = '1' else
 	  (others => '1');
+
+wren(0) <= BV6_MEM_WR_L_i when memmux_out(0) = '1' else '0';
+wren(1) <= BV6_MEM_WR_L_i when memmux_out(1) = '1' else '0';
+wren(2) <= BV6_MEM_WR_L_i when memmux_out(2) = '1' else '0';
 
 end rtl;

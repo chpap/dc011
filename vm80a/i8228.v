@@ -9,7 +9,7 @@ module i8228(
     input [7:0]      d_i, // input from 8080
     output[7:0]     d_o, // output to 8080
     input [7:0]      db_i,// input from system bus
-    output [7:0]   db_o,// output to system bus
+    output reg [7:0]   db_o,// output to system bus
     output reg      n_memr_o = 1'b1,
     output          n_memw_o,
     output reg      n_ior_o = 1'b1,
@@ -25,7 +25,7 @@ module i8228(
     wire     stsb_ne,hold_pe,n_wr_ne;
 
     assign d_o = db_i; //n_busen_i ?  8'h00 : db_i;
-    assign db_o = (n_busen_i | n_wr_i) ?  8'h00 : d_i;
+    //assign db_o = (n_busen_i | n_wr_i) ?  8'h00 : d_i;
     // Falling Edge Detection)
     assign n_wr_ne = n_wr_r3 & ~n_wr_r2;
     assign stsb_ne = n_stsb_r3 & ~n_stsb_r2;
@@ -49,11 +49,9 @@ module i8228(
     	n_wr_r2 = n_wr_r1;
     	n_wr_r1 = n_wr_i;
 
-//     if (n_wr_ne) begin // write is stable, latch data
-//          db_o_int = d_i;
-//	  n_memw_o = n_memw_next;
-//	  n_iow_o = n_iow_next;
-//     end
+     if (n_wr_ne) begin // write is stable, latch data
+          db_o = d_i;
+     end
      if(hold_pe) 
      begin
 	n_memr_o <= 1'b1;
