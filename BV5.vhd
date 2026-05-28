@@ -76,7 +76,6 @@ use work.dc0112_pkg.all;
 entity BV5 is
 
    port( clk_i : in std_ulogic;
-      clk24_i   : in  std_ulogic;
       A0_H_o    : out std_ulogic_vector(15 downto 0);
       DO_0_i    : in std_ulogic_vector(7 downto 0);
       LBA_i     : in std_ulogic_vector(7 downto 0);

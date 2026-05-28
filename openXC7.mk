@@ -31,6 +31,18 @@ XD ?= ${PROJECT}.xdc
 burn: ${PROJECT}.bit
 	openFPGALoader ${JTAG_LINK} --write-flash --bitstream $<
 
+.PHONY: program_vivado
+program_vivado: build_vivado/$(TOP_MODULE).bit
+	openFPGALoader ${JTAG_LINK} --bitstream $<
+
+.PHONY: flash_vivado
+flash_vivado: build_vivado/$(TOP_MODULE).bit
+	openFPGALoader ${JTAG_LINK} -f $<
+
+.PHONY: flash
+flash: $(BITSTREAM)
+	openFPGALoader ${JTAG_LINK} --write-flash --bitstream $<
+
 .PHONY: program
 program: $(BITSTREAM)
 	openFPGALoader ${JTAG_LINK} --bitstream $<

@@ -209,7 +209,6 @@ begin
 
    BV5_INST: BV5 port map (
       clk_i => clk100_i,
-      clk24_i => clk24_07_i,
       DO_0_i  => DV_0,
       A0_H_o => AV0_H,
       LBA_i => LBA,
@@ -236,7 +235,7 @@ begin
    BV6_INST: BV6 port map( 
       clk_i => clk100_i,
       clk24_i => clk24_88_i,
-      n_reset_i => not reset_i,
+      n_reset_i => n_reset_i,
       A0_H_o => AC0_H,
       DB_0_i => DB_0,
       DO_0_o => DO_0,

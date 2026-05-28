@@ -50,7 +50,6 @@ architecture rtl of BV6 is
    signal n_stsb : std_ulogic;
    signal inte : std_ulogic;
    signal dbin : std_ulogic;
-   signal n_wr: std_ulogic;
    signal flag_buffer: std_ulogic_vector(7 downto 0);
    signal debug_i8xxx: std_ulogic_vector(31 downto 0);
    signal intr_buffer: std_ulogic_vector(7 downto 0);
@@ -75,7 +74,6 @@ architecture rtl of BV6 is
       int_i   : in  std_logic;
       inte_o  : out std_logic;
       dbin_o  : out std_logic;
-      n_wr_o  : out std_logic;
       reset_o : out std_logic;
       n_stsb_o: out std_logic;
       n_memr_o: out std_logic;
@@ -101,7 +99,6 @@ begin
    int_i => BV6_INTR_H,
    inte_o => inte, 
    dbin_o => dbin,
-   n_wr_o => n_wr,
    reset_o => BV6_RESET_H,
    n_stsb_o => n_stsb,
    n_memr_o => BV6_MEM_RD_L,

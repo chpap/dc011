@@ -18,7 +18,7 @@ entity top_vt100  is
      videog: out  std_logic_vector(3 downto 0);
      videob: out  std_logic_vector(3 downto 0);
      kbd_led: out  std_logic_vector(5 downto 0);
-     led: out  std_logic_vector(7 downto 0);
+     led: out  std_logic_vector(9 downto 0);
      sw: in  std_logic_vector(15 downto 0);
      an: out  std_logic_vector(7 downto 0);
      ca: out  std_logic;
@@ -114,7 +114,7 @@ begin
      clk100_i => clk100,
      clk24_88_i => clk_24_88,
      clk24_07_i => clk_24_07,
-     reset_i => n_reset_i nand clk_locked,
+     n_reset_i =>   n_reset_i and clk_locked,
      txd0_o => txd0,
      rxd0_i => rxd0,
      videor_o => videor,
@@ -142,11 +142,8 @@ begin
    display(5) <= debug(11 downto 8);
    display(6) <= debug(7 downto 4);
    display(7) <= debug(3 downto 0);
-   led(0) <=  dot_clock;
-   led(1) <=  hsync;
-   led(2) <=  clk100;
-   led(3) <=  clk_24_07;
-   led(4) <=  clk_24_88;
+
+   led <= ( dot_clock, clk100, clk_24_07, clk_24_88, btnc , others => '0');
    ------------------
    process(dot_clock)
 	   variable counter: std_ulogic_vector(15 downto 0) := (others => '0');

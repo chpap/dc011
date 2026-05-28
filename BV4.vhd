@@ -145,7 +145,6 @@ begin
     );
     
   DC012_INT: dc012 port map(
-     clk_i => clk_i,
      dot_clock_i => BV4_DOT_CLK_H_o,
      n_rst_i => '1',
      data_i =>  DO_0_i(3 downto 0),

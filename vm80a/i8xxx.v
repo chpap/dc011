@@ -1,5 +1,31 @@
 // i8080 + i8224 
 `timescale 1ns/1ps
+module pulse_n_sig(
+  input      clk_i,
+  input      n_sig_i,
+  output reg n_sig_dly_o
+);
+  parameter pwidth = 3;
+
+  reg [7:0]  n_sig_d = 8'hff; 
+  reg        sig_zeros = 1'b1;
+  integer i;
+
+always @(*) begin
+    sig_zeros = 1'b1; // Initialize count
+    for (i = 0; i < pwidth; i = i + 1) begin
+      //sig_ones = sig_ones + n_sig_d[i]; // Increment count for each 1
+      sig_zeros = sig_zeros & n_sig_d[i]; // Increment count for each 0
+    end
+end
+always @(posedge clk_i) begin
+//always @(*) begin
+  n_sig_d <= (n_sig_d << 1) | {7'b0 , n_sig_i};
+  n_sig_dly_o <=  sig_zeros  ? 1'b1 : 1'b0;
+  //n_sig_dly_o <= n_sig_i;
+
+end
+endmodule
 
 
 module i8xxx(
@@ -17,7 +43,6 @@ module i8xxx(
     input          int_i,       //
     output         inte_o,      //
     output         dbin_o,      //
-    output         n_wr_o,
     output         reset_o,
     output         n_stsb_o,
     output         n_memr_o,
@@ -29,7 +54,7 @@ module i8xxx(
 
     wire[7:0]      dc_i_int;
     wire[7:0]      dc_o_int;
-    wire           clk_f1, clk_f2, ready, reset_int, n_stsb;
+    wire           clk_f1, clk_f2, ready, reset_int,  n_reset_pulsed, n_stsb;
     wire 	   rdyin, sync, dbin, n_wr, aena, dena,  inte, hlda;
     reg            f1_core,f2_core;
 
@@ -68,7 +93,7 @@ end
 
     i8224 I8224_INST(
     .sync_i(sync),
-    .n_resin_i(n_reset_i),
+    .n_resin_i(n_reset_pulsed),
     .rdyin_i(rdyin),
     .clk_i(clk24_i),
     .clk_f1_o(clk_f1),
@@ -95,6 +120,12 @@ i8228 I8228_INST(
     .n_inta_o(n_inta_o)
     );
 
+  pulse_n_sig DELAY_SIG_INST(
+    .clk_i(clk24_i),
+    .n_sig_i(n_reset_i),
+    .n_sig_dly_o(n_reset_pulsed)
+   );
+   //assign n_reset_pulsed = n_reset_i;
 
 assign f2_ttl_o = f2_core;
 assign debug_o[7:0] = dc_o_int;

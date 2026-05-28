@@ -182,7 +182,6 @@ begin
        J => '1',
        K => '0',
        R => char_clk,
-       S => '1',
        n_clk_i => hold_req,
        Q => addr_ld,
        n_Q => n_addr_ld_o

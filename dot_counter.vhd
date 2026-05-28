@@ -16,7 +16,7 @@ architecture rtl of dot_counter is
     signal maxcount: integer range 1 to 10 := 10;
 begin
     maxcount <= 10 when mode80_i = '1' else 9;
-    process(dot_clk_s_i) begin
+    process(dot_clk_s_i,rst_i) begin
        if rst_i = '1' then
 	 counter <= (others => '0');
        elsif(rising_edge(dot_clk_s_i)) then

@@ -69,7 +69,6 @@ pcounter <= 0;
   end process;
 
   process
-    variable h, i, j, d_x, d_y: integer;
   begin
     sim_init(WIDTH, HEIGHT); -- X11 window size
     report "screen size: " & to_string(c_width) & "x" & to_string(c_height) severity note;

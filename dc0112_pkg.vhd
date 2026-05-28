@@ -37,7 +37,6 @@ package dc0112_pkg is
     J: in std_ulogic;
     K: in std_ulogic;
     R: in std_ulogic;
-    S: in std_ulogic;
     clk_i: in std_ulogic;
     Q: out std_ulogic;
     n_Q: out std_ulogic
@@ -48,7 +47,6 @@ package dc0112_pkg is
     J: in std_ulogic;
     K: in std_ulogic;
     R: in std_ulogic;
-    S: in std_ulogic;
     n_clk_i: in std_ulogic;
     Q: out std_ulogic;
     n_Q: out std_ulogic
@@ -300,7 +298,6 @@ package dc0112_pkg is
   end component;
   component dc012 is
     port (
-     clk_i: in std_ulogic;
      dot_clock_i: in std_ulogic;
      n_rst_i:  in  std_ulogic;
      data_i:  in  std_ulogic_vector(3 downto 0);
@@ -328,7 +325,7 @@ package dc0112_pkg is
     port(clk24_88_i: in std_logic;
      clk24_07_i: in std_logic;
      clk100_i: in std_logic;
-     reset_i: in std_logic;
+     n_reset_i: in std_logic;
      txd0_o: out std_logic;
      rxd0_i: in std_logic;
      btnc_i: in std_logic;
@@ -378,7 +375,6 @@ entity JK_FF_p is
     port( 
       J: in std_ulogic;
       K: in std_ulogic;
-      S: in std_ulogic;
       R: in std_ulogic;
       clk_i: in std_ulogic;
       Q: out std_ulogic;
@@ -393,7 +389,6 @@ entity JK_FF_n is
     port( 
       J: in std_ulogic;
       K: in std_ulogic;
-      S: in std_ulogic;
       R: in std_ulogic;
       n_clk_i: in std_ulogic;
       Q: out std_ulogic;
@@ -585,7 +580,7 @@ entity vt100 is
 	port(clk100_i: in std_logic;
 	     clk24_88_i: in std_logic;
 	     clk24_07_i: in std_logic;
-	     reset_i: in std_logic;
+	     n_reset_i: in std_logic;
 	     txd0_o: out std_logic;
 	     rxd0_i: in std_logic;
 	     btnc_i: in std_logic;

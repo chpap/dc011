@@ -119,8 +119,8 @@ impure function init_fontrom_hex(romfilename : in string) return fontrom_type;
       BV1_BLINK_L_i : in std_ulogic;
       BV1_UNDERLINE_L_i : in std_ulogic;
       BV1_BOLD_L_i : in std_ulogic;
-      BV2_VID_WR_1L_i: out std_ulogic;
-      BV2_VID_WR_2L_i: out std_ulogic;
+      BV2_VID_WR_1L_i: in std_ulogic;
+      BV2_VID_WR_2L_i: in std_ulogic;
       BV4_HORIZ_BLK_H_o: out std_ulogic;
       BV4_VERT_RESET_H_o: out std_ulogic;
       BV4_CHAR_CLK_H_o : out std_ulogic;
@@ -143,7 +143,6 @@ impure function init_fontrom_hex(romfilename : in string) return fontrom_type;
    end component;
    component BV5 is
    port( clk_i : in std_ulogic;
-      clk24_i   : in  std_ulogic;
       A0_H_o    : out std_ulogic_vector(15 downto 0);
       DO_0_i    : in std_ulogic_vector(7 downto 0);
       LBA_i     : in std_ulogic_vector(7 downto 0);

@@ -41,8 +41,9 @@ use ieee.numeric_std.all;
 -- positive triggered JK FF 
 architecture behavioral of JK_FF_p is
 begin
-process(clk_i,R,S)
+process(clk_i,R)
   variable TMP: std_ulogic := '0';
+  variable S: std_ulogic := '1';
 begin
    if(R = '0') and (S = '1') then 
      TMP:='0';
@@ -72,8 +73,9 @@ use ieee.numeric_std.all;
 -- negative triggered JK FF 
 architecture behavioral of JK_FF_n is
 begin
-process(n_clk_i,R,S)
+process(n_clk_i,R)
   variable TMP: std_ulogic := '0';
+  variable S: std_ulogic := '1';
 begin
    if(R = '0') and (S = '1') then 
        TMP:='0';

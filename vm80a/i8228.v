@@ -16,6 +16,7 @@ module i8228(
     output          n_inta_o);
 
     wire      reset_out;
+    wire[7:0] d_o_buf;
     reg [7:0] statusb = 8'b0;
     reg [7:0] db_i_int_hold = 8'bZ; //input buffer latches
     reg       n_memw_int, n_memr_int, n_ior_int, n_iow_int, n_inta_int = 1'b1;
@@ -24,7 +25,8 @@ module i8228(
     assign db_o = ~(n_busen_i | n_wr_i) ? d_i: 8'bZ;
     assign reset_out = (hold_flag ^ held_flag);
 
-    assign d_o = (hlda_i) ? db_i_int_hold : db_i;
+    assign d_o_buf = (hlda_i) ? db_i_int_hold : db_i;
+    assign d_o = (dbin_i) ? d_o_buf: 8'bZ;
 
     assign n_memw_o = reset_out | n_wr_i | n_memw_int;
     assign n_iow_o = reset_out | n_wr_i | n_iow_int;

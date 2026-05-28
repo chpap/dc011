@@ -9,7 +9,6 @@ use work.dc0112_pkg.all;
 
 entity dc012 is
 port (
-   clk_i: in std_ulogic;
    dot_clock_i: in std_ulogic;
    n_rst_i:  in  std_ulogic;
    data_i:  in  std_ulogic_vector(3 downto 0);
