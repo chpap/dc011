@@ -123,6 +123,7 @@ architecture rtl of BV5 is
      signal video_shift_reg: std_ulogic_vector(7 downto 0) := (others => '0');
      signal lbuf_data_in: std_ulogic_vector(7 downto 0);
      signal lbuf_data_out: std_ulogic_vector(7 downto 0);
+     signal addr_latch_in: std_ulogic_vector(15 downto 0) := (others => '0');
      signal addr_latch_out: std_ulogic_vector(15 downto 0) := (others => '0');
      signal A0_H: std_ulogic_vector(15 downto 0) := (others => '1');
      signal SR : std_ulogic;
@@ -202,19 +203,25 @@ begin
     BV5_RV_H_o <= char_gen_latch(7);
     BV5_DH_L_o <= char_gen_latch(6);
     BV5_DW_L_o <= char_gen_latch(5);
----------------
+--------------- 
    SR_FF_2: SR_FF_p
      port map(
       D => char_gen_latch(4),
       S => not BV4_VERT_RESET_H_i,
       R => '1',
       clk_i => BV4_ADDR_LD_L_i,
-      Q => addr_latch_out(13),
-      n_Q => addr_latch_out(14)
+      Q => addr_latch_in(13),
+      n_Q => addr_latch_in(14)
      );
-     addr_latch_out(15) <= '0';
-     addr_latch_out(12) <= '0';
-     addr_latch_out(11 downto 0) <= addr_counter;
+     addr_latch_in(15) <= '0';
+     addr_latch_in(12) <= '0';
+     addr_latch_in(11 downto 0) <= addr_counter;
+     addr_latch_buf_proc: process  (BV4_CHAR_CLK_H_i)
+     begin
+     if rising_edge(BV4_CHAR_CLK_H_i) then
+	   addr_latch_out <= addr_latch_in;
+     end if;
+     end process addr_latch_buf_proc;
 --
 -------------
 ---- TERMINATOR DETECT
