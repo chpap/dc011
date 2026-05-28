@@ -79,7 +79,6 @@ end
     );
 
 i8228 I8228_INST(
-    .clk_i(clk_i),
     .dbin_i(dbin),
     .n_wr_i(n_wr),
     .n_stsb_i(n_stsb),
