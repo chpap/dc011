@@ -45,7 +45,7 @@ architecture rtl of BV2 is
 	type D_mem_t is array (0 to 2) of std_ulogic_vector(7 downto 0);
 	signal D_mem_o: D_mem_t;
 	--signal D_mem_i: D_mem_t;
-	signal wren: std_ulogic_vector(2 downto 0);
+	signal wren: std_ulogic_vector(2 downto 0):=(others => '0');
 	signal D_ROM: std_ulogic_vector(7 downto 0);
         signal BV2_NVR_WR_L: std_ulogic;
         signal wren_null: std_ulogic := 'Z';
@@ -135,20 +135,25 @@ SRAM_INSTS: for i in 0 to 2 generate
       data_o => D_mem_o(i)
 );
 end generate;
-ROM_INST: bootrom port map (
+ROM_INST: bootrom 
+generic map(
+--BOOTROM_FILE => "roms/vt100.rom.nomemtest.hex"
+BOOTROM_FILE => "roms/vt100.rom.hex"
+	   )
+     port map (
       addr_i => A0_H_i(12 downto 0),
       clk => clk_i,
       data_o => D_ROM
 );
 -- rom_select  memmux_out(0-2)
 DB_0_o <= D_ROM when rom_select = '1' else
-          D_mem_o(0) when memmux_out(0) = '1' else
-          D_mem_o(1) when memmux_out(1) = '1' else
-          D_mem_o(2) when memmux_out(2) = '1' else
-	  (others => '1');
+          D_mem_o(0) when memmux_out(1) = '0' else
+          D_mem_o(1) when memmux_out(2) = '0' else
+          D_mem_o(2) when memmux_out(3) = '0' else
+	  (others => '0');
 
-wren(0) <= BV6_MEM_WR_L_i when memmux_out(0) = '1' else '0';
-wren(1) <= BV6_MEM_WR_L_i when memmux_out(1) = '1' else '0';
-wren(2) <= BV6_MEM_WR_L_i when memmux_out(2) = '1' else '0';
+wren(0) <= not BV6_MEM_WR_L_i when memmux_out(1) = '0' else '0';
+wren(1) <= not BV6_MEM_WR_L_i when memmux_out(2) = '0' else '0';
+wren(2) <= not BV6_MEM_WR_L_i when memmux_out(3) = '0' else '0';
 
 end rtl;
