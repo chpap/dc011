@@ -306,7 +306,9 @@ begin
    --debug_o(31 downto 16)<= A0_H;
    --debug_o(15 downto 0) <= debug_bv5(15 downto 0);
    --debug_o(31 downto 16) <= debug_bv6(15 downto 0);
-   debug_o <= debug_bv4;
+   -- debug_o <= debug_bv6;
+   
+   debug_o <= AV0_H & AC0_H;
    videor_o <= J9_COMP;
    videog_o <= J9_COMP;
    videob_o <= J9_COMP;

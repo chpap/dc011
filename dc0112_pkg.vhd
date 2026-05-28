@@ -339,6 +339,7 @@ package dc0112_pkg is
      vsync_o: out  std_logic;
      dot_clock_o: out  std_logic;
      led_o: out  std_logic_vector(7 downto 0);
+     sw_i: in  std_logic_vector(15 downto 0);
      kbd_leds_o: out  std_logic_vector(5 downto 0);
      ps2_clk: inout std_logic;
      ps2_data: inout std_logic;
@@ -595,6 +596,7 @@ entity vt100 is
 	     vsync_o: out  std_logic;
              dot_clock_o: out  std_logic;
 	     led_o: out  std_logic_vector(7 downto 0);
+	     sw_i: in std_logic_vector(15 downto 0);
              kbd_leds_o: out  std_logic_vector(5 downto 0);
              ps2_clk: inout std_logic;
              ps2_data: inout std_logic;

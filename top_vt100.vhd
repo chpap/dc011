@@ -19,6 +19,7 @@ entity top_vt100  is
      videob: out  std_logic_vector(3 downto 0);
      kbd_led: out  std_logic_vector(5 downto 0);
      led: out  std_logic_vector(7 downto 0);
+     sw: in  std_logic_vector(15 downto 0);
      an: out  std_logic_vector(7 downto 0);
      ca: out  std_logic;
      cb: out  std_logic;
@@ -124,6 +125,7 @@ begin
      btnc_i => btnc,
      led_o => open,
      kbd_leds_o => kbd_led,
+     sw_i => sw,
      dot_clock_o => dot_clock,
      ps2_clk => ps2clk,
      ps2_data => ps2data,
@@ -177,10 +179,10 @@ begin
            end if;
 
    end process;
-   debug(31 downto 16) <= maxh;
-   debug(15 downto 0) <= maxv;
+   --debug(31 downto 16) <= maxh;
+   --debug(15 downto 0) <= maxv;
 
---   debug <= debug_vt100;
+   debug <= debug_vt100;
 -- synthesis translate_off
    --debug <= debug_fb;
 -- synthesis translate_on
