@@ -27,7 +27,9 @@ VT100_TOP_VHDL = top_vt100.vhd
 VT100_TOP_MODULE = top_vt100
 #.gvi/i8xxx/i8xxx_wrapper.vhd 
 DC0112_SOURCES = dc0112_pkg.vhd delay.vhd vtiming.vhd htiming.vhd ff.vhd NtoMdiv.vhd hor_counter.vhd ver_counter.vhd dot_counter.vhd comp_sync_gen.vhd dc011.vhd dc012.vhd
-VT100_VHDL_SOURCES = $(DC0112_SOURCES) utils_pkg.vhd xilinx_block_ram_pkg.vhd xilinx_block_ram.vhd sram.vhd \
+#UART_SOURCES = ext/uart-for-fpga/rtl/comp/*.vhd ext/uart-for-fpga/rtl/uart.vhd ext/uart-for-fpga/examples/common/*.vhd  ext/uart-for-fpga/examples/loopback/*.vhd 
+UART_SOURCES = TR1602.vhd i8251a.vhd
+VT100_VHDL_SOURCES = $(DC0112_SOURCES) $(UART_SOURCES) utils_pkg.vhd xilinx_block_ram_pkg.vhd xilinx_block_ram.vhd sram.vhd \
                       kb_uart.vhd er1400.vhd framebuffer.vhd x11_pkg.vhd \
 		      vt100_pkg.vhd comp_sync_gen.vhd \
 		     fontrom.vhd  bootrom.vhd \
@@ -192,6 +194,12 @@ dc012:
 	$(GHDL_CMD) -a $(GHDL_FLAGS) $(I2) $(T2) 
 	$(GHDL_CMD) -e $(GHDL_FLAGS) $(E2)
 	$(GHDL_CMD) -r $(GHDL_FLAGS) $(E2) --vcd=$(WAVES_DIR)/$(E2).vcd --wave=$(WAVES_DIR)/$(E2).ghw --stop-time=$(S_TIME2)
+
+tr1602:
+	@mkdir -p $(WAVES_DIR)
+	$(GHDL_CMD) -a $(GHDL_FLAGS) $(UART_SOURCES) tb/tr1602_loopback.vhd
+	$(GHDL_CMD) -e $(GHDL_FLAGS) tb_TR1602
+	$(GHDL_CMD) -r $(GHDL_FLAGS) tb_TR1602 --wave=$(WAVES_DIR)/tr1602_loopback.ghw --stop-time=200ms
 
 vt100:
 	@mkdir -p $(WAVES_DIR)

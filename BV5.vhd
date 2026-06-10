@@ -189,10 +189,9 @@ begin
    end process;
    BV5_SERIAL_VIDEO_H_o <= video_shift_reg(7);
 --------------   
-   SR_FF_1: SR_FF_p
+   SR_FF_1: SR_FF_p_r
      port map(
       D => char_gen_data(0),
-      S => '1',
       R => not BV4_HORIZ_BLK_H_i,
       clk_i => BV4_VSR_LOAD_H_i,
       Q => SR,
@@ -203,11 +202,10 @@ begin
     BV5_DH_L_o <= char_gen_latch(6);
     BV5_DW_L_o <= char_gen_latch(5);
 --------------- 
-   SR_FF_2: SR_FF_p
+   SR_FF_2: SR_FF_p_s
      port map(
       D => char_gen_latch(4),
       S => not BV4_VERT_RESET_H_i,
-      R => '1',
       clk_i => BV4_ADDR_LD_L_i,
       Q => addr_latch_in(13),
       n_Q => addr_latch_in(14)

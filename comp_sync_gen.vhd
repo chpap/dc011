@@ -10,8 +10,6 @@ use work.dc0112_pkg.all;
 entity comp_sync_gen is
     port (
        clk132_half_i : in std_ulogic; -- input clock signal
-       char_clk_i : in std_ulogic;
-       rst_i : in  std_ulogic; -- reset signal
        mode80_i: in std_ulogic;
        hblank_i : in std_ulogic;
        vblank_i : in std_ulogic;
@@ -28,7 +26,7 @@ architecture rtl of comp_sync_gen is
 	signal clk_ref: std_ulogic;
 	signal hblank: std_ulogic;
 	signal hblankrrr,hblankrr,hblankr: std_ulogic := '0';
-	signal vblankrrr,vblankrr,vblankr: std_ulogic := '0';
+----	signal vblankrrr,vblankrr,vblankr: std_ulogic := '0';
 	signal hcounter: integer range 0 to 1023 := 0;
 	signal chsync: std_ulogic;
 	signal cvsync: std_ulogic;
@@ -90,12 +88,12 @@ begin
 	   hblankrrr <= hblankrr;
 	   hblankrr <= hblankr;
            hblankr <= hblank_i;
-	   vblankrrr <= vblankrr;
-	   vblankrr <= vblankr;
-           vblankr <= vblank_i;
+----	   vblankrrr <= vblankrr;
+----	   vblankrr <= vblankr;
+----       vblankr <= vblank_i;
     -- Ανίχνευση Ανερχόμενης Ακμής (Rising Edge Detection)
           rising_fh <= hblankrr and (not hblankrrr);
-          rising_fv <= vblankrr and (not vblankrrr);
+----          rising_fv <= vblankrr and (not vblankrrr);
 
     -- Ανίχνευση Ακμής (Falling Edge Detection)
     -- falling_ff <= hblankrrr and (not hblankrr);
@@ -105,11 +103,11 @@ begin
 	   else
 		hcounter <= 0;
            end if;
-	   if(rising_fv = '0' and vcounter < 2000) then
-		vcounter <= vcounter + 1;
-	   else
-		vcounter <= 0;
-           end if;
+----	   if(rising_fv = '0' and vcounter < 2000) then
+----		vcounter <= vcounter + 1;
+----	   else
+----		vcounter <= 0;
+----           end if;
 	 end if;
       end process;
       process(hcounter)

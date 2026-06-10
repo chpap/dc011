@@ -5,26 +5,22 @@ module pulse_n_sig(
   input      n_sig_i,
   output reg n_sig_dly_o
 );
-  parameter pwidth = 3;
+  parameter pwidth = 1;
 
-  reg [7:0]  n_sig_d = 8'hff; 
+  reg [7:0]  n_sig_d = 8'h01; 
   reg        sig_zeros = 1'b1;
   integer i;
 
-always @(*) begin
-    sig_zeros = 1'b1; // Initialize count
-    for (i = 0; i < pwidth; i = i + 1) begin
-      //sig_ones = sig_ones + n_sig_d[i]; // Increment count for each 1
-      sig_zeros = sig_zeros & n_sig_d[i]; // Increment count for each 0
-    end
-end
 always @(posedge clk_i) begin
-//always @(*) begin
-  n_sig_d <= (n_sig_d << 1) | {7'b0 , n_sig_i};
-  n_sig_dly_o <=  sig_zeros  ? 1'b1 : 1'b0;
-  //n_sig_dly_o <= n_sig_i;
-
+  sig_zeros = 1'b1; // Initialize count
+  for (i = 0; i < pwidth; i = i + 1) begin
+    //sig_ones = sig_ones + n_sig_d[i]; // Increment count for each 1
+    sig_zeros = sig_zeros & n_sig_d[i]; // Increment count for each 0
+  end
+  n_sig_d = (n_sig_d << 1) | {7'b0 , n_sig_i};
+  n_sig_dly_o =  sig_zeros  ? 1'b1 : 1'b0;
 end
+
 endmodule
 
 
@@ -52,8 +48,10 @@ module i8xxx(
     output         n_inta_o,
     output[31:0]    debug_o);
 
+    wire[7:0]      d80_o_int;
     wire[7:0]      dc_i_int;
     wire[7:0]      dc_o_int;
+    wire[15:0]     a_o_int;
     wire           clk_f1, clk_f2, ready, reset_int,  n_reset_pulsed, n_stsb;
     wire 	   rdyin, sync, dbin, n_wr, aena, dena,  inte, hlda;
     reg            f1_core,f2_core;
@@ -74,10 +72,10 @@ end
     .pin_f1(f1_core),        // clock phase 1 (used as clock enable)
     .pin_f2(f2_core),        // clock phase 2 (used as clock enable)
     .pin_reset(reset_int),     // module reset
-    .pin_a(a_o),         // address bus outputs
+    .pin_a(a_o_int),         // address bus outputs
     .pin_din(dc_i_int),      //
     .pin_dbin(dbin),
-    .pin_dout(dc_o_int),      //
+    .pin_dout(d80_o_int),      //
     .pin_hold(hold_i),      //
     .pin_hlda(hlda),      //
     .pin_ready(ready),     //
@@ -89,6 +87,9 @@ end
     .pin_dena(dena),      //
     .pin_wr_n(n_wr)
     );
+
+assign a_o = aena ? a_o_int: 16'hZZZZ;
+assign dc_o_int = dena ? d80_o_int : 8'hZZ;
 
 
     i8224 I8224_INST(
@@ -132,6 +133,7 @@ assign debug_o[7:0] = dc_o_int;
 assign debug_o[15:8] = dc_i_int;
 assign debug_o[16] = n_stsb;
 assign debug_o[17] = n_wr;
+assign debug_o[31:18] = 14'b0;
 
 
 endmodule

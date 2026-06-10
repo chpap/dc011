@@ -199,10 +199,9 @@ begin
 
     BV4_HS_CLK_H_o <= clk24_i;
     BV4_T_HOLD_REQ_H_o <= BV4_HOLD_REQ_H_o;
-    SR_FF_1: SR_FF_p
+    SR_FF_1: SR_FF_p_r
       port map(
        D => BV6_HLDA_H_i,
-       S => '1',
        R => BV4_HOLD_REQ_H_o,
        clk_i => LBA_o(4),
        Q => BV4_DMA_ENA_H_o,

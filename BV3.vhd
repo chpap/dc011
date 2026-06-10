@@ -3,6 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
 use work.dc0112_pkg.all;
+use work.vt100_pkg.all;
 
 entity BV3 is
 
@@ -37,8 +38,39 @@ entity BV3 is
 end BV3;
 
 architecture rtl of BV3 is
+	signal xmit_data: std_ulogic;
+	signal rec_data: std_ulogic;
+	signal n_request_to_send: std_ulogic;
+	signal n_data_terminal_ready: std_ulogic;
+	signal data_set_ready: std_ulogic;
+	signal rx_clk, tx_clk: std_ulogic;
 
 begin
+   I8251A_INST: i8251A port map(
+        clk_i => BV6_F2_TTL_i,
+        reset_i => BV6_RESET_H_i,
+        D_i => DB_0_i,
+        D_o => DB_0_o,
+        n_cs_i => A0_H_i(0),
+        c_d_i => A0_H_i(1),
+        rd_n_i => BV6_IO_RD_L_i,
+        wr_n_i => BV6_IO_WR_L_i,
+        -- Serial Transmitter Signals
+        txd_i => xmit_data,
+        txc_n_i => tx_clk,
+        txrdy_o => BV3_XMIT_FLAG_H_o,
+        txempty_o => open,
+        -- Serial Receiver Signals
+        rxd_i => rec_data,
+        rxc_n_i => rx_clk,
+        rxrdy_o => BV3_REC_FLAG_H_o,
+        -- Modem Control Signals
+        n_dsr_i => not data_set_ready,
+        n_dtr_o => n_data_terminal_ready,
+        n_rts_o => n_request_to_send,
+        n_cts_i => '0'
+    );
+------------------------------------
 debug_proc: process(clk_i)
 begin
   if(rising_edge(clk_i)) then
@@ -47,7 +79,5 @@ begin
   end if;
 end process debug_proc;
    BV3_OPTION_PRESENT_H_o <= '0';
-   BV3_REC_FLAG_H_o <= '0';
-   BV3_XMIT_FLAG_H_o <= '0';
     
 end rtl;

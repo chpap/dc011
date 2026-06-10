@@ -53,21 +53,19 @@ package dc0112_pkg is
   );
   end component;
   -- negative triggered FF
-  component SR_FF_n is
+  component SR_FF_p_s is
   port( 
     D: in std_ulogic;
     S: in std_ulogic;
-    R: in std_ulogic;
-    n_clk_i: in std_ulogic;
+    clk_i: in std_ulogic;
     Q: out std_ulogic;
     n_Q: out std_ulogic
   );
   end component;
   -- positive triggered FF
-  component SR_FF_p is
+  component SR_FF_p_r is
   port( 
     D: in std_ulogic;
-    S: in std_ulogic;
     R: in std_ulogic;
     clk_i: in std_ulogic;
     Q: out std_ulogic;
@@ -127,15 +125,12 @@ package dc0112_pkg is
     port (
         rst_i         : in std_ulogic;
         clk_i       : in std_ulogic;
-        clk_f_i       : in std_ulogic;
         clk_o       : out std_ulogic
     );
   end component;
   component comp_sync_gen is
     port (
        clk132_half_i: in std_ulogic; -- input clock signal
-       char_clk_i: in std_ulogic;
-       rst_i : in  std_ulogic;
        mode80_i: in std_ulogic;
        hblank_i : in std_ulogic;
        vblank_i : in std_ulogic;
@@ -399,30 +394,28 @@ end entity JK_FF_n;
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
-entity SR_FF_n is
+entity SR_FF_p_s is
     port( 
       D: in std_ulogic;
       S: in std_ulogic;
-      R: in std_ulogic;
-      n_clk_i: in std_ulogic;
+      clk_i: in std_ulogic;
       Q: out std_ulogic;
       n_Q: out std_ulogic
     );
-end entity SR_FF_n;
+end entity SR_FF_p_s;
 ------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
-entity SR_FF_p is
+entity SR_FF_p_r is
     port( 
       D: in std_ulogic;
-      S: in std_ulogic;
       R: in std_ulogic;
       clk_i: in std_ulogic;
       Q: out std_ulogic;
       n_Q: out std_ulogic
     );
-end entity SR_FF_p;
+end entity SR_FF_p_r;
 ------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;

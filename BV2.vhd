@@ -138,6 +138,7 @@ end generate;
 ROM_INST: bootrom 
 generic map(
 --BOOTROM_FILE => "roms/vt100.rom.nomemtest.hex"
+--BOOTROM_FILE => "roms/vt100.rom.noromtest.hex"
 BOOTROM_FILE => "roms/vt100.rom.hex"
 	   )
      port map (

@@ -15,10 +15,10 @@ module i8228(
     output          n_iow_o,
     output          n_inta_o);
 
-    wire      reset_out;
+    wire      reset_out; // reset output to 1
     wire[7:0] d_o_buf;
     reg [7:0] statusb = 8'b0;
-    reg [7:0] db_i_int_hold = 8'bZ; //input buffer latches
+    reg [7:0] db_i_int_hold = 8'b0; //input buffer latches
     reg       n_memw_int, n_memr_int, n_ior_int, n_iow_int, n_inta_int = 1'b1;
     reg       held_flag, hold_flag = 1'b0;
 
@@ -36,8 +36,8 @@ module i8228(
     assign n_inta_o = reset_out | n_inta_int;
 
     always @(posedge hlda_i) begin
-	    db_i_int_hold <= db_i;
-	    hold_flag <= ~hold_flag;
+	    db_i_int_hold = db_i;
+	    hold_flag = ~hold_flag;
     end
 
 //latch status byte
@@ -45,7 +45,7 @@ module i8228(
 	statusb <= d_i;
     end
 //Status word decoder
-    always @(statusb,hold_flag) begin
+    always @(statusb) begin
 //     case (db_i_int)
 //       // Instruction Fetch
 //       8'b10100010  : n_memr_o <= 0;
@@ -79,12 +79,12 @@ module i8228(
 //       8'b00101011  : n_inta_o <= 0;
 //       default : n_inta_o <= 1;
 //     endcase
+     held_flag <= hold_flag;
      n_memr_int <= (~statusb[7]) & statusb[1]; // read and not write
      n_memw_int <= statusb[1] | statusb[7]; //write and read
      n_ior_int <= ~(statusb[6] & statusb[1]);
      n_iow_int <= (~statusb[4]) | statusb[1];
      n_inta_int <= ~statusb[0];
-     held_flag <= hold_flag;
      //if ( ~(n_memr_o & n_ior_o) )
      //	db_i_int <= d_i;
   end

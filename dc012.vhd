@@ -167,7 +167,7 @@ begin
 
 --
 --  -- SCAn COUNTER
-  scan_counter_proc: process (H_CLK3,vrst_i) is
+  scan_counter_proc: process (H_CLK3,vrst_i,scroll_latch_L,scroll_latch_H) is
     begin
       if vrst_i = '1'  then
         offset_counter <= scroll_latch_H & scroll_latch_L;
@@ -240,12 +240,11 @@ begin
   -- SCROLL MUX
   scroll_mux_out <= offset_counter when clk_scroll = '1' else scan_counter;
   -- SCROLL FF
-  SCROLL_FF: SR_FF_n
+  SCROLL_FF: SR_FF_p_s -- negative triggered
       port map(
        D => latch1(2),
        S => '1',
-       R => '1',
-       n_clk_i => boundary_detect,
+       clk_i => not boundary_detect,
        Q => clk_scroll,
        n_Q => open
       );
@@ -254,11 +253,10 @@ begin
    -- TOP SCAN GATE
    top_scan <= and (not scroll_mux_out(3 downto 0));
   -- HBLANK FF
-   SR_FF_BLANK: SR_FF_p
+   SR_FF_BLANK: SR_FF_p_s
      port map(
       D => hblank_i,
       S => n_term_ff,
-      R => '1',
       clk_i => char_clk_i,
       Q => hblank_dc12,
       n_Q => open

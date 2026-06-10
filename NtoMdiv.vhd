@@ -11,7 +11,6 @@ entity NtoM_divider is
     );
     port (
         rst_i         : in std_ulogic;
-        clk_f_i       : in std_ulogic;
         clk_i       : in std_ulogic;
         clk_o       : out std_ulogic
     );

@@ -24,16 +24,79 @@ impure function init_fontrom_hex(romfilename : in string) return fontrom_type;
         segment    : out std_logic_vector(7 downto 0)  -- Output to drive the 7-segment display
     );
    end component;
+   component i8251A is
+    Port (
+        -- System and CPU Bus Signals
+        clk_i         : in    STD_LOGIC;                      -- Main logic clock
+        reset_i       : in    STD_LOGIC;                      -- System Reset (Active High)
+        D_i           : in STD_LOGIC_VECTOR(7 downto 0);   -- Bidirectional Data Bus
+        D_o           : out STD_LOGIC_VECTOR(7 downto 0);   -- Bidirectional Data Bus
+        n_cs_i        : in    STD_LOGIC;                      -- Chip Select (Active Low)
+        c_d_i         : in    STD_LOGIC;                      -- Control/Status = 1, Data = 0
+        rd_n_i        : in    STD_LOGIC;                      -- Read Enable (Active Low)
+        wr_n_i        : in    STD_LOGIC;                      -- Write Enable (Active Low)
+        -- Serial Transmitter Signals
+        txd_i         : out   STD_LOGIC := '1';               -- Transmit Serial Data
+        txc_n_i       : in    STD_LOGIC;                      -- Transmitter Clock (Active Low)
+        txrdy_o       : out   STD_LOGIC;                      -- Transmitter Ready for Byte
+        txempty_o     : out   STD_LOGIC;                      -- Transmitter Shift Register Empty
+        -- Serial Receiver Signals
+        rxd_i         : in    STD_LOGIC;                      -- Receive Serial Data
+        rxc_n_i       : in    STD_LOGIC;                      -- Receiver Clock (Active Low)
+        rxrdy_o       : out   STD_LOGIC;                      -- Receiver Has Data Ready
+        -- Modem Control Signals
+        n_dsr_i       : in    STD_LOGIC := '1';               -- Data Set Ready (Active Low)
+        n_dtr_o       : out   STD_LOGIC := '1';               -- Data Terminal Ready (Active Low)
+        n_rts_o       : out   STD_LOGIC := '1';               -- Request to Send (Active Low)
+        n_cts_i       : in    STD_LOGIC := '0'                -- Clear to Send (Active Low)
+    );
+   end component;
+   component TR1602 is
+    Port (
+	rrd_i        : in  std_ulogic; -- receiver register disconnect LT: H-> disconnect input rr frm holding reg
+	rr_o         : out  std_ulogic_vector(7 downto 0); -- contents of RHR (Receiver Holding Register) when rrd -> 0
+        pe_o         : out std_ulogic; -- parity error
+        fe_o         : out std_ulogic; -- framing error
+        oe_o         : out std_ulogic; -- overrun error : DRF (Data Received Flag) was not reset before a new character was transferred to the RHR
+        sfd_i        : in  std_ulogic; -- disconnects PE,FE, OE and THRE , allowing them to be bus connected
+        rrc_i        : in  std_ulogic; -- receiver clock frequency: 16x desired receiver shift rate
+        n_drr_i      : in std_ulogic; -- data receiver reset (negative logic). level triggered asynchronous reset of the DR (Data Received) line
+        dr_o         : out std_ulogic; -- data received. A high level indicates that a complete character has been received
+        r_i          : in std_ulogic; -- receiver input. 
+        mr_i         : in std_ulogic; -- Master reset input. High level clears the logic : TR and RR, THR, FE, OE, PE, n_DRR and sets TRO, THRE, TRE
+        thre_o       : out std_ulogic; -- transmitter holding register empty. high level indicates the transmitter holding register has transferred 
+                                       -- its contents to the transmiter register and may be loaded with a new character
+        n_thrl_i     : in std_ulogic; -- transmitter holding register load(negative logic) . Low level enters a character into the 
+                                      -- THR (Transmitter holding register). A transition from low to high level transfers the character into the TR
+                                      -- (Transmitter Register) if it is not in the process of transmitting. If a  character is trnsmitted, the transfer
+                                      -- is delayed until its transmission is completed. Upon completion , the new character is automatically transferred
+                                      -- simultaneously with the initiation of its serial transmission
+	tre_o        : out std_ulogic; -- transmitter register empty .high level when TR has completed transmission of full character including stop bits
+                                       -- it remains so until start of new transmission
+        tro_o        : out std_ulogic; -- The contents ot the TR together with start stop and parity bits are serialy shifted out on this line. When idle this line remains higho
+        tr_i         : in std_ulogic_vector(7 downto 0); -- Transmitter register data inputs. These line load a character into the TRHL with the THRL Strobe pin
+	                              -- If acharacter of less than 8 bits is selected (by wls(0) and wls(1)) hte character is right justified and the 
+	                              -- excess bits are discarded
+	crl_i        : in std_ulogic; -- Loads the control register CR with the control bits (wls(0), wls(1), epe, pi, sbs)
+	pi_i         : in std_ulogic; -- Parity inhibit. Inhibits parity generation and clamps PE output to low.
+        sbs_i        : in std_ulogic; -- This line selects the stop bits after the parity bit. High selects 2 and low 1. In the case of a word selection of 5 bits, high selects .5 stop bits
+        wls_i       : in std_ulogic_vector(1 downto 0); -- these two bits sleect the character length ( exclusive of parity)
+                                     -- wls(1)   wls(0)  word length
+                                      -----------------------------  
+                                      -- L         L     5 bits
+                                      -- L         H     6 bits
+                                      -- H         L     7 bits
+                                      -- H         H     8 bits
+	epe_i       : in std_ulogic; -- even parity enable. High level selects even, low selects odd
+        trc_i       : in std_ulogic -- transmitter clock. 16x the desired shift rate
+        
+    );
+   end component TR1602;
    component kb_uart is
    port( clk_i : in std_ulogic;
-      DB_0_o    : out std_ulogic_vector(7 downto 0);
-      DO_0_i    : in std_ulogic_vector(7 downto 0);
-      LBA_i     : in std_ulogic_vector(7 downto 0);
-      BV2_KBD_RD_L_i: in std_ulogic;
-      BV2_KBD_WR_L_i: in std_ulogic;
-      BV6_RESET_H_i : in std_ulogic;
-      BV6_KBD_TBMT_H_o : out std_ulogic;
-      BV6_KBD_DATA_AVAIL_H_o : out std_ulogic;
+      RX_KBD_o: out std_ulogic;
+      TX_KBD_i: in std_ulogic;
+      KBD_CLK_i: in std_ulogic;
       ps2_clk	: inout std_ulogic;
       ps2_data  : inout std_ulogic;
       LEDs : out std_ulogic_vector(5 downto 0);

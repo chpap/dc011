@@ -50,6 +50,8 @@ architecture rtl of BV6 is
    signal n_stsb : std_ulogic;
    signal inte : std_ulogic;
    signal dbin : std_ulogic;
+   signal RX_KBD : std_ulogic;
+   signal TX_KBD : std_ulogic;
    signal flag_buffer: std_ulogic_vector(7 downto 0);
    signal debug_i8xxx: std_ulogic_vector(31 downto 0);
    signal intr_buffer: std_ulogic_vector(7 downto 0);
@@ -109,16 +111,37 @@ begin
    debug_o => debug_i8xxx
 );
 
+    TR1602_INST: TR1602
+        port map (
+            rrd_i    => BV2_KBD_RD_L_i,
+            rr_o     => D_KB_UART,
+            pe_o     => open,
+            fe_o     => open,
+            oe_o     => open,
+            sfd_i    => '0',
+            rrc_i    => LBA_i(4),
+            n_drr_i  => BV2_KBD_RD_L_i,
+            dr_o     => open,
+            r_i      => RX_KBD, -- input from keyboard
+            mr_i     => BV6_RESET_H,
+            thre_o   => BV6_KBD_TBMT_H,
+            n_thrl_i => BV2_KBD_WR_L_i,
+            tre_o    => open,
+            tro_o    => TX_KBD,
+            tr_i     => DO_0_o,
+            crl_i    => '1',
+            pi_i     => '1',
+            sbs_i    => '0',
+            wls_i    => "11",
+            epe_i    => '1',
+            trc_i    => LBA_i(4) 
+        );
+
    KB_UART_INST: kb_uart port map(
      clk_i => clk_i,
-     DB_0_o => D_KB_UART,
-     DO_0_i => DO_0_o, 
-     LBA_i => LBA_i,
-     BV2_KBD_RD_L_i => BV2_KBD_RD_L_i,
-     BV2_KBD_WR_L_i => BV2_KBD_WR_L_i,
-     BV6_RESET_H_i => BV6_RESET_H,
-     BV6_KBD_TBMT_H_o => BV6_KBD_TBMT_H,
-     BV6_KBD_DATA_AVAIL_H_o => BV6_KBD_DATA_AVAIL_H,
+     RX_KBD_o => RX_KBD,
+     TX_KBD_i => TX_KBD,
+     KBD_CLK_i => '1', -- DEBUG
      LEDs => kbd_LEDs_o,
      ps2_clk => ps2_clk,
      ps2_data => ps2_data);

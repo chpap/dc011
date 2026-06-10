@@ -6,7 +6,7 @@ use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all;
 use work.dc0112_pkg.all;
 
-architecture behavioral of D_FF_p is
+architecture rtl of D_FF_p is
   signal TMP: std_ulogic := '0';
 begin
   process(clk_i)
@@ -16,12 +16,12 @@ begin
     end if;
   end process;
   Q <= TMP;
-end behavioral;
+end rtl;
 
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
-architecture behavioral of D_FF_n is
+architecture rtl of D_FF_n is
   signal TMP: std_ulogic := '0';
 begin
   process(n_clk_i)
@@ -31,7 +31,7 @@ begin
     end if;
   end process;
   Q <= TMP;
-end behavioral;
+end rtl;
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -39,16 +39,13 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all;
 -- positive triggered JK FF 
-architecture behavioral of JK_FF_p is
+architecture rtl of JK_FF_p is
 begin
 process(clk_i,R)
   variable TMP: std_ulogic := '0';
-  variable S: std_ulogic := '1';
 begin
-   if(R = '0') and (S = '1') then 
+   if(R = '0') then 
      TMP:='0';
-   elsif(S = '0') and (R = '1') then 
-     TMP:='1';
    elsif(rising_edge(clk_i)) then
      if(J='0' and K='1')then
        TMP:='0';
@@ -63,7 +60,7 @@ begin
   Q <= TMP;
 end process;
   n_Q <=not Q;
-end behavioral;
+end rtl;
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -71,16 +68,13 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all;
 -- negative triggered JK FF 
-architecture behavioral of JK_FF_n is
+architecture rtl of JK_FF_n is
 begin
 process(n_clk_i,R)
   variable TMP: std_ulogic := '0';
-  variable S: std_ulogic := '1';
 begin
-   if(R = '0') and (S = '1') then 
+   if(R = '0')then 
        TMP:='0';
-   elsif(S = '0') and (R = '1') then 
-       TMP:='1';
    elsif(falling_edge(n_clk_i)) then
     if(J='0' and K='1')then
        TMP:='0';
@@ -95,7 +89,7 @@ begin
    Q <= TMP;
 end process;
    n_Q <=not Q;
-end behavioral;
+end rtl;
 
 library ieee;
 use ieee. std_logic_1164.all;
@@ -103,18 +97,16 @@ use ieee. std_logic_arith.all;
 use ieee. std_logic_unsigned.all;
  
 -- negative triggered FF 
-architecture behavioral of SR_FF_n is
+architecture rtl of SR_FF_p_s is
    signal TMP: std_ulogic := '0';
 begin
-process(n_clk_i,R,S)
+process(clk_i,S)
 begin
-  if(S='0' and R='1')then
+  if(S='0')then
      TMP<='1';
-  elsif(S='1' and R='0')then
+  elsif(S='1')then
      TMP<='0';
-  elsif(S='0' and R='0')then
-        TMP<='Z';
-  elsif(falling_edge(n_clk_i)) then
+  elsif(rising_edge(clk_i)) then
       --if(S='1' and R='1')then
         TMP<=D;
       --end if;
@@ -122,7 +114,7 @@ begin
 end process;
     Q <= TMP;
     n_Q <= not Q;
-end behavioral;
+end rtl;
 
 library ieee;
 use ieee. std_logic_1164.all;
@@ -131,23 +123,21 @@ use ieee. std_logic_unsigned.all;
  
  
 -- positive triggered FF ie 74ls74
-architecture behavioral of SR_FF_p is
+architecture rtl of SR_FF_p_r is
    signal TMP: std_ulogic := '0';
 begin
-process(clk_i,R,S)
+process(clk_i,R)
   begin
-    if(S='0' and R='1')then
+    if(R='1')then
        TMP<='1';
-    elsif(S='1' and R='0')then
+    elsif(R='0')then
        TMP<='0';
-    elsif(S='0' and R='0')then
-       TMP<='Z';
     elsif(rising_edge(clk_i)) then
-       if(S='1' and R='1')then
+       if(R='1')then
          TMP<=D;
        end if;
     end if;
 end process;
     Q <= TMP;
     n_Q <= not Q;
-end behavioral;
+end rtl;

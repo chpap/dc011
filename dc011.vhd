@@ -58,7 +58,6 @@ begin
        port map(
           clk_i => clk_in,
           rst_i => reset_count,
-          clk_f_i => clk_i,
           clk_o => clk80
        );
      dot_counter_inst :dot_counter
@@ -152,9 +151,7 @@ begin
     comp_sync_gen_inst: comp_sync_gen
     port map(
        clk132_half_i => clk132_half,
-       char_clk_i => char_clk,
        comp_sync_o => comp_sync,
-       rst_i => reset_count,
        mode80_i => mode80,
        hblank_i => hblank,
        vblank_i => not n_vblank_o,
@@ -162,12 +159,11 @@ begin
        dot_div_i => dot_div,
        hcdiv_i => hcdiv_out
     );
-    SR_FF_1: SR_FF_n
+    SR_FF_1: SR_FF_p_s -- negative triggered
       port map(
        D => not dw_i,
        S => addr_ld,
-       R => '1',
-       n_clk_i => n_vrst,
+       clk_i => not n_vrst,
        Q => open,
        n_Q => n_Q_tmp
       );
@@ -177,7 +173,7 @@ begin
        D => n_Q_tmp,
        Q => double_width 
       );
-    JK_FF_2: JK_FF_n
+    JK_FF_2: JK_FF_n -- 74ls73
       port map(
        J => '1',
        K => '0',
