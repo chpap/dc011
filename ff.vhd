@@ -104,8 +104,6 @@ process(clk_i,S)
 begin
   if(S='0')then
      TMP<='1';
-  elsif(S='1')then
-     TMP<='0';
   elsif(rising_edge(clk_i)) then
       --if(S='1' and R='1')then
         TMP<=D;
@@ -128,9 +126,7 @@ architecture rtl of SR_FF_p_r is
 begin
 process(clk_i,R)
   begin
-    if(R='1')then
-       TMP<='1';
-    elsif(R='0')then
+    if(R='0')then
        TMP<='0';
     elsif(rising_edge(clk_i)) then
        if(R='1')then

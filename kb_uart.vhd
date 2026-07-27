@@ -24,20 +24,22 @@ architecture rtl of kb_uart is
     signal scan_request: std_ulogic := '0';
     signal beep: std_ulogic := '0';
     signal data_in: std_ulogic_vector(7 downto 0) := (others => '0');
-    signal data_buf: std_ulogic_vector(7 downto 0) := (others => '0');
-    signal data_out: std_ulogic_vector(7 downto 0);
+    signal rd: std_ulogic_vector(7 downto 0);
+    signal xd: std_ulogic_vector(7 downto 0) := (others => '0');
     signal key_in: std_ulogic_vector(6 downto 0) := (others => '1');
+    signal counter: std_ulogic_vector(7 downto 0) := (others => '0');
     signal key_pressed: std_ulogic := '0';
     signal KB2_KEY_DOWN_L: std_ulogic := '0';
+    signal ff2_n_q: std_ulogic;
+    signal ff2_set: std_ulogic;
     signal n_drr: std_ulogic;
     signal dr: std_ulogic;
     signal kbd_clk: std_ulogic;
     signal thre: std_ulogic;
-    signal latch_out: std_ulogic := '0';
     signal jk_reset: std_ulogic;
+    signal clk_counter: std_ulogic;
     signal counter_clear: std_ulogic;
-    signal rd: std_ulogic_vector(7 downto 0);
-    signal xd: std_ulogic_vector(7 downto 0);
+    signal data_strobe: std_ulogic;
     signal SPKR: std_ulogic;
     signal n_kbd_wr_r, n_kbd_wr_rr, n_kbd_wr_rrr, n_kbd_wr_ne : std_ulogic := '0';
 
@@ -55,9 +57,9 @@ begin
             n_drr_i  => n_drr,
             dr_o     => dr,
             r_i      => TX_KBD_i,
-            mr_i     => '1', --
+            mr_i     => '0',
             thre_o   => thre,
-            n_thrl_i => '1',
+            n_thrl_i => data_strobe,
             tre_o    => open,
             tro_o    => RX_KBD_o,
             tr_i     => xd,
@@ -82,16 +84,22 @@ begin
         SR_FF_2: SR_FF_p_s
         port map(
           D => KB2_KEY_DOWN_L,
-          S => '1', -- DEBUG
-          clk_i => '1', -- DEBUG
-          Q => open,
-          n_Q => open
+          S => ff2_set,
+          clk_i => counter(0),
+          Q => data_strobe,
+          n_Q => ff2_n_q
         );
+
+        ff2set_proc: process(KBD_CLK_i,ff2_set)
+	begin
+	      ff2_set <= KBD_CLK_i nand ff2_n_q;
+	end process;
+
 
 	LATCH1: process(thre,KBD_CLK_i)
 	begin
 	   if(thre = '1') then
-		latch_out <= KBD_CLK_i;
+		clk_counter <= KBD_CLK_i;
 	   end if;
 	end process LATCH1;
 
@@ -107,15 +115,25 @@ begin
            n_Q => open
         );
 	xd(7) <= '0';
+	xd(6 downto 0) <= counter(7 downto 1);
 
-	line_act <= data_buf(4);
-	l1 <= data_buf(3);
-	l2 <= data_buf(2);
-	l3 <= data_buf(1);
-	l4 <= data_buf(0);
-	local <= data_buf(5);
-	scan_request <= data_buf(6);
-	beep <= data_buf(7);
+	counter_proc: process(counter_clear,clk_counter)
+	begin
+	   if(counter_clear = '1') then
+		counter <= (others => '0');
+           elsif falling_edge(clk_counter) then
+		counter <= counter + 1;
+	   end if;
+	end process counter_proc;
+
+	line_act <= rd(4);
+	l1 <= rd(3);
+	l2 <= rd(2);
+	l3 <= rd(1);
+	l4 <= rd(0);
+	local <= rd(5);
+	scan_request <= rd(6);
+	beep <= rd(7);
 	LEDs <=  line_act & local & l1 & l2 & l3 & l4;
 	-- DB_0_o  <= data_out;
 
@@ -149,24 +167,13 @@ begin
 	  -----------------------------
 	    
 
-	scan_keys: process(clk_i) -- TODO
-	begin
-	if rising_edge(clk_i) and key_pressed = '1' then
-	    data_out <= '0' & key_in;
-        end if;
-	end process scan_keys;
+--	scan_keys: process(clk_i) -- TODO
+--	begin
+--	if rising_edge(clk_i) and key_pressed = '1' then
+--	    data_out <= '0' & key_in;
+--        end if;
+--	end process scan_keys;
 
-
-        rx_proc: process(data_avail)
-          variable TMP : std_ulogic_vector(7 downto 0) := (others => '0');
-        begin
-            TMP := TMP;
-            if(rising_edge(data_avail)) then 
-	  --LEDs <= data_in(5 downto 0);
-	      TMP := data_in;
-           end if;
-           data_buf <= TMP;
-        end process rx_proc;
 
 --debug_proc: process(clk_i)
 --begin

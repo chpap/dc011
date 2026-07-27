@@ -141,7 +141,7 @@ begin
      clk_i => clk_i,
      RX_KBD_o => RX_KBD,
      TX_KBD_i => TX_KBD,
-     KBD_CLK_i => '1', -- DEBUG
+     KBD_CLK_i => LBA_i(4), -- DEBUG
      LEDs => kbd_LEDs_o,
      ps2_clk => ps2_clk,
      ps2_data => ps2_data);
