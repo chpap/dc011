@@ -95,7 +95,7 @@ package dc0112_pkg is
   component clk_divider is
   generic (
       g_FREQ_DIV_MAX : integer := 10; --  maximum available frequency divisor value
-      BIT_WIDTH : integer       := integer(ceil(log2(real(g_FREQ_DIV_MAX  + 1))))
+      BIT_WIDTH : integer := 4
   ) ;
   port (
       i_clk : in std_ulogic; -- input clock signal
@@ -442,7 +442,7 @@ use ieee.math_real.all;
 entity clk_divider is
     generic (
         g_FREQ_DIV_MAX : integer := 10; -- maximum available frequency divisor value
-        BIT_WIDTH : integer := integer(ceil(log2(real(g_FREQ_DIV_MAX + 1))))
+        BIT_WIDTH : integer := 4
     );
     port (
         i_clk : in std_ulogic; -- input clock signal

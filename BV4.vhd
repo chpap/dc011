@@ -189,7 +189,9 @@ begin
     V1 <= (not BV1_GRAPHIC_1_IN_L_i) or (BV4_VIDEO_OUT_1_H_o and BV4_VERT_BLANK_L_o);
     V2 <= (not BV1_GRAPHIC_2_IN_L_i) or (BV4_VIDEO_OUT_2_H_o and BV4_VERT_BLANK_L_o);
     -- approximation of video analog circuit
-    J9_COMP_o <= (V2 & V1 & '0' & '1') and BV4_VERT_BLANK_L_o and  BV4_COMP_SYNC_L_o;
+    J9_COMP_o <= ((V2 and BV4_VERT_BLANK_L_o) & 
+    (V1 and BV4_VERT_BLANK_L_o) & '1' & '1') and  BV4_COMP_SYNC_L_o;
+    -- J9_COMP_o <= "0001" and BV4_COMP_SYNC_L_o;
     AD_LUT_32x10_INST: AD_LUT_32x10 port map (
          address => (DA),
 	 data_out => DA_CONV

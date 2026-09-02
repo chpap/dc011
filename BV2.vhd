@@ -29,7 +29,7 @@ entity BV2 is
       BV2_VID_WR_2L_o: out std_ulogic;
       BV2_DA_WR_L_o: out std_ulogic;
       BV2_WRITE_BAUD_H_o: out std_ulogic;
-      BV2_SEL_8_12K_L_o: out std_ulogic;
+      BV2_SEL_8_12K_L_o: buffer std_ulogic;
       BV2_SEL_ATT_RAM_L_o: out std_ulogic);
 
 
@@ -37,7 +37,7 @@ end BV2;
 architecture rtl of BV2 is
 	signal iomux_in: std_ulogic_vector(3 downto 0);
 	signal iomux_out: std_ulogic_vector(7 downto 0);
-	signal nvr_latch: std_ulogic_vector(5 downto 0);
+	signal nvr_latch: std_logic_vector(5 downto 0);
 	signal n_mem_dec_en: std_ulogic;
 	signal rom_select: std_ulogic;
 	signal memmux_out: std_ulogic_vector(7 downto 0);
@@ -85,7 +85,7 @@ begin
       if BV6_RESET_L_i = '0' then
              nvr_latch_next := (others => '0');
       end if;
-      nvr_latch <= nvr_latch_next;
+      nvr_latch <= std_logic_vector(nvr_latch_next);
     end process nvr_latch_proc; 
   BV2_n_SPDS_o <= nvr_latch(5);
 
@@ -128,11 +128,11 @@ begin
 -------------------------
 SRAM_INSTS: for i in 0 to 2 generate
   SRAM_INST: sram port map (
-      addr_i => A0_H_i(9 downto 0),
+      addr_i => std_logic_vector(A0_H_i(9 downto 0)),
       clk => clk_i,
-      data_i => DO_0_i,
+      data_i => std_logic_vector(DO_0_i),
       wren_i => wren(i),
-      data_o => D_mem_o(i)
+      std_ulogic_vector(data_o) => D_mem_o(i)
 );
 end generate;
 ROM_INST: bootrom 
@@ -142,9 +142,9 @@ generic map(
 BOOTROM_FILE => "roms/vt100.rom.hex"
 	   )
      port map (
-      addr_i => A0_H_i(12 downto 0),
+      addr_i => std_logic_vector(A0_H_i(12 downto 0)),
       clk => clk_i,
-      data_o => D_ROM
+      std_ulogic_vector(data_o) => D_ROM
 );
 -- rom_select  memmux_out(0-2)
 DB_0_o <= D_ROM when rom_select = '1' else

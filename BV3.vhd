@@ -37,6 +37,7 @@ entity BV3 is
       DEBUG     : out std_ulogic_vector(31 downto 0));
 end BV3;
 
+
 architecture rtl of BV3 is
 	signal xmit_data: std_ulogic;
 	signal rec_data: std_ulogic;
@@ -49,8 +50,8 @@ begin
    I8251A_INST: i8251A port map(
         clk_i => BV6_F2_TTL_i,
         reset_i => BV6_RESET_H_i,
-        D_i => DB_0_i,
-        D_o => DB_0_o,
+        D_i => std_logic_vector(DB_0_i),
+        std_ulogic_vector(D_o) => DB_0_o,
         n_cs_i => A0_H_i(0),
         c_d_i => A0_H_i(1),
         rd_n_i => BV6_IO_RD_L_i,
