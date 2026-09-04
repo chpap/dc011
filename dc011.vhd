@@ -33,7 +33,10 @@ architecture behaviour of dc011 is
   signal clk_2hf: std_ulogic;
   signal char_clk_half: std_ulogic := '0';
   signal char_clk_delayed: std_ulogic;
-  signal vsr_ld_tmp: std_ulogic;
+  signal vsr_ld_double: std_ulogic;
+  signal vsr_ld_double_delayed: std_ulogic;
+  signal vsr_ld_single: std_ulogic;
+  signal vsr_ld_single_delayed: std_ulogic;
   signal vsr_ld_tmp_l: std_ulogic := '0';
   signal vsr_ld_tmp_h: std_ulogic := '0';
   signal n_vrst: std_ulogic;
@@ -211,8 +214,28 @@ begin
   dot_clock <= dot_clock_s when double_width = '0' else dot_clock_d;
   n_write_lb_o <= write_lb nand hold_req;
 -- vsr_ld MUX
-  vsr_ld_tmp <= dot_div(0) and (not dot_div(1)) and (not dot_div(2)) and dot_div(3) when mode80 = '1' else (nor dot_div(3 downto 0));
-  vsr_ld_o <= vsr_ld_tmp  when double_width = '0' else char_clk_half and not char_clk_delayed;
+  vsr_ld_single <= dot_div(0) and (not dot_div(1)) and (not dot_div(2)) and dot_div(3) when mode80 = '1' else (nor dot_div(3 downto 0));
+    delay_inst_single: delay
+    generic map(CYCLES => 1, 
+            WIDTH => 1)
+    port map(clk => clk_in,
+         rst => reset_count,
+         en  => '1',
+         input => ""&vsr_ld_single, 
+         output(0) => vsr_ld_single_delayed
+    );
+  vsr_ld_double <= char_clk_half and not char_clk_delayed;
+  vsr_ld_o <= vsr_ld_single_delayed  when double_width = '0' else vsr_ld_double_delayed;
+
+    delay_inst_double: delay
+    generic map(CYCLES => 1, 
+            WIDTH => 1)
+    port map(clk => dot_clock_d,
+         rst => reset_count,
+         en  => '1',
+         input => ""&vsr_ld_double, 
+         output(0) => vsr_ld_double_delayed
+    );
 --------------------------------------------------------------  
 
   comp_sync_o <= comp_sync;

@@ -137,9 +137,9 @@ SRAM_INSTS: for i in 0 to 2 generate
 end generate;
 ROM_INST: bootrom 
 generic map(
---BOOTROM_FILE => "roms/vt100.rom.nomemtest.hex"
+BOOTROM_FILE => "roms/vt100.rom.nomemtest.hex"
 --BOOTROM_FILE => "roms/vt100.rom.noromtest.hex"
-BOOTROM_FILE => "roms/vt100.rom.hex"
+--BOOTROM_FILE => "roms/vt100.rom.hex"
 	   )
      port map (
       addr_i => std_logic_vector(A0_H_i(12 downto 0)),

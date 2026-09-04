@@ -47,9 +47,9 @@ begin
   process
   begin
     clk100_i <= '0';
-    wait for 10 ns;
+    wait for 5 ns;
     clk100_i <= '1';
-    wait for 10 ns;
+    wait for 5 ns;
   end process;
 
   process

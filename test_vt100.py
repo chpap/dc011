@@ -37,7 +37,7 @@ async def vt100_simple_test(dut):
     clock.start(start_high=False)
     clock24_8 = Clock(dut.clk_24_88, 41.6, unit="ns")
     clock24_8.start(start_high=False)
-    clock24 = Clock(dut.clk_24_07, 41.5396, unit="ns")
+    clock24 = Clock(dut.clk_24_07, 41.539622, unit="ns")
     clock24.start(start_high=False)
     dut.n_reset_i.value = "0"
     dut.clk_locked.value = "1"
