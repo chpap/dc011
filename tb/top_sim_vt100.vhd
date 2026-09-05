@@ -6,8 +6,10 @@ use ieee.numeric_std.all;
 use work.dc0112_pkg.all;
 use work.vt100_pkg.all;
 
-entity top_vt100  is
+entity top_sim_vt100  is
     port(clk100: in std_logic;
+     clk_24_07:   in std_ulogic;
+     clk_24_88:   in std_ulogic;
      hsync: out  std_logic;
      vsync: out  std_logic;
      n_reset_i: in std_logic;
@@ -34,10 +36,10 @@ entity top_vt100  is
     );
 end entity;
 
-architecture testbench of top_vt100  is
+architecture testbench of top_sim_vt100  is
   signal  clk_100:    std_ulogic :=  '0';
-  signal  clk_24_07:    std_ulogic :=  '0';
-  signal  clk_24_88:    std_ulogic :=  '0';
+--  signal  clk_24_07:    std_ulogic :=  '0';
+--  signal  clk_24_88:    std_ulogic :=  '0';
   signal  clk_6_25:    std_ulogic :=  '0';
   signal  clk_locked:    std_ulogic :=  '0';
   signal  dot_clock:    std_ulogic;
@@ -99,15 +101,15 @@ begin
     
 -- synthesis translate_on
 
-  plle2_inst: clk_plle2
-    port map(clk_100 => clk_100,
-    clk_24_88 => clk_24_88,
-    clk_24_07 => clk_24_07,
-    clk_6_25 => clk_6_25,
-    reset => not n_reset_i,
-    locked => clk_locked,
-    clk_in => clk100
-    );
+--  plle2_inst: clk_plle2
+--    port map(clk_100 => clk_100,
+--    clk_24_88 => clk_24_88,
+--    clk_24_07 => clk_24_07,
+--    clk_6_25 => clk_6_25,
+--    reset => not n_reset_i,
+--    locked => clk_locked,
+--    clk_in => clk100
+--    );
 
   vt100_inst: vt100
     port map(
