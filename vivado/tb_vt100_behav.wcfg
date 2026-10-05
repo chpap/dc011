@@ -15,15 +15,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="197,955.416055 us"></ZoomStartTime>
-      <ZoomEndTime time="200,408.916790 us"></ZoomEndTime>
-      <Cursor1Time time="200,000.000000 us"></Cursor1Time>
+      <ZoomStartTime time="194.726290726 ms"></ZoomStartTime>
+      <ZoomEndTime time="201.054741855 ms"></ZoomEndTime>
+      <Cursor1Time time="200.000000000 ms"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="129"></NameColumnWidth>
-      <ValueColumnWidth column_width="122"></ValueColumnWidth>
+      <ValueColumnWidth column_width="114"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="14" />
+   <WVObjectSize size="21" />
    <wvobject fp_name="/tb_vt100/clk100_i" type="logic">
       <obj_property name="ElementShortName">clk100_i</obj_property>
       <obj_property name="ObjectShortName">clk100_i</obj_property>
@@ -43,7 +43,6 @@
    <wvobject fp_name="/tb_vt100/dut/videog" type="array">
       <obj_property name="ElementShortName">videog[3:0]</obj_property>
       <obj_property name="ObjectShortName">videog[3:0]</obj_property>
-      <obj_property name="isExpanded"></obj_property>
    </wvobject>
    <wvobject fp_name="/tb_vt100/dut/vt100_inst/J9_COMP" type="array">
       <obj_property name="ElementShortName">J9_COMP[3:0]</obj_property>
@@ -80,5 +79,33 @@
    <wvobject fp_name="/tb_vt100/dut/vt100_inst/BV4_INST/BV4_HORIZ_BLK_H_o" type="logic">
       <obj_property name="ElementShortName">BV4_HORIZ_BLK_H_o</obj_property>
       <obj_property name="ObjectShortName">BV4_HORIZ_BLK_H_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_vt100/dut/vt100_inst/BV6_INST/KB_UART_INST/LEDs" type="array">
+      <obj_property name="ElementShortName">LEDs[5:0]</obj_property>
+      <obj_property name="ObjectShortName">LEDs[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_vt100/dut/vt100_inst/BV6_INST/KB_UART_INST/rd" type="array">
+      <obj_property name="ElementShortName">rd[7:0]</obj_property>
+      <obj_property name="ObjectShortName">rd[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_vt100/dut/vt100_inst/BV6_INST/KB_UART_INST/xd" type="array">
+      <obj_property name="ElementShortName">xd[7:0]</obj_property>
+      <obj_property name="ObjectShortName">xd[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_vt100/dut/vt100_inst/BV6_INST/KB_UART_INST/counter" type="array">
+      <obj_property name="ElementShortName">counter[7:0]</obj_property>
+      <obj_property name="ObjectShortName">counter[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_vt100/dut/vt100_inst/BV6_INST/i8xxx_inst/a_o" type="array">
+      <obj_property name="ElementShortName">a_o[15:0]</obj_property>
+      <obj_property name="ObjectShortName">a_o[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_vt100/dut/vt100_inst/BV6_INST/i8xxx_inst/d_i" type="array">
+      <obj_property name="ElementShortName">d_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">d_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_vt100/dut/vt100_inst/BV6_INST/i8xxx_inst/d_o" type="array">
+      <obj_property name="ElementShortName">d_o[7:0]</obj_property>
+      <obj_property name="ObjectShortName">d_o[7:0]</obj_property>
    </wvobject>
 </wave_config>
