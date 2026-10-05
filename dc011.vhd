@@ -230,7 +230,7 @@ begin
     delay_inst_double: delay
     generic map(CYCLES => 1, 
             WIDTH => 1)
-    port map(clk => dot_clock_d,
+    port map(clk => dot_clock_s,
          rst => reset_count,
          en  => '1',
          input => ""&vsr_ld_double, 

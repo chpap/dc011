@@ -54,6 +54,7 @@ architecture rtl of BV6 is
    signal TX_KBD : std_ulogic;
    signal flag_buffer: std_ulogic_vector(7 downto 0);
    signal debug_i8xxx: std_ulogic_vector(31 downto 0);
+   signal debug_kb: std_ulogic_vector(31 downto 0);
    signal intr_buffer: std_ulogic_vector(7 downto 0);
    signal BV6_KBD_DATA_AVAIL_H: std_ulogic;
    signal DB_0: std_ulogic_vector(7 downto 0);
@@ -144,7 +145,8 @@ begin
      KBD_CLK_i => LBA_i(4), -- DEBUG
      LEDs => kbd_LEDs_o,
      ps2_clk => ps2_clk,
-     ps2_data => ps2_data);
+     ps2_data => ps2_data,
+     DEBUG => debug_kb);
 
    BV6_RESET_H_o <= BV6_RESET_H;
    BV6_MEM_RD_L_o <= BV6_MEM_RD_L and not BV4_DMA_ENA_H_i;
@@ -175,6 +177,6 @@ begin
 	   D_KB_UART when BV2_KBD_RD_L_i = '0' else
 	   (others => '0' );
 
-   DEBUG <= DB_0_i & DO_0_o & A0_H_o;
-
+   --DEBUG <= DB_0_i & DO_0_o & A0_H_o;
+   DEBUG <= debug_kb;
 end rtl;
