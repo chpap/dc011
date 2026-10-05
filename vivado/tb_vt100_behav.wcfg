@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_vt100_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="dc0112_pkg" />
+            <top_module name="glbl" />
+            <top_module name="tb_vt100" />
+            <top_module name="utils_pkg" />
+            <top_module name="vt100_pkg" />
+            <top_module name="xilinx_block_ram_pkg" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="197,955.416055 us"></ZoomStartTime>
+      <ZoomEndTime time="200,408.916790 us"></ZoomEndTime>
+      <Cursor1Time time="200,000.000000 us"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="129"></NameColumnWidth>
+      <ValueColumnWidth column_width="122"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="14" />
+   <wvobject fp_name="/tb_vt100/clk100_i" type="logic">
+      <obj_property name="ElementShortName">clk100_i</obj_property>
+      <obj_property name="ObjectShortName">clk100_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_vt100/clk_24_07_i" type="logic">
+      <obj_property name="ElementShortName">clk_24_07_i</obj_property>
+      <obj_property name="ObjectShortName">clk_24_07_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_vt100/clk_24_88_i" type="logic">
+      <obj_property name="ElementShortName">clk_24_88_i</obj_property>
+      <obj_property name="ObjectShortName">clk_24_88_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_vt100/reset_i" type="logic">
+      <obj_property name="ElementShortName">reset_i</obj_property>
+      <obj_property name="ObjectShortName">reset_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_vt100/dut/videog" type="array">
+      <obj_property name="ElementShortName">videog[3:0]</obj_property>
+      <obj_property name="ObjectShortName">videog[3:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_vt100/dut/vt100_inst/J9_COMP" type="array">
+      <obj_property name="ElementShortName">J9_COMP[3:0]</obj_property>
+      <obj_property name="ObjectShortName">J9_COMP[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_vt100/dut/vt100_inst/comp_sync" type="logic">
+      <obj_property name="ElementShortName">comp_sync</obj_property>
+      <obj_property name="ObjectShortName">comp_sync</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_vt100/dut/vt100_inst/BV4_INST/DC011_INT/comp_sync" type="logic">
+      <obj_property name="ElementShortName">comp_sync</obj_property>
+      <obj_property name="ObjectShortName">comp_sync</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_vt100/dut/vt100_inst/BV4_INST/BV4_COMP_SYNC_L_o" type="logic">
+      <obj_property name="ElementShortName">BV4_COMP_SYNC_L_o</obj_property>
+      <obj_property name="ObjectShortName">BV4_COMP_SYNC_L_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_vt100/dut/vt100_inst/BV4_INST/BV4_COMP_SYNC_L_o" type="logic">
+      <obj_property name="ElementShortName">BV4_COMP_SYNC_L_o</obj_property>
+      <obj_property name="ObjectShortName">BV4_COMP_SYNC_L_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_vt100/dut/vt100_inst/BV4_INST/DC011_INT/clk_in" type="logic">
+      <obj_property name="ElementShortName">clk_in</obj_property>
+      <obj_property name="ObjectShortName">clk_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_vt100/dut/vt100_inst/BV4_INST/V1" type="logic">
+      <obj_property name="ElementShortName">V1</obj_property>
+      <obj_property name="ObjectShortName">V1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_vt100/dut/vt100_inst/BV4_INST/V2" type="logic">
+      <obj_property name="ElementShortName">V2</obj_property>
+      <obj_property name="ObjectShortName">V2</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_vt100/dut/vt100_inst/BV4_INST/BV4_HORIZ_BLK_H_o" type="logic">
+      <obj_property name="ElementShortName">BV4_HORIZ_BLK_H_o</obj_property>
+      <obj_property name="ObjectShortName">BV4_HORIZ_BLK_H_o</obj_property>
+   </wvobject>
+</wave_config>
