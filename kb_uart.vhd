@@ -59,7 +59,7 @@ architecture rtl of kb_uart is
       ascii_code     : OUT STD_LOGIC_VECTOR(6 DOWNTO 0)); --code received from PS/2
   END COMPONENT;
 begin
-------------------------
+-----------------------
     ps2_keyboard_0:  ps2_keyboard_to_ascii
     GENERIC MAP(clk_freq => clk_freq, debounce_counter_size => ps2_debounce_counter_size)
     PORT MAP(clk => clk_i, ps2_clk => ps2_clk, ps2_data => ps2_data, ascii_new => ps2_code_new, ascii_code => ps2_code(6 downto 0));
@@ -195,7 +195,7 @@ begin
 
     match_proc: process(counter,ps2_code) -- TODO
 	begin  
-      if (ps2_code = counter and ps2_code_new = '1') or (counter = x"7F") then
+      if (ps2_code = counter(7 downto 1) and ps2_code_new = '1') or (counter(7 downto 1) = x"7F") then
 	        n_counter_match <= '0';
 	  else
 	        n_counter_match <= '1';         

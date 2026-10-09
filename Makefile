@@ -23,17 +23,17 @@ X11_LIB_DIR = /opt/homebrew/lib
 TOP_VERILOG = i8xxx.v
 TOP_MODULE = $(VT100_TOP_MODULE)
 TOP_VHDL = $(VT100_TOP_VHDL)
-VT100_TOP_VHDL = top_vt100.vhd
-VT100_TOP_MODULE = top_vt100
+VT100_TOP_VHDL = top_vt100_fb.vhd
+VT100_TOP_MODULE = top_vt100_fb
 #.gvi/i8xxx/i8xxx_wrapper.vhd 
 DC0112_SOURCES = dc0112_pkg.vhd delay.vhd vtiming.vhd htiming.vhd ff.vhd NtoMdiv.vhd hor_counter.vhd ver_counter.vhd dot_counter.vhd comp_sync_gen.vhd dc011.vhd dc012.vhd
 #UART_SOURCES = ext/uart-for-fpga/rtl/comp/*.vhd ext/uart-for-fpga/rtl/uart.vhd ext/uart-for-fpga/examples/common/*.vhd  ext/uart-for-fpga/examples/loopback/*.vhd 
 UART_SOURCES = TR1602.vhd i8251a.vhd
 VT100_VHDL_SOURCES = $(DC0112_SOURCES) $(UART_SOURCES) utils_pkg.vhd xilinx_block_ram_pkg.vhd xilinx_block_ram.vhd sram.vhd \
-                      kb_uart.vhd er1400.vhd framebuffer.vhd x11_pkg.vhd \
-		      vt100_pkg.vhd comp_sync_gen.vhd \
+                     kb_uart.vhd er1400.vhd framebuffer.vhd x11_pkg.vhd \
+		     vt100_pkg.vhd \
 		     fontrom.vhd  bootrom.vhd \
-		     debounce.vhd ps2_keyboard.vhd \
+		     debounce.vhd ps2_keyboard.vhd ps2_keyboard_to_ascii.vhd \
                      BV2.vhd BV3.vhd BV4.vhd BV5.vhd BV6.vhd AVO.vhd vt100.vhd  clk_plle2.vhd decod_component.vhd
 EXTRA_SIM_SOURCES = .gvi/i8xxx/i8xxx_wrapper.vhd
 #		.gvi/plle2_adv/plle2_adv_wrapper.vhd
