@@ -36,6 +36,7 @@ architecture rtl of vt100 is
   signal n_bold: std_ulogic;
   signal vid_in: std_ulogic;
   signal rxd0: std_ulogic;
+  signal txd0: std_ulogic;
 
   signal n_wr_o: std_ulogic;
 
@@ -154,9 +155,9 @@ begin
       DSR_i => '0',
       DTR_o => open,
       RTS_o => open,
-      TXD_o => open,
+      TXD_o => txd0,
       SPD_SEL_o => open,
-      RXD_i => '0',
+      RXD_i => rxd0,
       CTS_i => '0',
       SPDI_i => '0',
       RI_i => '0',
@@ -315,7 +316,7 @@ begin
    hsync_o <= not BV4_HORIZ_DRIVE_L;
    vsync_o <= not BV4_VERT_DRIVE_L;
    rxd0 <= rxd0_i;
-   txd0_o <= '0';
+   txd0_o <= txd0;
    dot_clock_o <= BV4_DOT_CLK_H;
    --dot_clock_o <= BV4_HORIZ_DRIVE_L;
 end;

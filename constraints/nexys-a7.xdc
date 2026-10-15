@@ -63,8 +63,8 @@ set_property -dict {PACKAGE_PIN D7 IOSTANDARD LVCMOS33} [get_ports {videob[2]}]
 set_property -dict {PACKAGE_PIN D8 IOSTANDARD LVCMOS33} [get_ports {videob[3]}]
 set_property -dict {PACKAGE_PIN B11 IOSTANDARD LVCMOS33} [get_ports hsync]
 set_property -dict {PACKAGE_PIN B12 IOSTANDARD LVCMOS33} [get_ports vsync]
-set_property -dict {PACKAGE_PIN C4 IOSTANDARD LVCMOS33} [get_ports txd0]
-set_property -dict {PACKAGE_PIN D4 IOSTANDARD LVCMOS33} [get_ports rxd0]
+#set_property -dict {PACKAGE_PIN C4 IOSTANDARD LVCMOS33} [get_ports txd0]
+#set_property -dict {PACKAGE_PIN D4 IOSTANDARD LVCMOS33} [get_ports rxd0]
 set_property -dict {PACKAGE_PIN F4 IOSTANDARD LVCMOS33} [get_ports ps2clk]
 set_property -dict {PACKAGE_PIN B2 IOSTANDARD LVCMOS33} [get_ports ps2data]
 ## This file is a general .xdc for the Nexys A7-100T
@@ -102,6 +102,8 @@ create_clock -period 10.000 -name sys_clk -waveform {0.000 5.000} -add [get_port
 
 ##Pmod Headers
 ##Pmod Header JA
+set_property -dict {PACKAGE_PIN C17 IOSTANDARD LVCMOS33} [get_ports rxd0]
+set_property -dict {PACKAGE_PIN D18 IOSTANDARD LVCMOS33} [get_ports txd0]
 #set_property -dict { PACKAGE_PIN C17   IOSTANDARD LVCMOS33 } [get_ports { JA[1] }]; #IO_L20N_T3_A19_15 Sch=ja[1]
 #set_property -dict { PACKAGE_PIN D18   IOSTANDARD LVCMOS33 } [get_ports { JA[2] }]; #IO_L21N_T3_DQS_A18_15 Sch=ja[2]
 #set_property -dict { PACKAGE_PIN E18   IOSTANDARD LVCMOS33 } [get_ports { JA[3] }]; #IO_L21P_T3_DQS_15 Sch=ja[3]

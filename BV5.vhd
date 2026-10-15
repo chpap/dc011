@@ -151,10 +151,26 @@ begin
    LATCH_PROC: process(BV4_CHAR_CLK_H_i)
    begin
      if rising_edge(BV4_CHAR_CLK_H_i) then
-	     screen_ram_latch <= DO_0_i;
-	     char_gen_latch <= char_gen_latch_in;
+   	     screen_ram_latch <= DO_0_i;
+   	     char_gen_latch <= char_gen_latch_in;
      end if;
    end process LATCH_PROC;
+--   ls273_screen: ls273
+--	port map (
+--		data_i => DO_0_i,	
+--		data_o => screen_ram_latch,
+--		clk_i => BV4_CHAR_CLK_H_i,
+--		n_clr_i => '1'
+--	);
+--   ls273_char: ls273
+--	port map (
+--		data_i => char_gen_latch_in,	
+--		data_o => char_gen_latch,
+--		clk_i => BV4_CHAR_CLK_H_i,
+--		n_clr_i => '1'
+--	);
+
+
    A0_H_o <= addr_latch_out when BV4_DMA_ENA_L_i = '0' else (others => '1');
     
    FONTROM_INST: fontrom 

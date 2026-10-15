@@ -338,6 +338,15 @@ package dc0112_pkg is
      debug_o: out  std_logic_vector(31 downto 0)
     );
   end component;
+  component ls273 is
+     port
+	(
+		data_i	: in std_logic_vector(7 downto 0);
+		data_o	: out std_logic_vector(7 downto 0);
+		clk_i	: in std_logic;
+		n_clr_i : in std_logic := '1'
+	);
+  end component;
 
 end package dc0112_pkg;
 ------------------------------------------------------------------------

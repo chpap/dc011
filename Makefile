@@ -33,6 +33,7 @@ VT100_VHDL_SOURCES = $(DC0112_SOURCES) $(UART_SOURCES) utils_pkg.vhd xilinx_bloc
                      kb_uart.vhd er1400.vhd framebuffer.vhd x11_pkg.vhd \
 		     vt100_pkg.vhd \
 		     fontrom.vhd  bootrom.vhd \
+		     74ls273.vhd \
 		     debounce.vhd ps2_keyboard.vhd ps2_keyboard_to_ascii.vhd \
                      BV2.vhd BV3.vhd BV4.vhd BV5.vhd BV6.vhd AVO.vhd vt100.vhd  clk_plle2.vhd decod_component.vhd
 EXTRA_SIM_SOURCES = .gvi/i8xxx/i8xxx_wrapper.vhd
