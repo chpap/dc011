@@ -14,6 +14,7 @@ entity top_vt100  is
      txd0: out std_logic;
      rxd0: in std_logic;
      btnc: in std_logic;
+     btnu: in std_logic;
      videor: out  std_logic_vector(3 downto 0);
      videog: out  std_logic_vector(3 downto 0);
      videob: out  std_logic_vector(3 downto 0);
@@ -123,6 +124,7 @@ begin
      hsync_o => hsync,
      vsync_o => vsync,
      btnc_i => btnc,
+     btnu_i => btnu,
      led_o => open,
      kbd_leds_o => kbd_led,
      sw_i => sw,

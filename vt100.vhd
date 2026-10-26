@@ -264,6 +264,7 @@ begin
       ps2_clk => ps2_clk,
       ps2_data => ps2_data,
       kbd_leds_o => kbd_leds_o,
+      btn1_i => btnu_i,
       DEBUG => debug_bv6
      );
     AVO_INST: AVO port map( 

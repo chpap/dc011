@@ -37,6 +37,7 @@ entity BV6 is
       ps2_clk	: inout std_ulogic;
       ps2_data  : inout std_ulogic;
       kbd_LEDs_o : out std_ulogic_vector(5 downto 0);
+      btn1_i    : in std_logic;
       DEBUG: out std_ulogic_vector(31 downto 0));
 end BV6;
 
@@ -144,6 +145,7 @@ begin
      TX_KBD_i => TX_KBD,
      KBD_CLK_i => LBA_i(4), -- DEBUG
      LEDs => kbd_LEDs_o,
+     btn1_i => btn1_i,
      ps2_clk => ps2_clk,
      ps2_data => ps2_data,
      DEBUG => debug_kb);
@@ -178,5 +180,10 @@ begin
 	   (others => '0' );
 
    --DEBUG <= DB_0_i & DO_0_o & A0_H_o;
-   DEBUG <= debug_kb;
+   DEBUG(15 downto 0) <= debug_kb(15 downto 0);
+   DEBUG(23 downto 16) <= D_KB_UART;
+   DEBUG(24) <= BV2_KBD_RD_L_i;
+   DEBUG(25) <= BV2_FLAG_RD_L_i;
+   DEBUG(26) <= BV6_MEM_RD_L_o;
+   DEBUG(27) <= BV6_MEM_WR_L_o;
 end rtl;
