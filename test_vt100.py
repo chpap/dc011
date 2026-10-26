@@ -30,7 +30,7 @@ async def start_clocks(dut):
 
 @cocotb.test()
 async def vt100_simple_test(dut):
-    """VT100 Test"""
+    """VT100 simple Test"""
     #task = cocotb.start_soon(sync_8080(dut))
     #task = cocotb.start_soon(start_clocks(dut))
     clock = Clock(dut.clk100, 10, unit="ns")
@@ -39,6 +39,7 @@ async def vt100_simple_test(dut):
     clock24_8.start(start_high=False)
     clock24 = Clock(dut.clk_24_07, 41.539622, unit="ns")
     clock24.start(start_high=False)
+    dut.btnu.value = "0"
     dut.n_reset_i.value = "0"
     dut.clk_locked.value = "1"
     # Create a 10us period clock driver on port `clk`

@@ -13,6 +13,7 @@ entity kb_uart is
       RX_KBD_o: out std_ulogic;
       TX_KBD_i: in std_ulogic;
       KBD_CLK_i: in std_ulogic;
+      btn1_i: in std_ulogic;
       ps2_clk	: inout std_ulogic;
       ps2_data  : inout std_ulogic;
       LEDs : out std_ulogic_vector(5 downto 0);
@@ -44,8 +45,10 @@ architecture rtl of kb_uart is
     signal data_strobe: std_ulogic;
     signal SPKR: std_ulogic;
     signal n_kbd_wr_r, n_kbd_wr_rr, n_kbd_wr_rrr, n_kbd_wr_ne : std_ulogic := '0';
+    SIGNAL ps2_code_new_org  : STD_LOGIC;                             --new PS2 code flag from ps2_keyboard component
     SIGNAL ps2_code_new      : STD_LOGIC;                             --new PS2 code flag from ps2_keyboard component
     SIGNAL ps2_code          : STD_LOGIC_VECTOR(7 DOWNTO 0);          --PS2 code input form ps2_keyboard component
+    SIGNAL ps2_testcode      : STD_LOGIC_VECTOR(7 DOWNTO 0) := (others=>'0');
  
     COMPONENT ps2_keyboard_to_ascii IS
     GENERIC(
@@ -62,13 +65,16 @@ begin
 -----------------------
     ps2_keyboard_0:  ps2_keyboard_to_ascii
     GENERIC MAP(clk_freq => clk_freq, debounce_counter_size => ps2_debounce_counter_size)
-    PORT MAP(clk => clk_i, ps2_clk => ps2_clk, ps2_data => ps2_data, ascii_new => ps2_code_new, ascii_code => ps2_code(6 downto 0));
+    PORT MAP(clk => clk_i, ps2_clk => ps2_clk, ps2_data => ps2_data, ascii_new => ps2_code_new_org, ascii_code => ps2_code(6 downto 0));
+    ps2_code_new <= ps2_code_new_org or btn1_i;
     ps2_proc: process(ps2_code_new)
 	begin
-       if rising_edge(ps2_code_new) then
-		 data_in <= ps2_code;
-		 DEBUG(7 downto 0) <= ps2_code;
-	   end if;
+        if rising_edge(ps2_code_new) then
+	      data_in <= ps2_code when btn1_i = '0' else
+		ps2_testcode;
+	      ps2_testcode <= ps2_testcode + 1;
+              DEBUG(7 downto 0) <= data_in;
+	end if;
 	end process ps2_proc;
 
     TR1602_INST_KB: TR1602
