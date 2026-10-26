@@ -2,6 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.vt100_pkg.all;
+use work.dc0112_pkg.all;
 
 entity BV6 is
    port( clk_i : in std_ulogic;
@@ -88,6 +89,29 @@ architecture rtl of BV6 is
       n_inta_o: out std_logic;
       debug_o: out std_logic_vector(31 downto 0));
    end component;
+   component T8080se is
+	generic(
+		Mode : integer := 2;    -- 0 => Z80, 1 => Fast Z80, 2 => 8080, 3 => GB
+		T2Write : integer := 0  -- 0 => WR_n active in T3, /=0 => WR_n active in T2
+	);
+	port(
+		RESET_n         : in std_logic;
+		CLK                     : in std_logic;
+		CLKEN           : in std_logic;
+		READY           : in std_logic;
+		HOLD            : in std_logic;
+		INT                     : in std_logic;
+		INTE            : out std_logic;
+		DBIN            : out std_logic;
+		SYNC            : out std_logic;
+		VAIT            : out std_logic;
+		HLDA            : out std_logic;
+		WR_n            : out std_logic;
+		A                       : out std_logic_vector(15 downto 0);
+		DI                      : in std_logic_vector(7 downto 0);
+		DO                      : out std_logic_vector(7 downto 0)
+	);
+   end component T8080se;
 
 begin
 --   i8xxx_inst: i8xxx port map( clk_i => clk_i,
@@ -131,15 +155,15 @@ begin
 		INT => int_i,
 		INTE => inte_i,
 		DBIN => dbin,
-		SYNC            : out std_logic;
+		SYNC => open,
 		VAIT => wait80,
 		HLDA => BV6_HLDA_H_o,
-		WR_n            : out std_logic;
+		WR_n => BV2_KBD_WR_L_i,
    		A => A0_H_o,
    		DI => DB_0,
    		DO => DO_0_o
 	);
-    BV6_RESET_H => not n_reset_i;
+    BV6_RESET_H <= not n_reset_i;
 
 
     TR1602_INST: TR1602

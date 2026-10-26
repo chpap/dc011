@@ -30,6 +30,7 @@ DC0112_SOURCES = dc0112_pkg.vhd delay.vhd vtiming.vhd htiming.vhd ff.vhd NtoMdiv
 #UART_SOURCES = ext/uart-for-fpga/rtl/comp/*.vhd ext/uart-for-fpga/rtl/uart.vhd ext/uart-for-fpga/examples/common/*.vhd  ext/uart-for-fpga/examples/loopback/*.vhd 
 UART_SOURCES = TR1602.vhd i8251a.vhd
 VT100_VHDL_SOURCES = $(DC0112_SOURCES) $(UART_SOURCES) utils_pkg.vhd xilinx_block_ram_pkg.vhd xilinx_block_ram.vhd sram.vhd \
+		     T80/*.vhd \
                      kb_uart.vhd er1400.vhd framebuffer.vhd x11_pkg.vhd \
 		     vt100_pkg.vhd \
 		     fontrom.vhd  bootrom.vhd \
