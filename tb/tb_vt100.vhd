@@ -29,6 +29,7 @@ architecture testbench of tb_vt100  is
      txd0: out std_logic;
      rxd0: in std_logic;
      btnc: in std_logic;
+     btnu: in std_logic;
      videor: out  std_logic_vector(3 downto 0);
      videog: out  std_logic_vector(3 downto 0);
      videob: out  std_logic_vector(3 downto 0);
@@ -66,6 +67,7 @@ begin
     vSync => vSync,
     sw => (others=>'1'),
     btnc => '1',
+    btnu => '1',
     ps2clk => open,
     ps2data => open
     );

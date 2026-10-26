@@ -324,6 +324,7 @@ package dc0112_pkg is
      txd0_o: out std_logic;
      rxd0_i: in std_logic;
      btnc_i: in std_logic;
+     btnu_i: in std_logic;
      videor_o: out  std_logic_vector(3 downto 0);
      videog_o: out  std_logic_vector(3 downto 0);
      videob_o: out  std_logic_vector(3 downto 0);
@@ -586,6 +587,7 @@ entity vt100 is
 	     txd0_o: out std_logic;
 	     rxd0_i: in std_logic;
 	     btnc_i: in std_logic;
+	     btnu_i: in std_logic;
 	     videor_o: out  std_logic_vector(3 downto 0);
 	     videog_o: out  std_logic_vector(3 downto 0);
 	     videob_o: out  std_logic_vector(3 downto 0);

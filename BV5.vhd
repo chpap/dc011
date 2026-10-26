@@ -198,7 +198,7 @@ begin
    VSR_PROC: process(BV4_DOT_CLK_H_i,BV4_VSR_LOAD_H_i)
    begin
       if(BV4_VSR_LOAD_H_i = '1') then
-          video_shift_reg <= char_gen_data(7 downto 1) & video_shift_reg(7);
+          video_shift_reg <= video_shift_reg(7) & char_gen_data(7 downto 1);
       elsif rising_edge(BV4_DOT_CLK_H_i) then
           video_shift_reg <= std_ulogic_vector(shift_left(unsigned(video_shift_reg),1)) or ("0000000" & SR) ;
       end if;
