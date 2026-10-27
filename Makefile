@@ -38,7 +38,7 @@ VT100_VHDL_SOURCES = $(DC0112_SOURCES) $(UART_SOURCES) utils_pkg.vhd xilinx_bloc
                      BV2.vhd BV3.vhd BV4.vhd BV5.vhd BV6.vhd AVO.vhd vt100.vhd  clk_plle2.vhd decod_component.vhd
 EXTRA_SIM_SOURCES = .gvi/i8xxx/i8xxx_wrapper.vhd
 #		.gvi/plle2_adv/plle2_adv_wrapper.vhd
-VT100_VERILOG_SOURCES = vm80a/i8xxx.v vm80a/vm80a.v vm80a/i8224.v vm80a/i8228.v $(PLLE2_FILES)
+VT100_VERILOG_SOURCES = vm80a/i8xxx.v vm80a/i8080.v vm80a/vm80a.v vm80a/i8224.v vm80a/i8228.v $(PLLE2_FILES)
 PLLE2_FILES = pll/plle2_adv_wrapper.v
 #VT100_VERILOG_SOURCES = vm80a/i8xxx_dummy.v  vm80a/i8224.v
 #VERILOG_SOURCES = $(BUILD_DIR)/$(PROJECT).v
@@ -70,9 +70,9 @@ WAVES ?= 1
 SIM ?= ghdl         # Verilog simulator
 TOPLEVEL_LANG ?= vhdl
 COCOTB_HDL_TIMEPRECISION ?= 1ps
-###COCOTB_TEST_MODULES ?= test_i8xxx
+##COCOTB_TEST_MODULES ?= test_i8xxx
 COCOTB_TEST_MODULES ?= test_vt100
-#COCOTB_TOPLEVEL ?= i8xxx
+##COCOTB_TOPLEVEL ?= i8xxx
 COCOTB_TOPLEVEL ?= $(VT100_TOP_MODULE)
 # Include the Cocotb make rules
 include $(shell cocotb-config --makefiles)/Makefile.sim

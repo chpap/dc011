@@ -42,7 +42,7 @@ async def i8xxx_simple_test(dut):
     await RisingEdge(dut.clk24_i)
     await Timer(200, unit="ns")
     dut.n_reset_i.value = "0"
-    await Timer(1, unit="ms")
+    await Timer(10, unit="ms")
 
     # Check the final input on the next clock
     #await RisingEdge(dut.clk)

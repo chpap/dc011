@@ -33,7 +33,8 @@ module i8228(
 
     assign n_memr_o = reset_out | n_memr_int;
     assign n_ior_o = reset_out | n_ior_int;
-    assign n_inta_o = reset_out | n_inta_int;
+    //assign n_inta_o = reset_out | n_inta_int;
+    assign n_inta_o = n_inta_int;
 
     always @(posedge hlda_i) begin
 	    db_i_int_hold = db_i;

@@ -55,6 +55,7 @@ architecture rtl of BV6 is
    signal TX_KBD : std_ulogic;
    signal flag_buffer: std_ulogic_vector(7 downto 0);
    signal debug_i8xxx: std_ulogic_vector(31 downto 0);
+   signal debug_i8080: std_ulogic_vector(31 downto 0);
    signal debug_kb: std_ulogic_vector(31 downto 0);
    signal intr_buffer: std_ulogic_vector(7 downto 0);
    signal BV6_KBD_DATA_AVAIL_H: std_ulogic;
@@ -62,22 +63,25 @@ architecture rtl of BV6 is
    signal D_FLAG_BUF : std_ulogic_vector(7 downto 0) := (others => '0');
    signal D_INT_VEC_BUF : std_ulogic_vector(7 downto 0) := (others => '0');
    signal D_KB_UART : std_ulogic_vector(7 downto 0);
+   signal D_80_int_i: std_ulogic_vector(7 downto 0);
+   signal D_80_int_o: std_ulogic_vector(7 downto 0);
+   signal clk_f1  : std_ulogic;
+   signal clk_f2  : std_ulogic;
 
    component i8xxx is
    port( clk_i : in std_logic;
-      clk24_i    : in  std_logic;
-      n_reset_i : in std_logic;
-      f2_ttl_o  : out std_ulogic;
-      a_o     : out std_logic_vector(15 downto 0);
+      clk24_i  : in  std_logic;
+      n_reset_i: in std_logic;
+      clk_f1  : out std_ulogic;
+      clk_f2  : out std_ulogic;
+      f2_ttl_o: out std_ulogic;
       d_i     : in std_logic_vector(7 downto 0);
       d_o     : out std_logic_vector(7 downto 0);
+      d80_i     : in std_logic_vector(7 downto 0);
+      d80_o     : out std_logic_vector(7 downto 0);
       hold_i  : in  std_logic;
-      hlda_o  : out std_logic;
-      ready_i : in  std_logic;
-      wait_o  : out std_logic;
-      int_i   : in  std_logic;
-      inte_o  : out std_logic;
-      dbin_o  : out std_logic;
+      hlda_i  : in std_logic;
+      dbin_i  : in std_logic;
       reset_o : out std_logic;
       n_stsb_o: out std_logic;
       n_memr_o: out std_logic;
@@ -88,21 +92,39 @@ architecture rtl of BV6 is
       debug_o: out std_logic_vector(31 downto 0));
    end component;
 
+   component i8080 is
+   port( clk_i : in std_logic;
+      clk_f1  : in std_ulogic;
+      clk_f2  : in std_ulogic;
+      reset_i : in std_logic;
+      a_o     : out std_logic_vector(15 downto 0);
+      d_i     : in std_logic_vector(7 downto 0);
+      d_o     : out std_logic_vector(7 downto 0);
+      hold_i  : in  std_logic;
+      hlda_o  : out std_logic;
+      ready_i : in  std_logic;
+      wait_o  : out std_logic;
+      int_i   : in  std_logic;
+      inte_o  : out std_logic;
+      dbin_o  : out std_logic;
+      debug_o: out std_logic_vector(31 downto 0));
+   end component;
+
 begin
    i8xxx_inst: i8xxx port map( clk_i => clk_i,
    clk24_i => clk24_i,
+   clk_f1 => clk_f1,
+   clk_f2 => clk_f2,
    n_reset_i => n_reset_i,
    f2_ttl_o  => BV6_F2_TTL_o,
-   a_o => A0_H_o,
+   --a_o => A0_H_o,
    d_i => DB_0,
    d_o => DO_0_o,
+   d80_i => D_80_int_o,
+   d80_o => D_80_int_i,
    hold_i => BV4_T_HOLD_REQ_H_i,
-   hlda_o => BV6_HLDA_H_o,
-   ready_i => ready,
-   wait_o => wait80,
-   int_i => BV6_INTR_H,
-   inte_o => inte, 
-   dbin_o => dbin,
+   hlda_i => BV6_HLDA_H_o,
+   dbin_i => dbin,
    reset_o => BV6_RESET_H,
    n_stsb_o => n_stsb,
    n_memr_o => BV6_MEM_RD_L,
@@ -111,6 +133,23 @@ begin
    n_iow_o => BV6_IO_WR_L_o,
    n_inta_o => BV6_INTA_L_o,
    debug_o => debug_i8xxx
+);
+
+   i8080_inst: i8080 port map( clk_i => clk_i,
+   clk_f1 => clk_f1,
+   clk_f2 => clk_f2,
+   reset_i => BV6_RESET_H,
+   a_o => A0_H_o,
+   d_i => D_80_int_i,
+   d_o => D_80_int_o,
+   hold_i => BV4_T_HOLD_REQ_H_i,
+   hlda_o => BV6_HLDA_H_o,
+   ready_i => ready,
+   wait_o => wait80,
+   int_i => BV6_INTR_H,
+   inte_o => inte, 
+   dbin_o => dbin,
+   debug_o => debug_i8080
 );
 
     TR1602_INST: TR1602
