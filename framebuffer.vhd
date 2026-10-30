@@ -37,12 +37,21 @@ architecture behavioural of fb is
 begin
   process(pixel_clock_i,hsync_i,vsync_i)
   begin
+    
+    
+    if rising_edge(vsync_i) then
+          y <= 0; --mod VIS_HEIGHT;
+    end if;
+
+    if rising_edge(hsync_i) then
+          x <= 0; --mod VIS_HEIGHT;
+          y <= (y + 1); --mod VIS_HEIGHT;
+    end if;
+
     if rising_edge(pixel_clock_i) then
        screen(y,x) := conv_integer(rgb24);
-       if(hsync_i = '1' or vsync_i = '1') then
-         x <= (x + 1) mod VIS_WIDTH;
-         if (x = 0) then 
-             y <= (y + 1) mod VIS_HEIGHT;
+       if(hsync_i = '0') then 
+         x <= (x + 1); --  mod VIS_WIDTH;
 	     if ( x > maxx) then
 		     maxx <= x;
 	     end if;
@@ -58,7 +67,7 @@ pcounter <= 0;
     else
 	    pcounter <= pcounter + 1;
     end if;
-    end if;   
+--    end if;   
    rgb24 <= (
       23 downto 16 => std_logic_vector(rgb_i(11 downto 8) & "0000"),
       15 downto 8  => std_logic_vector(rgb_i(7 downto 4) & "0000"),
