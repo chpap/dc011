@@ -1,3 +1,6 @@
 [submodule "ext/uart-for-fpga"]
 	path = ext/uart-for-fpga
 	url = https://github.com/jakubcabal/uart-for-fpga.git
+[submodule "T80"]
+	path = T80
+	url = https://github.com/mist-devel/T80.git
