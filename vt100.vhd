@@ -145,7 +145,7 @@ begin
       LBA_i => LBA,
       BV6_IO_WR_L_i => BV6_IO_WR_L,
       BV6_IO_RD_L_i => BV6_IO_RD_L,
-      BV6_RESET_H_i => not BV6_RESET_L,
+      BV6_RESET_H_i => BV6_RESET_H,
       BV6_F2_TTL_i => '0',
       BV3_XMIT_FLAG_H_o => BV3_XMIT_FLAG_H,
       BV3_REC_FLAG_H_o => BV3_REC_FLAG_H,
