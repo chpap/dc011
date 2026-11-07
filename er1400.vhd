@@ -34,13 +34,13 @@ process(clk_i)
 begin
   if rising_edge(clk_i) then
     case c_i is
-     when "000" => state <= Standby; 
-     when "011" => state <= Accept_Address;
-     when "100" => state <= Read;
-     when "101" => state <= Shift_Data_Out;
-     when "010" => state <= Erase;
-     when "111" => state <= Accept_Data; 
-     when "110" => state <= Write;
+     when "111" => state <= Standby; 
+     when "100" => state <= Accept_Address;
+     when "011" => state <= Read;
+     when "010" => state <= Shift_Data_Out;
+     when "101" => state <= Erase;
+     when "000" => state <= Accept_Data; 
+     when "001" => state <= Write;
      when others => state <= Not_Used; -- Default case (disable all)
     end case;
   end if;
