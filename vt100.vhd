@@ -47,6 +47,7 @@ architecture rtl of vt100 is
   signal BV1_BOLD_L : std_ulogic;
   signal BV1_ALT_CHAR_SEL_L : std_ulogic := '0';
   signal BV6_RESET_L  : std_ulogic;
+  signal BV6_RESET_H  : std_ulogic;
   signal BV6_IO_RD_L : std_ulogic;
   signal BV6_IO_WR_L : std_ulogic;
   signal BV6_MEM_WR_L: std_ulogic;
@@ -242,6 +243,7 @@ begin
       DO_0_o => DO_0,
       LBA_i => LBA,
       BV6_HLDA_H_o => BV6_HLDA_H,
+      BV6_RESET_H_o => BV6_RESET_H,
       BV4_DMA_ENA_H_i => not BV4_DMA_ENA_L,
       BV4_T_HOLD_REQ_H_i => BV4_T_HOLD_REQ_H,
       BV6_IO_RD_L_o => BV6_IO_RD_L,
@@ -292,6 +294,7 @@ begin
       AVO_SW_E19_8_i => '0',
       DEBUG => open
     );
+   BV6_RESET_L <= not BV6_RESET_H;
    ------ ADDRESS MUX
    A0_H <= AV0_H when BV6_HLDA_H = '1' else AC0_H;
    ------DATA MUX
