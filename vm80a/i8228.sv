@@ -1,16 +1,17 @@
 `timescale 1ns/1ps
 module delay #(
+    parameter WIDTH = 8,  // Number of clock cycles to delay (must be >= 1)
     parameter DELAY_CYCLES = 2  // Number of clock cycles to delay (must be >= 1)
 )(
     input  wire clk,            // System clock
     input  wire rst_n,          // Asynchronous active-low reset
-    input  wire sig_in,         // 1-bit input signal to be delayed
-    output wire sig_out         // 1-bit delayed output signal
+    input  wire [WIDTH-1:0]sig_in,         // 1-bit input signal to be delayed
+    output wire [WIDTH-1:0]sig_out         // 1-bit delayed output signal
 );
 
     // If delay is 1, we just need a single flip-flop.
     // For larger delays, we create a shift register chain.
-    reg [DELAY_CYCLES-1:0] shift_reg;
+    reg [DELAY_CYCLES-1:0][WIDTH-1:0] shift_reg;
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -46,21 +47,23 @@ module i8228(
 
     wire      reset_out; // reset output to 1
     wire      write_out; // enable output
-    wire[7:0] d_o_int;
+    wire      n_stsb_delay;
     wire[7:0] d_o_buf;
-    wire[7:0] db_o_buf;
-    reg [7:0] statusb = 8'b0;
+    wire[7:0] d_i_delay;
+    reg[7:0] statusb_buf;
+    reg[7:0] statusb = 8'b0;
     reg [7:0] db_i_int_hold = 8'b0; //input buffer latches
     reg       n_memw_int, n_memr_int, n_ior_int, n_iow_int, n_inta_int = 1'b1;
     reg       held_flag, hold_flag = 1'b0;
     reg       held_db_flag, db_flag = 1'b0;
 
-    assign db_o_buf = ~(n_busen_i | dbin_i | ~write_out) ? d_i: 8'bZ;
+    //assign db_o = ~(n_busen_i | n_wr_i |~write_out) ? d_i_delay: 8'bZ;
+    assign db_o = ~(n_busen_i | n_wr_i ) ? d_i_delay: 8'bZ;
     assign reset_out = (hold_flag ^ held_flag);
     assign write_out = (db_flag ^ held_db_flag) & ~(n_memw_o & n_iow_o);
 
-    assign d_o_int = (hlda_i) ? db_i_int_hold : db_i;
-    assign d_o_buf = (dbin_i) ? d_o_int: 8'bZ;
+    assign d_o_buf = (hlda_i) ? db_i_int_hold : db_i;
+    assign d_o = (dbin_i) ? d_o_buf: 8'bZ;
 
     assign n_memw_o = reset_out | n_wr_i | n_memw_int;
     assign n_iow_o = reset_out | n_wr_i | n_iow_int;
@@ -71,28 +74,39 @@ module i8228(
     delay DELAY_INST(
     .clk(clk_i),
     .rst_n(1),
-    .sig_in(db_o_buf),
-    .sig_out(db_o)
+    .sig_in(d_i),
+    .sig_out(d_i_delay)
     );
     delay DELAY_INST2(
     .clk(clk_i),
     .rst_n(1),
-    .sig_in(d_o_buf),
-    .sig_out(d_o)
+    .sig_in(statusb_buf),
+    .sig_out(statusb)
     );
-    //assign db_o = db_o_buf;
+//    delay DELAY_INST2(
+//    .clk(clk_i),
+//    .rst_n(1),
+//    .sig_in(n_stsb_i),
+//    .sig_out(n_stsb_delay)
+//    );
+    assign n_stsb_delay = n_stsb_i;
 
-    always @(posedge hlda_i) begin
-	    db_i_int_hold = db_i;
-	    hold_flag = ~hold_flag;
+    always @(posedge hlda_i or negedge dbin_i) begin
+	    if(!dbin_i) begin
+	      hold_flag = ~hold_flag;
+    	    end
+	    else begin
+	      hold_flag = ~hold_flag;
+	      db_i_int_hold = db_i;
+    	    end
     end
-    always @(negedge dbin_i) begin
-	    hold_flag = ~hold_flag;
-    end
+//    always @(negedge dbin_i) begin
+//	    hold_flag = ~hold_flag;
+//    end
 
 //latch status byte
     always @(negedge n_stsb_i) begin
-	statusb <= d_i;
+	statusb_buf <= d_i;
     end
     always @(posedge n_stsb_i) begin
 	    db_flag = ~db_flag;

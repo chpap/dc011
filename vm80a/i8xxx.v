@@ -105,6 +105,7 @@ assign dc_o_int = dena ? d80_o_int : 8'hZZ;
     );
 
 i8228 I8228_INST(
+    .clk_i(clk_i),
     .dbin_i(dbin),
     .n_wr_i(n_wr),
     .n_stsb_i(n_stsb),

@@ -34,8 +34,13 @@ foreach f $sources_vhd {
 }
 
 set sources_v [glob ./vm80a/*.v]
+set sources_sv [glob ./vm80a/*.sv]
 
 foreach f $sources_v {
+	read_verilog $f
+}
+
+foreach f $sources_sv {
 	read_verilog $f
 }
 

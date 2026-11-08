@@ -23,8 +23,8 @@ X11_LIB_DIR = /opt/homebrew/lib
 TOP_VERILOG = i8xxx.v
 TOP_MODULE = $(VT100_TOP_MODULE)
 TOP_VHDL = $(VT100_TOP_VHDL)
-VT100_TOP_VHDL = top_vt100_fb.vhd
-VT100_TOP_MODULE = top_vt100_fb
+VT100_TOP_VHDL = top_vt100.vhd
+VT100_TOP_MODULE = top_vt100
 #.gvi/i8xxx/i8xxx_wrapper.vhd 
 DC0112_SOURCES = dc0112_pkg.vhd delay.vhd vtiming.vhd htiming.vhd ff.vhd NtoMdiv.vhd hor_counter.vhd ver_counter.vhd dot_counter.vhd comp_sync_gen.vhd dc011.vhd dc012.vhd
 #UART_SOURCES = ext/uart-for-fpga/rtl/comp/*.vhd ext/uart-for-fpga/rtl/uart.vhd ext/uart-for-fpga/examples/common/*.vhd  ext/uart-for-fpga/examples/loopback/*.vhd 
@@ -38,7 +38,7 @@ VT100_VHDL_SOURCES = $(DC0112_SOURCES) $(UART_SOURCES) utils_pkg.vhd xilinx_bloc
                      BV2.vhd BV3.vhd BV4.vhd BV5.vhd BV6.vhd AVO.vhd vt100.vhd  clk_plle2.vhd decod_component.vhd
 EXTRA_SIM_SOURCES = .gvi/i8xxx/i8xxx_wrapper.vhd
 #		.gvi/plle2_adv/plle2_adv_wrapper.vhd
-VT100_VERILOG_SOURCES = vm80a/i8xxx.v vm80a/vm80a.v vm80a/i8224.v vm80a/i8228.v $(PLLE2_FILES)
+VT100_VERILOG_SOURCES = vm80a/i8xxx.v vm80a/vm80a.v vm80a/i8224.v vm80a/i8228.sv $(PLLE2_FILES)
 PLLE2_FILES = pll/plle2_adv_wrapper.v
 #VT100_VERILOG_SOURCES = vm80a/i8xxx_dummy.v  vm80a/i8224.v
 #VERILOG_SOURCES = $(BUILD_DIR)/$(PROJECT).v
