@@ -171,7 +171,7 @@ begin
 --	);
 
 
-   A0_H_o <= addr_latch_out when BV4_DMA_ENA_L_i = '0' else (others => '1');
+   A0_H_o <= addr_latch_out when BV4_DMA_ENA_L_i = '0' else (others => 'U');
     
    FONTROM_INST: fontrom 
    generic map(
@@ -195,7 +195,7 @@ begin
 ----------- fontrom selection
    char_gen_data <= char_gen_data_norm when BV1_ALT_CHAR_SEL_L_i = '1' else char_gen_data_alt;
 ---- VSR
-   VSR_PROC: process(BV4_DOT_CLK_H_i,BV4_VSR_LOAD_H_i)
+   VSR_PROC: process(BV4_DOT_CLK_H_i,BV4_VSR_LOAD_H_i,video_shift_reg,char_gen_data)
    begin
       if(BV4_VSR_LOAD_H_i = '1') then
           video_shift_reg <= video_shift_reg(7) & char_gen_data(7 downto 1);
@@ -254,10 +254,10 @@ begin
     char_gen_address(10 downto 4) <= char_gen_latch(6 downto 0);
     addr_counter_in(11 downto 8) <= char_gen_latch(3 downto 0);
     addr_counter_in(7 downto 0) <= screen_ram_latch;
-    lbuf_data_in <= screen_ram_latch when BV4_DMA_ENA_L_i = '0' else (others => '0');
+    lbuf_data_in <= screen_ram_latch when BV4_DMA_ENA_L_i = '0' else (others => 'U');
     char_gen_latch_in <= lbuf_data_out when (BV4_HOLD_REQ_H_i = '0') -- Output Disable <= 1 TODO check polarities? 
 			 else  screen_ram_latch when (BV4_DMA_ENA_L_i = '0') -- buffer en1 and 2 <= 0
-			 else (others => '0');
+			 else (others => 'U');
 
 
 

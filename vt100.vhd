@@ -211,7 +211,7 @@ begin
 
    BV5_INST: BV5 port map (
       clk_i => clk100_i,
-      DO_0_i  => DV_0,
+      DO_0_i  => DB_0,
       A0_H_o => AV0_H,
       LBA_i => LBA,
       BV4_SC_H_i  =>  BV4_SC_H ,
@@ -297,9 +297,9 @@ begin
     );
    BV6_RESET_L <= not BV6_RESET_H;
    ------ ADDRESS MUX
-   A0_H <= AV0_H when BV6_HLDA_H = '1' else AC0_H;
+   A0_H <= AV0_H when BV4_DMA_ENA_L = '0' else AC0_H;
    ------DATA MUX
-   DV_0 <= DB_0 when BV6_HLDA_H = '1'  else (others=>'1');
+   -- DV_0 <= DB_0 when BV6_HLDA_H = '1'  else (others=>'1');
    --------------------------------
    led_o(0) <= not BV4_CHAR_CLK_H;
    --led_o(0) <= not BV4_VERT_RESET_H;
