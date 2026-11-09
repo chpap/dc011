@@ -122,7 +122,7 @@ begin
           n_Q => ff2_n_q
         );
 
-        ff2set_proc: process(KBD_CLK_i,ff2_set)
+        ff2set_proc: process(KBD_CLK_i,ff2_set,ff2_n_q)
 	begin
 	      ff2_set <= KBD_CLK_i nand ff2_n_q;
 	end process;
@@ -209,7 +209,7 @@ begin
 	end process match_proc;
     KB2_KEY_DOWN_L <= n_counter_match;
 
-debug_proc: process(clk_i)
+debug_proc: process(clk_i,ps2_code_new)
 begin
   if(rising_edge(clk_i)) then
      DEBUG(8) <= ps2_code_new;

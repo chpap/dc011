@@ -42,6 +42,7 @@ begin
    BV1_MEM_DISABLE_L_o <= '1';
    BV1_ALT_CHAR_SEL_L_o <= '1';
    BV1_ADVANCED_VIDEO_L_o <= '1';
+   AVO_EN_PATCH_ROM_L_o <= '1';
 
    debug_proc: process(clk_i)
    begin

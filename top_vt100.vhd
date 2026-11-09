@@ -145,7 +145,7 @@ begin
    display(6) <= debug(7 downto 4);
    display(7) <= debug(3 downto 0);
 
-   led <= ( dot_clock, clk100, clk_24_07, clk_24_88, btnc , others => '0');
+   led <= ( dot_clock, clk100, clk_24_07, clk_24_88, btnc , debug(24), debug(25), debug(26), debug(27) , others => '0');
    ------------------
    process(dot_clock)
 	   variable counter: std_ulogic_vector(15 downto 0) := (others => '0');

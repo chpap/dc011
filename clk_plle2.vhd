@@ -84,29 +84,29 @@ begin
         RST      => reset,
         PWRDWN   => '0'
     );
-    clk_100 <= clk0_unbuffered;
-    clk_24_88 <= clk1_unbuffered;
-    clk_24_07<= clk2_unbuffered;
-    clk_6_25 <= clk3_unbuffered;
---    bufg_clk0 : BUFG
---    port map (
---       I => clk0_unbuffered,
---       O => clk_100
---       );
---    bufg_clk1 : BUFG
---    port map (
---       I => clk1_unbuffered,
---       O => clk_24_88
---       );
---    bufg_clk2 : BUFG
---    port map (
---       I => clk2_unbuffered,
---       O => clk_24_07
---       );
---    bufg_clk3 : BUFG
---    port map (
---       I => clk3_unbuffered,
---       O => clk_6_25
---       );
+--    clk_100 <= clk0_unbuffered;
+--    clk_24_88 <= clk1_unbuffered;
+--    clk_24_07<= clk2_unbuffered;
+--    clk_6_25 <= clk3_unbuffered;
+    bufg_clk0 : BUFG
+    port map (
+       I => clk0_unbuffered,
+       O => clk_100
+       );
+    bufg_clk1 : BUFG
+    port map (
+       I => clk1_unbuffered,
+       O => clk_24_88
+       );
+    bufg_clk2 : BUFG
+    port map (
+       I => clk2_unbuffered,
+       O => clk_24_07
+       );
+    bufg_clk3 : BUFG
+    port map (
+       I => clk3_unbuffered,
+       O => clk_6_25
+       );
 end architecture;
 
