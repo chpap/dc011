@@ -51,7 +51,7 @@ module i8228(
     wire[7:0] d_o_buf;
     wire[7:0] d_i_delay;
     reg[7:0] statusb_buf;
-    reg[7:0] statusb = 8'b0;
+    reg[7:0] statusb;
     reg [7:0] db_i_int_hold = 8'b0; //input buffer latches
     reg       n_memw_int, n_memr_int, n_ior_int, n_iow_int, n_inta_int = 1'b1;
     reg       held_flag, hold_flag = 1'b0;

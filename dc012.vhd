@@ -87,7 +87,7 @@ architecture behaviour of dc012 is
    signal vfreq_intr_ff: std_ulogic := '0';
    signal intr_clear: std_ulogic := '0';
    signal hblank_ff: std_ulogic := '0';
-   signal hblank_dc12: std_ulogic;
+   signal n_hblank_dc12: std_ulogic;
    signal n_term_ff: std_ulogic := '0';
    signal vid_in_delayed: std_ulogic := '0';
    signal scroll_gate1out: std_ulogic;
@@ -258,8 +258,8 @@ begin
       D => hblank_i,
       S => n_term_ff,
       clk_i => char_clk_i,
-      Q => hblank_dc12,
-      n_Q => open
+      Q => open,
+      n_Q => n_hblank_dc12
      );
 
 --  -- TERM  FF
@@ -347,8 +347,8 @@ begin
      f_vid_out(D) when "00", -- BG after term_i and revvid
      f_vid_out(O) when others; -- FG afer term_i and revvid
 
-   vid1out_o <= hblank_dc12 and vidout(0);
-   vid2out_o <= hblank_dc12 and vidout(1);
+   vid1out_o <= n_hblank_dc12 and vidout(0);
+   vid2out_o <= n_hblank_dc12 and vidout(1);
 
 end architecture;
 -----------------------------------------

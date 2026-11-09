@@ -136,16 +136,17 @@ begin
 
    ca <= segment(7); cb <= segment(6); cc <= segment(5); cd <= segment(4); 
    ce <= segment(3); cf <= segment(2); cg <= segment(1); dp <= segment(0);
-   display(0) <= debug(31 downto 28);
-   display(1) <= debug(27 downto 24);
-   display(2) <= debug(23 downto 20);
-   display(3) <= debug(19 downto 16);
+   display(0) <= "0000"; --debug(31 downto 28);
+   display(1) <= "0000"; --debug(27 downto 24);
+   display(2) <= "0000"; --debug(23 downto 20);
+   display(3) <= "0000"; --debug(19 downto 16);
    display(4) <= debug(15 downto 12);
    display(5) <= debug(11 downto 8);
    display(6) <= debug(7 downto 4);
    display(7) <= debug(3 downto 0);
 
-   led <= ( dot_clock, clk100, clk_24_07, clk_24_88, btnc , debug(24), debug(25), debug(26), debug(27) , others => '0');
+   --led <= ( dot_clock, clk100, clk_24_07, clk_24_88, btnc , debug(24), debug(25), debug(26), debug(27) , others => '0');
+   led <= ( btnc , debug(24), debug(25), debug(26), debug(27) , others => '0');
    ------------------
    process(dot_clock)
 	   variable counter: std_ulogic_vector(15 downto 0) := (others => '0');
